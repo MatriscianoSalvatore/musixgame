@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.ripple.rememberRipple
@@ -22,7 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
@@ -155,9 +159,9 @@ class MainActivity : ComponentActivity() {
                 ) {
 
 
-                    MusixGameTextField()
+                    MusixGameTextField("email", TextfieldType.EMAIL)
 
-                    MusixGameTextField()
+                    MusixGameTextField("password", TextfieldType.PASSWORD)
 
 
 
@@ -202,11 +206,11 @@ class MainActivity : ComponentActivity() {
 
                 ) {
 
-                    MusixGameTextField()
+                    MusixGameTextField("name and surname", TextfieldType.TEXT)
 
-                    MusixGameTextField()
+                    MusixGameTextField("email", TextfieldType.EMAIL)
 
-                    MusixGameTextField()
+                    MusixGameTextField("password", TextfieldType.PASSWORD)
 
 
 
@@ -234,7 +238,7 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun MusixGameTextField() {
+    fun MusixGameTextField(hint: String, textfieldType: TextfieldType) {
         val textState = remember { mutableStateOf(TextFieldValue()) }
         TextField(
             modifier = Modifier
@@ -242,8 +246,14 @@ class MainActivity : ComponentActivity() {
             value = textState.value,
             onValueChange = { textState.value = it },
             colors = TextFieldDefaults.textFieldColors(
-                textColor = Color(0xFFFFFFFF)
-            )
+                textColor = Color(0xFFFFFFFF),
+                unfocusedLabelColor = Color(0x70FFFFFF),
+            ),
+            label = { Text(hint) },
+            visualTransformation = if (textfieldType == TextfieldType.PASSWORD) PasswordVisualTransformation() else VisualTransformation.None,
+            keyboardOptions = if (textfieldType == TextfieldType.PASSWORD) KeyboardOptions(keyboardType = KeyboardType.Password)
+            else if (textfieldType == TextfieldType.EMAIL) KeyboardOptions(keyboardType = KeyboardType.Email)
+                else KeyboardOptions(keyboardType = KeyboardType.Text),
         )
     }
 
@@ -286,6 +296,10 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun HomePreview() {
         HomeScreen(rememberNavController())
+    }
+
+    enum class TextfieldType {
+        TEXT, EMAIL, PASSWORD
     }
 
 }
