@@ -4,6 +4,9 @@ import android.content.Context
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
+import android.service.controls.ControlsProviderService.TAG
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -34,20 +37,32 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import java.time.format.TextStyle
 
 class MainActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             Navigation()
         }
+
     }
 
     @Composable
     fun LauncherScreen(navCtrl: NavController) {
+        auth = Firebase.auth
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            navCtrl.navigate("home_screen");
+        }
+
         MusixmatchPinkTheme() {
             Box(
                 modifier = Modifier
@@ -251,9 +266,11 @@ class MainActivity : ComponentActivity() {
             ),
             label = { Text(hint) },
             visualTransformation = if (textfieldType == TextfieldType.PASSWORD) PasswordVisualTransformation() else VisualTransformation.None,
-            keyboardOptions = if (textfieldType == TextfieldType.PASSWORD) KeyboardOptions(keyboardType = KeyboardType.Password)
+            keyboardOptions = if (textfieldType == TextfieldType.PASSWORD) KeyboardOptions(
+                keyboardType = KeyboardType.Password
+            )
             else if (textfieldType == TextfieldType.EMAIL) KeyboardOptions(keyboardType = KeyboardType.Email)
-                else KeyboardOptions(keyboardType = KeyboardType.Text),
+            else KeyboardOptions(keyboardType = KeyboardType.Text),
         )
     }
 
@@ -279,6 +296,46 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    fun Signup(email: String, password: String, navCtrl: NavController) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "createUserWithEmail:success")
+                    val user = auth.currentUser
+                    navCtrl.navigate("home_screen")
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                    Toast.makeText(
+                        baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                }
+            }
+    }
+
+    fun Login(email: String, password: String, navCtrl: NavController) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithEmail:success")
+                    val user = auth.currentUser
+                    navCtrl.navigate("home_screen")
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithEmail:failure", task.exception)
+                    Toast.makeText(
+                        baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+    }
+
 
     @Preview(showBackground = true)
     @Composable

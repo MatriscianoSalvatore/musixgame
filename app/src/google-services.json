@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1068515650207",
+    "project_id": "musixgame-e45d5",
+    "storage_bucket": "musixgame-e45d5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1068515650207:android:38b1d3ef85fbf7e637d0aa",
+        "android_client_info": {
+          "package_name": "com.matrisciano.musixmatch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1068515650207-is01vo3bb83ngb21oo5pcb302qbdug2g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR7jt-CUCPOeRRWtavdvKMn5vSRj8u9eY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1068515650207-is01vo3bb83ngb21oo5pcb302qbdug2g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
