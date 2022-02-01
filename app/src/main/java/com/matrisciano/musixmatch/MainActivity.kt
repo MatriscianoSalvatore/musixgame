@@ -18,10 +18,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -174,17 +172,27 @@ class MainActivity : ComponentActivity() {
                 ) {
 
 
-                    MusixGameTextField("email", TextfieldType.EMAIL)
+                    var email by rememberSaveable { mutableStateOf("") }
+                    MusixGameTextField(
+                        email,
+                        onInputChanged = { email = it },
+                        hint = "email",
+                        TextfieldType.EMAIL
+                    )
 
-                    MusixGameTextField("password", TextfieldType.PASSWORD)
-
-
+                    var password by rememberSaveable { mutableStateOf("") }
+                    MusixGameTextField(
+                        password,
+                        onInputChanged = { password = it },
+                        hint = "password",
+                        TextfieldType.PASSWORD
+                    )
 
                     TextButton(
                         modifier = Modifier
                             .padding(0.dp, 15.dp, 0.dp, 0.dp)
                             .width(200.dp),
-                        onClick = { navCtrl.navigate("home_screen") },
+                        onClick = { if (email != null && password != null) Login(email, password, navCtrl) },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -221,11 +229,30 @@ class MainActivity : ComponentActivity() {
 
                 ) {
 
-                    MusixGameTextField("name and surname", TextfieldType.TEXT)
 
-                    MusixGameTextField("email", TextfieldType.EMAIL)
+                    var name by rememberSaveable { mutableStateOf("") }
+                    MusixGameTextField(
+                        name,
+                        onInputChanged = { name = it },
+                        hint = "name and surname",
+                        TextfieldType.TEXT
+                    )
 
-                    MusixGameTextField("password", TextfieldType.PASSWORD)
+                    var email by rememberSaveable { mutableStateOf("") }
+                    MusixGameTextField(
+                        email,
+                        onInputChanged = { email = it },
+                        hint = "email",
+                        TextfieldType.EMAIL
+                    )
+
+                    var password by rememberSaveable { mutableStateOf("") }
+                    MusixGameTextField(
+                        password,
+                        onInputChanged = { password = it },
+                        hint = "password",
+                        TextfieldType.PASSWORD
+                    )
 
 
 
@@ -233,7 +260,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(0.dp, 15.dp, 0.dp, 0.dp)
                             .width(200.dp),
-                        onClick = { navCtrl.navigate("home_screen") },
+                        onClick = { if (email != null && password != null) Signup(email, password, navCtrl) },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -253,13 +280,17 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun MusixGameTextField(hint: String, textfieldType: TextfieldType) {
-        val textState = remember { mutableStateOf(TextFieldValue()) }
+    fun MusixGameTextField(
+        value: String,
+        onInputChanged: (String) -> Unit,
+        hint: String,
+        textfieldType: TextfieldType
+    ) {
         TextField(
+            value = value,
+            onValueChange = onInputChanged,
             modifier = Modifier
                 .padding(0.dp, 10.dp, 0.dp, 0.dp),
-            value = textState.value,
-            onValueChange = { textState.value = it },
             colors = TextFieldDefaults.textFieldColors(
                 textColor = Color(0xFFFFFFFF),
                 unfocusedLabelColor = Color(0x70FFFFFF),
