@@ -17,7 +17,7 @@ private val LightColorPalette = lightColors(
     primary = musixmatchPink,
     primaryVariant = musixmatchPinkDark,
     secondary = Teal200,
-    onPrimary = Color.White
+    onPrimary = Color.White,
 
 
     /* Other default colors to override
@@ -34,7 +34,8 @@ private val PinkColorPalette = darkColors(
     primary = musixmatchPink,
     primaryVariant = musixmatchPinkDark,
     secondary = Teal200,
-    background = musixmatchPink
+    background = musixmatchPink,
+    surface = musixmatchPinkLight
 )
 
 @Composable
