@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                 )
             }
-                Navigation(currentUser)
+            Navigation(currentUser)
         }
     }
 
@@ -195,11 +195,12 @@ class MainActivity : ComponentActivity() {
                             .padding(0.dp, 15.dp, 0.dp, 0.dp)
                             .width(200.dp),
                         onClick = {
-                            if (email != null && password != null) Login(
-                                email,
-                                password,
-                                navCtrl
-                            )
+                            if (email != "" && password != "")
+                                Login(
+                                    email,
+                                    password,
+                                    navCtrl
+                                )
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -260,18 +261,17 @@ class MainActivity : ComponentActivity() {
                         TextfieldType.PASSWORD
                     )
 
-
-
                     TextButton(
                         modifier = Modifier
                             .padding(0.dp, 15.dp, 0.dp, 0.dp)
                             .width(200.dp),
                         onClick = {
-                            if (email != null && password != null) Signup(
-                                email,
-                                password,
-                                navCtrl
-                            )
+                            if (email != "" && password != "")
+                                Signup(
+                                    email,
+                                    password,
+                                    navCtrl
+                                )
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -362,10 +362,7 @@ class MainActivity : ComponentActivity() {
     fun Navigation(user: FirebaseUser?) {
         val navCtrl = rememberNavController()
         var startDestination = "launcher_screen"
-        if (user != null) {
-            startDestination = "home_screen"
-        }
-
+        if (user != null) startDestination = "home_screen"
         NavHost(navController = navCtrl, startDestination = startDestination) {
             composable("launcher_screen") {
                 LauncherScreen(navCtrl = navCtrl)
