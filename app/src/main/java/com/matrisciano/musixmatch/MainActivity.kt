@@ -1,8 +1,5 @@
 package com.matrisciano.musixmatch
 
-import android.content.Context
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
@@ -11,13 +8,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -26,15 +19,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -42,7 +34,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
-import java.time.format.TextStyle
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -56,11 +47,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             MusixmatchPinkTheme()
             {
-                Box(
-                    modifier = Modifier
-                        .background(MaterialTheme.colors.primary)
-                        .fillMaxSize()
-                )
+                /* Box(
+                     modifier = Modifier
+                         .background(MaterialTheme.colors.primary)
+                         .fillMaxSize()
+                 )*/
             }
             Navigation(currentUser)
         }
@@ -138,6 +129,10 @@ class MainActivity : ComponentActivity() {
 
             ) {
                 Scaffold(
+
+
+                    bottomBar = { BottomNavigation(navController = navCtrl) },
+
                     topBar = {
                         TopAppBar(
                             title = {
@@ -149,6 +144,74 @@ class MainActivity : ComponentActivity() {
                             elevation = 12.dp
                         )
                     }, content = {}
+
+
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun LeaderboardScreen(navCtrl: NavController) {
+        MusixmatchTheme() {
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colors.background)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+
+            ) {
+                Scaffold(
+
+
+                    bottomBar = { BottomNavigation(navController = navCtrl) },
+
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(text = "Musixgame")
+                            },
+
+                            backgroundColor = MaterialTheme.colors.primary,
+                            contentColor = Color.White,
+                            elevation = 12.dp
+                        )
+                    }, content = {}
+
+
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun ProfileScreen(navCtrl: NavController) {
+        MusixmatchTheme() {
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colors.background)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+
+            ) {
+                Scaffold(
+
+
+                    bottomBar = { BottomNavigation(navController = navCtrl) },
+
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(text = "Musixgame")
+                            },
+
+                            backgroundColor = MaterialTheme.colors.primary,
+                            contentColor = Color.White,
+                            elevation = 12.dp
+                        )
+                    }, content = {}
+
+
                 )
             }
         }
@@ -196,7 +259,7 @@ class MainActivity : ComponentActivity() {
                             .width(200.dp),
                         onClick = {
                             if (email != "" && password != "")
-                                Login(
+                                login(
                                     email,
                                     password,
                                     navCtrl
@@ -267,7 +330,7 @@ class MainActivity : ComponentActivity() {
                             .width(200.dp),
                         onClick = {
                             if (email != "" && password != "")
-                                Signup(
+                                signup(
                                     email,
                                     password,
                                     navCtrl
@@ -305,15 +368,17 @@ class MainActivity : ComponentActivity() {
             ),
             label = { Text(hint) },
             visualTransformation = if (textfieldType == TextfieldType.PASSWORD) PasswordVisualTransformation() else VisualTransformation.None,
-            keyboardOptions = if (textfieldType == TextfieldType.PASSWORD) KeyboardOptions(
-                keyboardType = KeyboardType.Password
-            )
-            else if (textfieldType == TextfieldType.EMAIL) KeyboardOptions(keyboardType = KeyboardType.Email)
-            else KeyboardOptions(keyboardType = KeyboardType.Text),
+            keyboardOptions = when (textfieldType) {
+                TextfieldType.PASSWORD -> KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                )
+                TextfieldType.EMAIL -> KeyboardOptions(keyboardType = KeyboardType.Email)
+                else -> KeyboardOptions(keyboardType = KeyboardType.Text)
+            },
         )
     }
 
-    fun Signup(email: String, password: String, navCtrl: NavController) {
+    fun signup(email: String, password: String, navCtrl: NavController) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -336,7 +401,7 @@ class MainActivity : ComponentActivity() {
             }
     }
 
-    fun Login(email: String, password: String, navCtrl: NavController) {
+    fun login(email: String, password: String, navCtrl: NavController) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -358,6 +423,58 @@ class MainActivity : ComponentActivity() {
             }
     }
 
+    sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: String) {
+        object Home : BottomNavItem("Home", R.drawable.ic_home, "home_screen")
+        object Leaderboard :
+            BottomNavItem("Leaderboard", R.drawable.ic_leaderboard, "leaderboard_screen")
+
+        object Profile :
+            BottomNavItem("Profile", R.drawable.ic_profile, "profile_screen")
+    }
+
+
+    @Composable
+    fun BottomNavigation(navController: NavController) {
+        val items = listOf(
+            BottomNavItem.Home,
+            BottomNavItem.Leaderboard,
+            BottomNavItem.Profile
+        )
+        BottomNavigation(
+            backgroundColor = Color.White
+        ) {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+            items.forEach { item ->
+                BottomNavigationItem(
+                    icon = {
+                        Icon(
+                            painterResource(id = item.icon),
+                            contentDescription = item.title
+                        )
+                    },
+                    label = { Text(text = item.title) },
+                    selectedContentColor = MaterialTheme.colors.primary,
+                    unselectedContentColor = Color.Black.copy(0.4f),
+                    alwaysShowLabel = true,
+                    selected = currentRoute == item.screen_route,
+                    onClick = {
+                        navController.navigate(item.screen_route) {
+
+                            navController.graph.startDestinationRoute?.let { screen_route ->
+                                popUpTo(screen_route) {
+                                    saveState = true
+                                }
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
+            }
+        }
+    }
+
     @Composable
     fun Navigation(user: FirebaseUser?) {
         val navCtrl = rememberNavController()
@@ -375,6 +492,12 @@ class MainActivity : ComponentActivity() {
             }
             composable("home_screen") {
                 HomeScreen(navCtrl = navCtrl)
+            }
+            composable("leaderboard_screen") {
+                LeaderboardScreen(navCtrl = navCtrl)
+            }
+            composable("profile_screen") {
+                ProfileScreen(navCtrl = navCtrl)
             }
         }
     }
