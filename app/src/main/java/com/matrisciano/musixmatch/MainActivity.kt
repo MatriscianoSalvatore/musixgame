@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -55,11 +56,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun LauncherScreen(navCtrl: NavController) {
-        auth = Firebase.auth
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            navCtrl.navigate("home_screen");
-        }
+
 
         MusixmatchPinkTheme() {
             Box(
@@ -69,7 +66,7 @@ class MainActivity : ComponentActivity() {
                 contentAlignment = Alignment.Center
 
             ) {
-
+  
                 Column(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -117,6 +114,11 @@ class MainActivity : ComponentActivity() {
                 }
 
 
+            }
+            auth = Firebase.auth
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                navCtrl.popBackStack("home_screen", inclusive = false)
             }
         }
     }
@@ -310,9 +312,6 @@ class MainActivity : ComponentActivity() {
     fun Navigation() {
         val navCtrl = rememberNavController()
         NavHost(navController = navCtrl, startDestination = "launcher_screen") {
-            /*  composable("splash_screen") {
-                  SplashScreen(navCtrl = navCtrl)
-              }*/
             composable("launcher_screen") {
                 LauncherScreen(navCtrl = navCtrl)
             }
@@ -335,7 +334,7 @@ class MainActivity : ComponentActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = auth.currentUser
-                    navCtrl.navigate("home_screen")
+                    navCtrl.popBackStack("home_screen", inclusive = false)
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
@@ -355,7 +354,11 @@ class MainActivity : ComponentActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success")
                     val user = auth.currentUser
-                    navCtrl.navigate("home_screen")
+                    navCtrl.navigate("home_screen"){
+                        popUpTo(navCtrl.graph.findStartDestination().id){
+                            inclusive = true  }}
+
+
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
