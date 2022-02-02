@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
@@ -215,6 +216,7 @@ class SigninActivity : ComponentActivity() {
                         onClick = {
                             if (email != "" && password != "")
                                 signup(
+                                    name,
                                     email,
                                     password,
                                     navCtrl
@@ -262,12 +264,15 @@ class SigninActivity : ComponentActivity() {
         )
     }
 
-    fun signup(email: String, password: String, navCtrl: NavController) {
+    fun signup(name: String, email: String, password: String, navCtrl: NavController) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
+                    auth.currentUser?.updateProfile(UserProfileChangeRequest.Builder()
+                        .setDisplayName(name)
+                        .build())
 
                     startActivity(Intent(this@SigninActivity, MainActivity::class.java))
                 } else {
