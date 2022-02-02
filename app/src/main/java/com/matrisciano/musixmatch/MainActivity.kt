@@ -11,8 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -85,13 +87,39 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ProfileScreen() {
-        MusixmatchTheme() {
-            Box(
+    fun ProfileScreen(user: FirebaseUser?) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
                 modifier = Modifier
-                    .background(MaterialTheme.colors.background),
-                contentAlignment = Alignment.Center
-            ) {}
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.Center),
+
+            ) {
+                Text(
+                    "name : " + user?.displayName,
+                    textAlign = TextAlign.Center,
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(2.dp)
+                )
+                Text(
+                    "email : " + user?.email,
+                    textAlign = TextAlign.Center,
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(2.dp)
+                )
+                Text(
+                    "musixpoints : 0",
+                    textAlign = TextAlign.Center,
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(2.dp)
+                )
+            }
         }
     }
 
@@ -99,6 +127,7 @@ class MainActivity : ComponentActivity() {
         object Home : BottomNavItem("Home", R.drawable.ic_home, "home_screen")
         object Leaderboard :
             BottomNavItem("Leaderboard", R.drawable.ic_leaderboard, "leaderboard_screen")
+
         object Profile :
             BottomNavItem("Profile", R.drawable.ic_profile, "profile_screen")
     }
@@ -146,7 +175,7 @@ class MainActivity : ComponentActivity() {
                 LeaderboardScreen()
             }
             composable("profile_screen") {
-                ProfileScreen()
+                ProfileScreen(user)
             }
         }
     }
