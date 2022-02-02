@@ -37,6 +37,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
@@ -46,19 +47,29 @@ import java.time.format.TextStyle
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            Navigation()
-        }
+        auth = Firebase.auth
+        val currentUser = auth.currentUser
 
+        setContent {
+            MusixmatchPinkTheme()
+            {
+                Box(
+                    modifier = Modifier
+                        .background(MaterialTheme.colors.primary)
+                        .fillMaxSize()
+                )
+            }
+                Navigation(currentUser)
+        }
     }
 
     @Composable
     fun LauncherScreen(navCtrl: NavController) {
-
-
-        MusixmatchPinkTheme() {
+        MusixmatchPinkTheme()
+        {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
@@ -66,7 +77,7 @@ class MainActivity : ComponentActivity() {
                 contentAlignment = Alignment.Center
 
             ) {
-  
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -112,13 +123,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-
-
-            }
-            auth = Firebase.auth
-            val currentUser = auth.currentUser
-            if (currentUser != null) {
-                navCtrl.popBackStack("home_screen", inclusive = false)
             }
         }
     }
@@ -144,15 +148,11 @@ class MainActivity : ComponentActivity() {
                             contentColor = Color.White,
                             elevation = 12.dp
                         )
-                    }, content = {
-
-                    })
-
-
+                    }, content = {}
+                )
             }
         }
     }
-
 
     @Composable
     fun LoginScreen(navCtrl: NavController) {
@@ -194,7 +194,13 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(0.dp, 15.dp, 0.dp, 0.dp)
                             .width(200.dp),
-                        onClick = { if (email != null && password != null) Login(email, password, navCtrl) },
+                        onClick = {
+                            if (email != null && password != null) Login(
+                                email,
+                                password,
+                                navCtrl
+                            )
+                        },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -204,8 +210,6 @@ class MainActivity : ComponentActivity() {
                         Text(text = "LOGIN")
 
                     };
-
-
                 }
             }
         }
@@ -262,7 +266,13 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(0.dp, 15.dp, 0.dp, 0.dp)
                             .width(200.dp),
-                        onClick = { if (email != null && password != null) Signup(email, password, navCtrl) },
+                        onClick = {
+                            if (email != null && password != null) Signup(
+                                email,
+                                password,
+                                navCtrl
+                            )
+                        },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -272,14 +282,10 @@ class MainActivity : ComponentActivity() {
                         Text(text = "SIGNUP")
 
                     }
-
                 }
-
-
             }
         }
     }
-
 
     @Composable
     fun MusixGameTextField(
@@ -307,34 +313,17 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-
-    @Composable
-    fun Navigation() {
-        val navCtrl = rememberNavController()
-        NavHost(navController = navCtrl, startDestination = "launcher_screen") {
-            composable("launcher_screen") {
-                LauncherScreen(navCtrl = navCtrl)
-            }
-            composable("signup_screen") {
-                SignupScreen(navCtrl = navCtrl)
-            }
-            composable("login_screen") {
-                LoginScreen(navCtrl = navCtrl)
-            }
-            composable("home_screen") {
-                HomeScreen(navCtrl = navCtrl)
-            }
-        }
-    }
-
     fun Signup(email: String, password: String, navCtrl: NavController) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
-                    val user = auth.currentUser
-                    navCtrl.popBackStack("home_screen", inclusive = false)
+                    navCtrl.navigate("home_screen") {
+                        popUpTo(navCtrl.graph.findStartDestination().id) {
+                            inclusive = true
+                        }
+                    }
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
@@ -353,12 +342,11 @@ class MainActivity : ComponentActivity() {
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success")
-                    val user = auth.currentUser
-                    navCtrl.navigate("home_screen"){
-                        popUpTo(navCtrl.graph.findStartDestination().id){
-                            inclusive = true  }}
-
-
+                    navCtrl.navigate("home_screen") {
+                        popUpTo(navCtrl.graph.findStartDestination().id) {
+                            inclusive = true
+                        }
+                    }
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
@@ -370,11 +358,28 @@ class MainActivity : ComponentActivity() {
             }
     }
 
-
-    @Preview(showBackground = true)
     @Composable
-    fun LauncherPreview() {
-        LauncherScreen(rememberNavController())
+    fun Navigation(user: FirebaseUser?) {
+        val navCtrl = rememberNavController()
+        var startDestination = "launcher_screen"
+        if (user != null) {
+            startDestination = "home_screen"
+        }
+
+        NavHost(navController = navCtrl, startDestination = startDestination) {
+            composable("launcher_screen") {
+                LauncherScreen(navCtrl = navCtrl)
+            }
+            composable("signup_screen") {
+                SignupScreen(navCtrl = navCtrl)
+            }
+            composable("login_screen") {
+                LoginScreen(navCtrl = navCtrl)
+            }
+            composable("home_screen") {
+                HomeScreen(navCtrl = navCtrl)
+            }
+        }
     }
 
     @Preview(showBackground = true)
@@ -392,5 +397,4 @@ class MainActivity : ComponentActivity() {
     enum class TextfieldType {
         TEXT, EMAIL, PASSWORD
     }
-
 }
