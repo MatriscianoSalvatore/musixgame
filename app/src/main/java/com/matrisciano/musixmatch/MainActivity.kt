@@ -2,6 +2,8 @@ package com.matrisciano.musixmatch
 
 import android.content.Intent
 import android.os.Bundle
+import android.service.controls.ControlsProviderService.TAG
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -25,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkDark
@@ -104,6 +107,23 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
 
                 ) {
+
+                    var points = 0
+                    val db = Firebase.firestore
+
+                    db.collection("users")
+                        .get()
+                        .addOnSuccessListener { result ->
+                            for (document in result) {
+                                Log.d(TAG, "${document.id} => ${document.data}")
+                                if (document.data["email"] == user?.email)
+                                    points = document.data["points"] as Int
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.w(TAG, "Error getting documents.", exception)
+                        }
+
                     Text(
                         "name: " + user?.displayName,
                         textAlign = TextAlign.Center,
@@ -118,7 +138,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(2.dp)
                     )
                     Text(
-                        "musixpoints: 0",
+                        "musixpoints: " + points,
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
