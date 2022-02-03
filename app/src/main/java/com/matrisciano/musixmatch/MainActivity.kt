@@ -1,5 +1,6 @@
 package com.matrisciano.musixmatch
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +27,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
+import com.matrisciano.musixmatch.ui.theme.musixmatchPinkDark
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -88,37 +90,56 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun ProfileScreen(user: FirebaseUser?) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
+        MusixmatchTheme() {
+
+            Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center),
-
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    "name : " + user?.displayName,
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(2.dp)
-                )
-                Text(
-                    "email : " + user?.email,
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(2.dp)
-                )
-                Text(
-                    "musixpoints : 0",
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(2.dp)
-                )
+                Column(
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+
+                ) {
+                    Text(
+                        "name : " + user?.displayName,
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(2.dp)
+
+                        )
+                    Text(
+                        "email : " + user?.email,
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(2.dp)
+                    )
+                    Text(
+                        "musixpoints : 0",
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(2.dp)
+                    )
+
+                    TextButton(
+                        modifier = Modifier
+                            .padding(20.dp)
+                            .width(200.dp),
+                        onClick = {
+                            Firebase.auth.signOut()
+                            startActivity(Intent(this@MainActivity, SigninActivity::class.java))
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            contentColor = Color.White
+                        ), enabled = true
+                    ) {
+                        Text(text = "LOGOUT")
+                    };
+                }
             }
         }
     }
@@ -182,7 +203,7 @@ class MainActivity : ComponentActivity() {
 
     @Preview(showBackground = true)
     @Composable
-    fun HomePreview() {
-        HomeScreen()
+    fun ProfilePreview() {
+        ProfileScreen(Firebase.auth.currentUser)
     }
 }
