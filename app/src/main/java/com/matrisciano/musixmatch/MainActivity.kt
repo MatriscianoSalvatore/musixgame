@@ -105,20 +105,20 @@ class MainActivity : ComponentActivity() {
 
                 ) {
                     Text(
-                        "name : " + user?.displayName,
+                        "name: " + user?.displayName,
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
 
                         )
                     Text(
-                        "email : " + user?.email,
+                        "email: " + user?.email,
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
                     )
                     Text(
-                        "musixpoints : 0",
+                        "musixpoints: 0",
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
