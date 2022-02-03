@@ -30,15 +30,32 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
-import com.matrisciano.musixmatch.ui.theme.musixmatchPinkDark
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
+    private val leaderboard = hashMapOf<String, Long>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         val currentUser = auth.currentUser
+
+        val db = Firebase.firestore
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    Log.d(TAG, "${document.id} => ${document.data}")
+                    leaderboard.put(
+                        document.data["email"] as String,
+                        document.data["points"] as Long
+                    )
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+            }
 
         setContent {
             var navCtrl = rememberNavController()
@@ -82,12 +99,22 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun LeaderboardScreen() {
-        MusixmatchTheme() {
-            Box(
-                modifier = Modifier
-                    .background(MaterialTheme.colors.background),
-                contentAlignment = Alignment.Center
-            ) {}
+        Column(
+            modifier = Modifier
+                .wrapContentSize(Alignment.Center)
+                .padding(6.dp, 58.dp, 0.dp, 0.dp)
+        ) {
+
+            var sortedLeaderboard: MutableMap<String, Long> = LinkedHashMap()
+            leaderboard.entries.sortedByDescending { it.value }
+                .forEach { sortedLeaderboard[it.key] = it.value }
+
+            for (element in sortedLeaderboard)
+                Text(
+                    element.key + ": " + element.value + " musixpoints",
+                    textAlign = TextAlign.Start,
+                    fontSize = 17.sp,
+                )
         }
     }
 
@@ -108,7 +135,7 @@ class MainActivity : ComponentActivity() {
 
                 ) {
 
-                    var points = 0
+                    var points: Long = 0
                     val db = Firebase.firestore
 
                     db.collection("users")
@@ -117,7 +144,7 @@ class MainActivity : ComponentActivity() {
                             for (document in result) {
                                 Log.d(TAG, "${document.id} => ${document.data}")
                                 if (document.data["email"] == user?.email)
-                                    points = document.data["points"] as Int
+                                    points = document.data["points"] as Long
                             }
                         }
                         .addOnFailureListener { exception ->
@@ -130,7 +157,7 @@ class MainActivity : ComponentActivity() {
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
 
-                        )
+                    )
                     Text(
                         "email: " + user?.email,
                         textAlign = TextAlign.Center,
