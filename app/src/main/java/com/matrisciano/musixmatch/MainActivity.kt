@@ -34,7 +34,7 @@ import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private val leaderboard = hashMapOf<String, Long>()
-
+    private var points: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +47,8 @@ class MainActivity : ComponentActivity() {
             .addOnSuccessListener { result ->
                 for (document in result) {
                     Log.d(TAG, "${document.id} => ${document.data}")
+                    if (document.data["email"] == currentUser?.email)
+                        points = document.data["points"] as Long
                     leaderboard.put(
                         document.data["email"] as String,
                         document.data["points"] as Long
@@ -109,12 +111,14 @@ class MainActivity : ComponentActivity() {
             leaderboard.entries.sortedByDescending { it.value }
                 .forEach { sortedLeaderboard[it.key] = it.value }
 
-            for (element in sortedLeaderboard)
-                Text(
-                    element.key + ": " + element.value + " musixpoints",
+            var i = 0
+            for (element in sortedLeaderboard) {
+                i++
+                Text(i.toString() + "°: " + element.key + ": " + element.value + " musixpoints",
                     textAlign = TextAlign.Start,
                     fontSize = 17.sp,
                 )
+            }
         }
     }
 
@@ -134,23 +138,6 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
 
                 ) {
-
-                    var points: Long = 0
-                    val db = Firebase.firestore
-
-                    db.collection("users")
-                        .get()
-                        .addOnSuccessListener { result ->
-                            for (document in result) {
-                                Log.d(TAG, "${document.id} => ${document.data}")
-                                if (document.data["email"] == user?.email)
-                                    points = document.data["points"] as Long
-                            }
-                        }
-                        .addOnFailureListener { exception ->
-                            Log.w(TAG, "Error getting documents.", exception)
-                        }
-
                     Text(
                         "name: " + user?.displayName,
                         textAlign = TextAlign.Center,
@@ -165,7 +152,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(2.dp)
                     )
                     Text(
-                        "musixpoints: " + points,
+                        "musixpoints: $points",
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
