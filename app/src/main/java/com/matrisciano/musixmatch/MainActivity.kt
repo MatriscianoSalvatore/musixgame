@@ -7,7 +7,10 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -101,10 +104,14 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun LeaderboardScreen() {
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .wrapContentSize(Alignment.Center)
                 .padding(6.dp, 58.dp, 0.dp, 0.dp)
+                .scrollable(      state = scrollState,
+                    orientation = Orientation.Vertical )
+
         ) {
 
             var sortedLeaderboard: MutableMap<String, Long> = LinkedHashMap()
@@ -114,7 +121,7 @@ class MainActivity : ComponentActivity() {
             var i = 0
             for (element in sortedLeaderboard) {
                 i++
-                Text(i.toString() + "°: " + element.key + ": " + element.value + " musixpoints",
+                Text(i.toString() + "°- " + element.key + ": " + element.value + " musixpoints",
                     textAlign = TextAlign.Start,
                     fontSize = 17.sp,
                 )

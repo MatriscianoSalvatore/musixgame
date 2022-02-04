@@ -246,6 +246,7 @@ class SigninActivity : ComponentActivity() {
     ) {
         TextField(
             value = value,
+            maxLines = 1,
             onValueChange = onInputChanged,
             modifier = Modifier
                 .padding(0.dp, 10.dp, 0.dp, 0.dp),
