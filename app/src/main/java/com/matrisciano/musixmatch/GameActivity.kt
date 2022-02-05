@@ -48,8 +48,9 @@ class GameActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
 
-    private var testLyrics: String =
+    private var testLyrics =
         "Vespe truccate anni '60\nGirano in centro sfiorando i 90\nRosse di fuoco, comincia la danza\nDi frecce con dietro attaccata una targa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza"
+    private var replacedTestLyrics = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +58,25 @@ class GameActivity : ComponentActivity() {
         val currentUser = auth.currentUser
 
         testLyrics += "..."
+        var words = testLyrics.split(" ", "\n")
+        var found = false
+
+        while (!found) {
+            var randomNumber = (words.indices).random()
+            Log.d(TAG, "randomNumber: " + randomNumber)
+            Log.d(TAG, "words[randomNumber]: " + words[randomNumber])
+
+
+            if (words[randomNumber].length > 2) {
+                found = true
+                var replacement = ""
+                for(char in words[randomNumber]) {
+                    replacement += "*"
+                }
+                replacedTestLyrics = testLyrics.replaceFirst(words[randomNumber], replacement)
+            }
+        }
+
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContent {
@@ -98,7 +118,7 @@ class GameActivity : ComponentActivity() {
 
 
                     Text(
-                        text = testLyrics,
+                        text = replacedTestLyrics,
                         color = Color.White,
                         fontSize = 27.sp,
                         textAlign = TextAlign.Center,
