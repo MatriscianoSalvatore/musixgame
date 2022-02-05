@@ -162,7 +162,7 @@ class SigninActivity : ComponentActivity() {
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
-                        ), enabled = true
+                        ), enabled = (email != "" && password != "")
                     ) {
 
                         Text(text = "LOGIN")
@@ -229,7 +229,7 @@ class SigninActivity : ComponentActivity() {
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
-                        ), enabled = true
+                        ), enabled = (name != "" && email != "" && password != "")
                     ) {
                         Text(text = "SIGNUP")
                     }

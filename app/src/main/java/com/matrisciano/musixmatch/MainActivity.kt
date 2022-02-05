@@ -135,11 +135,10 @@ class MainActivity : ComponentActivity() {
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
-                        ), enabled = true
+                        ), enabled = (title != "" && artist != "")
                     ) {
                         Text(text = "PLAY")
                     };
-
                 }
             }
         }

@@ -1,6 +1,5 @@
 package com.matrisciano.musixmatch
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.service.controls.ControlsProviderService
@@ -24,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -156,7 +154,8 @@ class GameActivity : ComponentActivity() {
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
-                        ), enabled = true
+                        ),
+                        enabled = (answer != "")
                     ) {
                         Text(text = "CONFIRM", fontSize = 18.sp)
                     };
