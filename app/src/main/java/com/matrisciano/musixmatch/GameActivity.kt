@@ -3,6 +3,7 @@ package com.matrisciano.musixmatch
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
+import android.service.controls.ControlsProviderService
 import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -33,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
@@ -84,14 +86,13 @@ class GameActivity : ComponentActivity() {
     }
 
     @Composable
-    fun GameScreen(navCtrl: NavController) {
+    fun GameScreen(navCtrl: NavController, user: FirebaseUser) {
         MusixmatchPinkTheme()
         {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
                     .fillMaxSize(),
-                //.padding(0.dp, 30.dp, 0.dp, 0.dp)
                 contentAlignment = Alignment.Center
 
             ) {
@@ -126,12 +127,31 @@ class GameActivity : ComponentActivity() {
                             .width(200.dp)
                             .padding(28.dp),
                         onClick = {
-                            Log.d(TAG, "word1: " + answer)
-                            Log.d(TAG, "word2: " + replacedWord)
+
+                            val db = Firebase.firestore
+                            var points : Long
+                            db.collection("users")
+                                .get()
+                                .addOnSuccessListener { result ->
+                                    for (document in result) {
+                                        Log.d(ControlsProviderService.TAG, "${document.id} => ${document.data}")
+                                        if (document.data["email"] == user?.email) {
+                                            points = document.data["points"] as Long
+                                            if (answer.toLowerCase().trim() == replacedWord.toLowerCase().trim())
+                                                db.collection("users").document(document.id).update("points", points + 5)
+                                            else db.collection("users").document(document.id).update("points", points - 1)
+                                        }
+                                    }
+                                }
+                                .addOnFailureListener { exception ->
+                                    Log.w(ControlsProviderService.TAG, "Error getting documents.", exception)
+                                }
+
 
                             if (answer.toLowerCase().trim() == replacedWord.toLowerCase().trim())
                                 navCtrl.navigate("win_screen")
                             else navCtrl.navigate("lose_screen")
+
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -266,22 +286,16 @@ class GameActivity : ComponentActivity() {
     @Composable
     fun Navigation(user: FirebaseUser?) {
         val navCtrl = rememberNavController()
-        NavHost(navController = navCtrl, startDestination = "game_screen") {
+        NavHost(navCtrl, "game_screen") {
             composable("game_screen") {
-                GameScreen(navCtrl = navCtrl)
+                GameScreen(navCtrl, user!!)
             }
             composable("win_screen") {
-                WinScreen(navCtrl = navCtrl)
+                WinScreen(navCtrl)
             }
             composable("lose_screen") {
-                LoseScreen(navCtrl = navCtrl)
+                LoseScreen(navCtrl)
             }
         }
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun GamePreview() {
-        GameScreen(rememberNavController())
     }
 }

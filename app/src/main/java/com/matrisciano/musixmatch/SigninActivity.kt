@@ -346,15 +346,15 @@ class SigninActivity : ComponentActivity() {
                 MainActivity::class.java
             )
         ) else {
-            NavHost(navController = navCtrl, startDestination = "launcher_screen") {
+            NavHost(navCtrl, "launcher_screen") {
                 composable("launcher_screen") {
-                    LauncherScreen(navCtrl = navCtrl)
+                    LauncherScreen(navCtrl)
                 }
                 composable("signup_screen") {
-                    SignupScreen(navCtrl = navCtrl)
+                    SignupScreen(navCtrl)
                 }
                 composable("login_screen") {
-                    LoginScreen(navCtrl = navCtrl)
+                    LoginScreen(navCtrl)
                 }
             }
         }

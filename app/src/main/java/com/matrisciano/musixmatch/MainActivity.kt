@@ -267,7 +267,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Navigation(navCtrl: NavHostController, user: FirebaseUser?) {
-        NavHost(navController = navCtrl, startDestination = "home_screen") {
+        NavHost(navCtrl, "home_screen") {
             composable("home_screen") {
                 HomeScreen()
             }
