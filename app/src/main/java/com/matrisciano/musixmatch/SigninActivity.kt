@@ -129,18 +129,18 @@ class SigninActivity : ComponentActivity() {
                 ) {
 
                     var email by rememberSaveable { mutableStateOf("") }
-                    MusixGameTextField(
+                    SigninTextField(
                         email,
                         onInputChanged = { email = it },
-                        hint = "email",
+                        hint = "Email",
                         TextfieldType.EMAIL
                     )
 
                     var password by rememberSaveable { mutableStateOf("") }
-                    MusixGameTextField(
+                    SigninTextField(
                         password,
                         onInputChanged = { password = it },
-                        hint = "password",
+                        hint = "Password",
                         TextfieldType.PASSWORD
                     )
 
@@ -187,26 +187,26 @@ class SigninActivity : ComponentActivity() {
                 ) {
 
                     var name by rememberSaveable { mutableStateOf("") }
-                    MusixGameTextField(
+                    SigninTextField(
                         name,
                         onInputChanged = { name = it },
-                        hint = "name and surname",
+                        hint = "Name and surname",
                         TextfieldType.TEXT
                     )
 
                     var email by rememberSaveable { mutableStateOf("") }
-                    MusixGameTextField(
+                    SigninTextField(
                         email,
                         onInputChanged = { email = it },
-                        hint = "email",
+                        hint = "Email",
                         TextfieldType.EMAIL
                     )
 
                     var password by rememberSaveable { mutableStateOf("") }
-                    MusixGameTextField(
+                    SigninTextField(
                         password,
                         onInputChanged = { password = it },
-                        hint = "password",
+                        hint = "Password",
                         TextfieldType.PASSWORD
                     )
 
@@ -238,7 +238,7 @@ class SigninActivity : ComponentActivity() {
     }
 
     @Composable
-    fun MusixGameTextField(
+    fun SigninTextField(
         value: String,
         onInputChanged: (String) -> Unit,
         hint: String,

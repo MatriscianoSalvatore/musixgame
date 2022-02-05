@@ -11,12 +11,17 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,6 +38,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
+import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -96,9 +102,47 @@ class MainActivity : ComponentActivity() {
         MusixmatchTheme() {
             Box(
                 modifier = Modifier
-                    .background(MaterialTheme.colors.background),
+                    .fillMaxHeight()
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
-            ) {}
+            ) {
+                Column(
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    var title by rememberSaveable { mutableStateOf("") }
+
+                    MusixGameTextField(
+                        title,
+                        onInputChanged = { title = it },
+                        hint = "Title",
+                    )
+
+                    var artist by rememberSaveable { mutableStateOf("") }
+                    MusixGameTextField(
+                        artist,
+                        onInputChanged = { artist = it },
+                        hint = "Artist",
+                    )
+
+                    TextButton(
+                        modifier = Modifier
+                            .padding(20.dp)
+                            .width(200.dp),
+                        onClick = {
+                            Firebase.auth.signOut()
+                            startActivity(Intent(this@MainActivity, SigninActivity::class.java))
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            contentColor = Color.White
+                        ), enabled = true
+                    ) {
+                        Text(text = "PLAY")
+                    };
+
+                }
+            }
         }
     }
 
@@ -146,20 +190,20 @@ class MainActivity : ComponentActivity() {
 
                 ) {
                     Text(
-                        "name: " + user?.displayName,
+                        "Name: " + user?.displayName,
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
 
                     )
                     Text(
-                        "email: " + user?.email,
+                        "Email: " + user?.email,
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
                     )
                     Text(
-                        "musixpoints: $points",
+                        "Musixpoints: $points",
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
@@ -187,11 +231,8 @@ class MainActivity : ComponentActivity() {
 
     sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: String) {
         object Home : BottomNavItem("Home", R.drawable.ic_home, "home_screen")
-        object Leaderboard :
-            BottomNavItem("Leaderboard", R.drawable.ic_leaderboard, "leaderboard_screen")
-
-        object Profile :
-            BottomNavItem("Profile", R.drawable.ic_profile, "profile_screen")
+        object Leaderboard : BottomNavItem("Leaderboard", R.drawable.ic_leaderboard, "leaderboard_screen")
+        object Profile : BottomNavItem("Profile", R.drawable.ic_profile, "profile_screen")
     }
 
     @Composable
@@ -240,6 +281,28 @@ class MainActivity : ComponentActivity() {
                 ProfileScreen(user)
             }
         }
+    }
+
+    @Composable
+    fun MusixGameTextField(
+        value: String,
+        onInputChanged: (String) -> Unit,
+        hint: String,
+    ) {
+        TextField(
+            value = value,
+            maxLines = 1,
+            onValueChange = onInputChanged,
+            modifier = Modifier
+                .padding(0.dp, 10.dp, 0.dp, 0.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = musixmatchPinkLight,
+                textColor = Color(0xFFFFFFFF),
+                unfocusedLabelColor = Color(0x70FFFFFF),
+            ),
+            label = { Text(hint) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        )
     }
 
     @Preview(showBackground = true)
