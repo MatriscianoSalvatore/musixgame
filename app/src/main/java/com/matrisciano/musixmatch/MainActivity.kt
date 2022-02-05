@@ -22,8 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -195,7 +193,6 @@ class MainActivity : ComponentActivity() {
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
-
                     )
                     Text(
                         "Email: " + user?.email,
@@ -209,7 +206,6 @@ class MainActivity : ComponentActivity() {
                         fontSize = 18.sp,
                         modifier = Modifier.padding(2.dp)
                     )
-
                     TextButton(
                         modifier = Modifier
                             .padding(20.dp)

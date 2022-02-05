@@ -42,7 +42,6 @@ import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 class SigninActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
@@ -232,9 +231,7 @@ class SigninActivity : ComponentActivity() {
                             contentColor = Color.White
                         ), enabled = true
                     ) {
-
                         Text(text = "SIGNUP")
-
                     }
                 }
             }
@@ -361,7 +358,6 @@ class SigninActivity : ComponentActivity() {
                 }
             }
         }
-
     }
 
     @Preview(showBackground = true)

@@ -1,14 +1,12 @@
 package com.matrisciano.musixmatch
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
-import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -23,10 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,12 +32,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
+import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
+import com.matrisciano.musixmatch.ui.theme.winGreen
 
 class GameActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -51,6 +46,7 @@ class GameActivity : ComponentActivity() {
     private var testLyrics =
         "Vespe truccate anni '60\nGirano in centro sfiorando i 90\nRosse di fuoco, comincia la danza\nDi frecce con dietro attaccata una targa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza"
     private var replacedTestLyrics = ""
+    private var replacedWord = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,25 +54,19 @@ class GameActivity : ComponentActivity() {
         val currentUser = auth.currentUser
 
         testLyrics += "..."
-        var words = testLyrics.split(" ", "\n")
+        var words = testLyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
         var found = false
-
         while (!found) {
             var randomNumber = (words.indices).random()
-            Log.d(TAG, "randomNumber: " + randomNumber)
-            Log.d(TAG, "words[randomNumber]: " + words[randomNumber])
-
-
-            if (words[randomNumber].length > 2) {
+            replacedWord = words[randomNumber]
+            if (replacedWord.length > 3) {
                 found = true
                 var replacement = ""
-                for(char in words[randomNumber]) {
+                for (char in replacedWord)
                     replacement += "*"
-                }
-                replacedTestLyrics = testLyrics.replaceFirst(words[randomNumber], replacement)
+                replacedTestLyrics = testLyrics.replaceFirst(replacedWord, replacement)
             }
         }
-
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContent {
@@ -101,7 +91,7 @@ class GameActivity : ComponentActivity() {
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
                     .fillMaxSize(),
-                    //.padding(0.dp, 30.dp, 0.dp, 0.dp)
+                //.padding(0.dp, 30.dp, 0.dp, 0.dp)
                 contentAlignment = Alignment.Center
 
             ) {
@@ -115,7 +105,6 @@ class GameActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.SpaceAround,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-
 
                     Text(
                         text = replacedTestLyrics,
@@ -137,7 +126,12 @@ class GameActivity : ComponentActivity() {
                             .width(200.dp)
                             .padding(28.dp),
                         onClick = {
-                            startActivity(Intent(this@GameActivity, MainActivity::class.java))
+                            Log.d(TAG, "word1: " + answer)
+                            Log.d(TAG, "word2: " + replacedWord)
+
+                            if (answer.toLowerCase().trim() == replacedWord.toLowerCase().trim())
+                                navCtrl.navigate("win_screen")
+                            else navCtrl.navigate("lose_screen")
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -146,7 +140,6 @@ class GameActivity : ComponentActivity() {
                     ) {
                         Text(text = "CONFIRM", fontSize = 18.sp)
                     };
-
                 }
             }
         }
@@ -158,11 +151,41 @@ class GameActivity : ComponentActivity() {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .background(winGreen),
                 contentAlignment = Alignment.Center
             ) {
 
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
+                    Text(
+                        text = "Congratulations, you won 5 Musixpoints!",
+                        color = Color.White,
+                        fontSize = 27.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(30.dp)
+                    )
+
+                    TextButton(
+                        modifier = Modifier
+                            .width(200.dp)
+                            .padding(28.dp),
+                        onClick = {
+                            startActivity(Intent(this@GameActivity, MainActivity::class.java))
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            contentColor = Color.White
+                        ), enabled = true
+                    ) {
+                        Text(text = "OK", fontSize = 18.sp)
+                    }
+                }
             }
         }
     }
@@ -173,7 +196,9 @@ class GameActivity : ComponentActivity() {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .background(loseRed),
+
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -183,7 +208,28 @@ class GameActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
+                    Text(
+                        text = "Wrong answer, you lost 1 Musixpoint!",
+                        color = Color.White,
+                        fontSize = 27.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(30.dp)
+                    )
 
+                    TextButton(
+                        modifier = Modifier
+                            .width(200.dp)
+                            .padding(28.dp),
+                        onClick = {
+                            startActivity(Intent(this@GameActivity, MainActivity::class.java))
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            contentColor = Color.White
+                        ), enabled = true
+                    ) {
+                        Text(text = "OK", fontSize = 18.sp)
+                    };
                 }
             }
         }
@@ -209,11 +255,12 @@ class GameActivity : ComponentActivity() {
                 unfocusedLabelColor = Color(0x70FFFFFF),
             ),
             textStyle = LocalTextStyle.current.copy(
-                fontSize = 24.sp),
+                fontSize = 24.sp
+            ),
             label = { Text(hint) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            )
+        )
     }
 
     @Composable
