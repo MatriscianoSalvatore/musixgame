@@ -130,8 +130,7 @@ class MainActivity : ComponentActivity() {
                             .padding(20.dp)
                             .width(200.dp),
                         onClick = {
-                            Firebase.auth.signOut()
-                            startActivity(Intent(this@MainActivity, SigninActivity::class.java))
+                            startActivity(Intent(this@MainActivity, GameActivity::class.java))
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
