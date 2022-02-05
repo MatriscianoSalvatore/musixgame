@@ -10,14 +10,18 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -244,9 +248,11 @@ class SigninActivity : ComponentActivity() {
         hint: String,
         textfieldType: TextfieldType
     ) {
+        val focusManager = LocalFocusManager.current
         TextField(
             value = value,
             maxLines = 1,
+            singleLine = true,
             onValueChange = onInputChanged,
             modifier = Modifier
                 .padding(0.dp, 10.dp, 0.dp, 0.dp),
@@ -256,12 +262,21 @@ class SigninActivity : ComponentActivity() {
             ),
             label = { Text(hint) },
             visualTransformation = if (textfieldType == TextfieldType.PASSWORD) PasswordVisualTransformation() else VisualTransformation.None,
+            keyboardActions = if (textfieldType == TextfieldType.PASSWORD) KeyboardActions(onDone = { focusManager.clearFocus() })
+            else KeyboardActions(onDone = { focusManager.moveFocus(FocusDirection.Next) }),
             keyboardOptions = when (textfieldType) {
                 TextfieldType.PASSWORD -> KeyboardOptions(
-                    keyboardType = KeyboardType.Password
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
                 )
-                TextfieldType.EMAIL -> KeyboardOptions(keyboardType = KeyboardType.Email)
-                else -> KeyboardOptions(keyboardType = KeyboardType.Text)
+                TextfieldType.EMAIL -> KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                )
+                else -> KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                )
             },
         )
     }
@@ -272,9 +287,11 @@ class SigninActivity : ComponentActivity() {
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
-                    auth.currentUser?.updateProfile(UserProfileChangeRequest.Builder()
-                        .setDisplayName(name)
-                        .build())
+                    auth.currentUser?.updateProfile(
+                        UserProfileChangeRequest.Builder()
+                            .setDisplayName(name)
+                            .build()
+                    )
 
                     val db = Firebase.firestore
                     val user = hashMapOf(
@@ -326,7 +343,12 @@ class SigninActivity : ComponentActivity() {
     @Composable
     fun Navigation(user: FirebaseUser?) {
         val navCtrl = rememberNavController()
-        if (user != null)   startActivity(Intent(this@SigninActivity, MainActivity::class.java)) else {
+        if (user != null) startActivity(
+            Intent(
+                this@SigninActivity,
+                MainActivity::class.java
+            )
+        ) else {
             NavHost(navController = navCtrl, startDestination = "launcher_screen") {
                 composable("launcher_screen") {
                     LauncherScreen(navCtrl = navCtrl)

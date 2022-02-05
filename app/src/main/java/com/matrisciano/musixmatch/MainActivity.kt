@@ -11,6 +11,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -110,8 +112,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .wrapContentSize(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                    var title by rememberSaveable { mutableStateOf("") }
 
+                    var title by rememberSaveable { mutableStateOf("") }
                     MusixGameTextField(
                         title,
                         onInputChanged = { title = it },
@@ -288,9 +290,11 @@ class MainActivity : ComponentActivity() {
         onInputChanged: (String) -> Unit,
         hint: String,
     ) {
+        val focusManager = LocalFocusManager.current
         TextField(
             value = value,
             maxLines = 1,
+            singleLine = true,
             onValueChange = onInputChanged,
             modifier = Modifier
                 .padding(0.dp, 10.dp, 0.dp, 0.dp),
@@ -300,8 +304,9 @@ class MainActivity : ComponentActivity() {
                 unfocusedLabelColor = Color(0x70FFFFFF),
             ),
             label = { Text(hint) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-        )
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+            )
     }
 
     @Preview(showBackground = true)
