@@ -42,9 +42,9 @@ import com.matrisciano.musixmatch.ui.theme.winGreen
 class GameActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
-
+    private val maxChars = 235;
     private var testLyrics =
-        "Vespe truccate anni '60\nGirano in centro sfiorando i 90\nRosse di fuoco, comincia la danza\nDi frecce con dietro attaccata una targa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza"
+        "Vespe truccate anni '60\nGirano in centro sfiorando i 90\nRosse di fuoco, comincia la danza\nDi frecce con dietro attaccata una targa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza\nMa quanto è bello andare in giro con le ali sotto ai piedi\nSe hai una Vespa Special che ti toglie i problemi\nMa quanto è bello andare in giro per i colli bolognesi\nSe hai una Vespa Special che i toglie i problemi\\nE la scuola non va\\nMa ho una Vespa, una donna non ho\nHo una Vespa, domenica è già\nE una Vespa mi porterà (Mi porterà, mi porterà)\nFuori città\nFuori città\nFuori città\nFuori città\nFuori città\nEsco di fretta dalla mia stanza\nA marce ingranate dalla prima alla quarta\nDevo fare in fretta, devo andare a una festa\nFammi fare un giro prima sulla mia Vespa"
     private var replacedTestLyrics = ""
     private var replacedWord = ""
 
@@ -53,6 +53,8 @@ class GameActivity : ComponentActivity() {
         auth = Firebase.auth
         val currentUser = auth.currentUser
 
+        testLyrics = testLyrics.substring(0,maxChars)
+        testLyrics = testLyrics.substring(0, testLyrics.lastIndexOf(" "))
         testLyrics += "..."
         var words = testLyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
         var found = false
