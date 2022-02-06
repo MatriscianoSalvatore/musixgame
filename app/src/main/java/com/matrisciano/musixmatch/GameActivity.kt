@@ -53,12 +53,15 @@ class GameActivity : ComponentActivity() {
         auth = Firebase.auth
         val currentUser = auth.currentUser
 
-        val startChar = (0..testLyrics.length/3).random()
+        var startChar = 0
+        if (testLyrics.length > maxChars * 3) startChar = (0..testLyrics.length/3).random()
+        else if (testLyrics.length > maxChars * 2) startChar = (0..testLyrics.length/2).random()
         testLyrics = testLyrics.substring(startChar, testLyrics.length - 1)
         testLyrics = testLyrics.substring(testLyrics.indexOf(" ", startChar))
         testLyrics = testLyrics.substring(0, maxChars)
         testLyrics = testLyrics.substring(0, testLyrics.lastIndexOf(" "))
-        testLyrics += "..."
+        if (startChar != 0) testLyrics = "... $testLyrics"
+        testLyrics += " ..."
         var words = testLyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
         var found = false
         while (!found) {
