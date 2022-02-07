@@ -56,27 +56,34 @@ import retrofit2.http.Query
 class GameActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
-    private val maxChars = 235;
-    private var testLyrics =
-        "Vespe truccate anni '60\nGirano in centro sfiorando i 90\nRosse di fuoco, comincia la danza\nDi frecce con dietro attaccata una targa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza\nMa quanto è bello andare in giro con le ali sotto ai piedi\nSe hai una\nVespa Special che ti toglie i problemi\nMa quanto è bello andare in giro per i colli bolognesi\nSe hai una Vespa Special che i toglie i problemi\nE la scuola non va\nMa ho una Vespa, una donna non ho\nHo una Vespa, domenica è già\nE una Vespa mi porterà (Mi porterà, mi porterà)\nFuori città\nFuori città\nFuori città\nFuori città\nFuori città\nEsco di fretta dalla mia stanza\nA marce ingranate dalla prima alla quarta\nDevo fare in fretta, devo andare a una festa\nFammi fare un giro prima sulla mia Vespa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza\nMa quanto è bello andare in giro con le ali sotto ai piedi\nSe hai una Vespa Special che ti toglie i problemi\nMa quanto è bello andare in giro per i colli bolognesi\nSe hai una Vespa Special che i toglie i problemi\nE la scuola non va\nMa ho una Vespa, una donna non ho\nHo una\nVespa, domenica è già\nE una Vespa mi porterà (Mi porterà, mi porterà)\nFuori città\nFuori città\nFuori città"
+    private val maxChars = 185;
+    //private var testLyrics =
+    //    "Vespe truccate anni '60\nGirano in centro sfiorando i 90\nRosse di fuoco, comincia la danza\nDi frecce con dietro attaccata una targa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza\nMa quanto è bello andare in giro con le ali sotto ai piedi\nSe hai una\nVespa Special che ti toglie i problemi\nMa quanto è bello andare in giro per i colli bolognesi\nSe hai una Vespa Special che i toglie i problemi\nE la scuola non va\nMa ho una Vespa, una donna non ho\nHo una Vespa, domenica è già\nE una Vespa mi porterà (Mi porterà, mi porterà)\nFuori città\nFuori città\nFuori città\nFuori città\nFuori città\nEsco di fretta dalla mia stanza\nA marce ingranate dalla prima alla quarta\nDevo fare in fretta, devo andare a una festa\nFammi fare un giro prima sulla mia Vespa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza\nMa quanto è bello andare in giro con le ali sotto ai piedi\nSe hai una Vespa Special che ti toglie i problemi\nMa quanto è bello andare in giro per i colli bolognesi\nSe hai una Vespa Special che i toglie i problemi\nE la scuola non va\nMa ho una Vespa, una donna non ho\nHo una\nVespa, domenica è già\nE una Vespa mi porterà (Mi porterà, mi porterà)\nFuori città\nFuori città\nFuori città"
+
+    //var lyrics = intent.extras?.getString("lyrics").toString()
     private var replacedTestLyrics = ""
     private var replacedWord = ""
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         val currentUser = auth.currentUser
 
+
+        var lyrics = getIntent().getStringExtra("lyrics")
+
+
         var startChar = 0
-        if (testLyrics.length > maxChars * 3) startChar = (0..testLyrics.length / 3).random()
-        else if (testLyrics.length > maxChars * 2) startChar = (0..testLyrics.length / 2).random()
-        testLyrics = testLyrics.substring(startChar, testLyrics.length - 1)
-        testLyrics = testLyrics.substring(testLyrics.indexOf(" ", startChar))
-        testLyrics = testLyrics.substring(0, maxChars)
-        testLyrics = testLyrics.substring(0, testLyrics.lastIndexOf(" "))
-        if (startChar != 0) testLyrics = "... $testLyrics"
-        testLyrics += " ..."
-        var words = testLyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
+        if (lyrics!!.length > maxChars * 4) startChar = (0..lyrics!!.length / 3).random()
+        else if (lyrics!!.length > maxChars * 3) startChar = (0..lyrics!!.length / 2).random()
+        lyrics = lyrics!!.substring(startChar, lyrics!!.length - 1)
+        lyrics = lyrics!!.substring(lyrics!!.indexOf(" ", startChar))
+        lyrics = lyrics!!.substring(0, maxChars)
+        lyrics = lyrics!!.substring(0, lyrics!!.lastIndexOf(" "))
+        if (startChar != 0) lyrics = "... $lyrics"
+        lyrics += " ..."
+        var words = lyrics!!.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
         var found = false
         while (!found) {
             var randomNumber = (words.indices).random()
@@ -86,7 +93,7 @@ class GameActivity : ComponentActivity() {
                 var replacement = ""
                 for (char in replacedWord)
                     replacement += "*"
-                replacedTestLyrics = testLyrics.replaceFirst(replacedWord, replacement)
+                replacedTestLyrics = lyrics!!.replaceFirst(replacedWord, replacement)
             }
         }
 
