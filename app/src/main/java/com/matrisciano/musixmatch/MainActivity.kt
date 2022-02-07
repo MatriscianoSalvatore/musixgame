@@ -151,11 +151,6 @@ class MainActivity : ComponentActivity() {
                             getTrackID()
 
 
-                            val intent = Intent(this@MainActivity, GameActivity::class.java)
-                            intent.putExtra("key", "value")
-                            startActivity(intent)
-
-
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -500,6 +495,12 @@ class MainActivity : ComponentActivity() {
                         ContentValues.TAG,
                         "Response body track: " + Gson().toJson(response.body()?.message?.body?.lyrics?.lyrics_body)
                     )
+
+                    val intent = Intent(this@MainActivity, GameActivity::class.java)
+                    intent.putExtra("lyrics", Gson().toJson(response.body()?.message?.body?.lyrics?.lyrics_body))
+                    startActivity(intent)
+
+
                 }
             }
 
