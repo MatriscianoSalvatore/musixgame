@@ -340,6 +340,118 @@ class MainActivity : ComponentActivity() {
         ProfileScreen(Firebase.auth.currentUser)
     }
 
+    //https://api.musixmatch.com/ws/1.1/track.search?
+    // q_artist=cesare%20cremonini
+    // &q_track=%2250%20special
+    // &page_size=1
+    // &s_track_rating=desc
+    // &s_artist_rating=desc
+    // &apikey=4ac3d61572388ffbcb08f9e160fec313s
+
+
+    interface GetTrackID {
+        @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
+        @GET("track.search")
+        fun GetTrackIDData(
+            @Query("q_artist") q_artist: String,
+            @Query("q_track") q_track: String,
+            @Query("page_size") page_size: Number,
+            @Query("s_track_rating") s_track_rating: String,
+            @Query("s_artist_rating") s_artist_rating: String,
+            @Query("apikey") apikey: String
+        ): Call<TrackIDResponse>
+    }
+
+    class TrackIDResponse {
+        @SerializedName("message")
+        var message: TrackIDMessage? = null
+    }
+
+    class TrackIDMessage {
+        @SerializedName("body")
+        var body: TrackIDBody? = null
+    }
+
+    class TrackIDBody {
+        @SerializedName("track_list")
+        var track_list: List<TrackIDTrackList>? = null
+    }
+
+    class TrackIDTrackList {
+        @SerializedName("track")
+        var track: TrackIDTrack? = null
+    }
+
+    class TrackIDTrack {
+        @SerializedName("track_id")
+        var track_id: Object? = null
+    }
+
+    fun getTrackID() {
+        var okHttpClient = OkHttpClient.Builder().apply {
+            addInterceptor(
+                Interceptor { chain ->
+                    val builder = chain.request().newBuilder()
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
+                    return@Interceptor chain.proceed(builder.build())
+                }
+            )
+        }.build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.musixmatch.com/ws/1.1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+        val service = retrofit.create(GetTrackID::class.java)
+        val call = service.GetTrackIDData("cesare cremonini", "50 special", 1, "desc", "desc", "4ac3d61572388ffbcb08f9e160fec313")
+        call.enqueue(object : Callback<TrackIDResponse> {
+            override fun onResponse(call: Call<TrackIDResponse>, response: Response<TrackIDResponse>) {
+                Log.w(
+                    ContentValues.TAG,
+                    "Response body track: " + response
+                )
+                if (response.code() == 200) {
+
+                    Log.w(
+                        ContentValues.TAG,
+                        "Response body track: " + Gson().toJson(response.body())
+                    )
+
+                    Log.w(
+                        ContentValues.TAG,
+                        "Response body track: " + Gson().toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id)
+                    )
+                }
+            }
+
+            override fun onFailure(call: Call<TrackIDResponse>, t: Throwable) {
+                Log.w(
+                    ContentValues.TAG,
+                    "response Failure"
+                )
+            }
+        })
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     interface GetTracks {
         @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
         @GET("track.get")
@@ -368,12 +480,8 @@ class MainActivity : ComponentActivity() {
         @SerializedName("track_id")
         var track_id: Object? = null
     }
-    
 
-
-    fun getTrackID() {
-
-
+    fun getTrack() {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
@@ -383,7 +491,6 @@ class MainActivity : ComponentActivity() {
                 }
             )
         }.build()
-
 
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.musixmatch.com/ws/1.1/")
@@ -400,9 +507,6 @@ class MainActivity : ComponentActivity() {
                 )
                 if (response.code() == 200) {
 
-
-
-
                     Log.w(
                         ContentValues.TAG,
                         "Response body track: " + Gson().toJson(response.body())
@@ -412,12 +516,8 @@ class MainActivity : ComponentActivity() {
                         ContentValues.TAG,
                         "Response body track: " + Gson().toJson(response.body()?.message?.body?.track?.track_id)
                     )
-
-
-
                 }
             }
-
 
             override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
                 Log.w(
@@ -426,7 +526,5 @@ class MainActivity : ComponentActivity() {
                 )
             }
         })
-
     }
-
 }
