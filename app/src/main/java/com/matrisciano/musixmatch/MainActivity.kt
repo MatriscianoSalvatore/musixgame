@@ -1,5 +1,6 @@
 package com.matrisciano.musixmatch
 
+import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
 import android.service.controls.ControlsProviderService.TAG
@@ -37,13 +38,28 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.Query
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private val leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
+
+    private var trackID = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,7 +125,8 @@ class MainActivity : ComponentActivity() {
                 Column(
                     modifier = Modifier
                         .wrapContentSize(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
                     var title by rememberSaveable { mutableStateOf("") }
                     MusixGameTextField(
@@ -130,7 +147,15 @@ class MainActivity : ComponentActivity() {
                             .padding(20.dp)
                             .width(200.dp),
                         onClick = {
-                            startActivity(Intent(this@MainActivity, GameActivity::class.java))
+
+                            getTrackID()
+
+
+                            val intent = Intent(this@MainActivity, GameActivity::class.java)
+                            intent.putExtra("key", "value")
+                            startActivity(intent)
+
+
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -151,8 +176,10 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier
                 .wrapContentSize(Alignment.Center)
                 .padding(6.dp, 58.dp, 0.dp, 0.dp)
-                .scrollable(      state = scrollState,
-                    orientation = Orientation.Vertical )
+                .scrollable(
+                    state = scrollState,
+                    orientation = Orientation.Vertical
+                )
 
         ) {
 
@@ -163,7 +190,8 @@ class MainActivity : ComponentActivity() {
             var i = 0
             for (element in sortedLeaderboard) {
                 i++
-                Text(i.toString() + "°- " + element.key + ": " + element.value + " musixpoints",
+                Text(
+                    i.toString() + "°- " + element.key + ": " + element.value + " musixpoints",
                     textAlign = TextAlign.Start,
                     fontSize = 17.sp,
                 )
@@ -227,7 +255,9 @@ class MainActivity : ComponentActivity() {
 
     sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: String) {
         object Home : BottomNavItem("Home", R.drawable.ic_home, "home_screen")
-        object Leaderboard : BottomNavItem("Leaderboard", R.drawable.ic_leaderboard, "leaderboard_screen")
+        object Leaderboard :
+            BottomNavItem("Leaderboard", R.drawable.ic_leaderboard, "leaderboard_screen")
+
         object Profile : BottomNavItem("Profile", R.drawable.ic_profile, "profile_screen")
     }
 
@@ -301,7 +331,7 @@ class MainActivity : ComponentActivity() {
             label = { Text(hint) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-            )
+        )
     }
 
     @Preview(showBackground = true)
@@ -309,4 +339,103 @@ class MainActivity : ComponentActivity() {
     fun ProfilePreview() {
         ProfileScreen(Firebase.auth.currentUser)
     }
+
+    interface GetTracks {
+        @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
+        @GET("track.get")
+        fun getCurrentTrackData(
+            @Query("track_id") track_id: Number,
+            @Query("apikey") apikey: String
+        ): Call<TrackResponse>
+    }
+
+    class TrackResponse {
+        @SerializedName("message")
+        var message: Object? = null
+    }
+
+    /*class Message {
+        @SerializedName("body")
+        var body: Body? = null
+    }
+
+    class Body {
+        @SerializedName("track")
+        var track: Track? = null
+    }
+
+    class Track {
+        @SerializedName("track_id")
+        var track_id: TrackID? = null
+    }
+
+    class TrackID {
+        @SerializedName("track_id")
+        var track_id: Object? = null
+    }
+*/
+
+    fun getTrackID() {
+
+
+        var okHttpClient = OkHttpClient.Builder().apply {
+            addInterceptor(
+                Interceptor { chain ->
+                    val builder = chain.request().newBuilder()
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
+                    return@Interceptor chain.proceed(builder.build())
+                }
+            )
+        }.build()
+
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.musixmatch.com/ws/1.1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+        val service = retrofit.create(GetTracks::class.java)
+        val call = service.getCurrentTrackData(5920049, "4ac3d61572388ffbcb08f9e160fec313")
+        call.enqueue(object : Callback<TrackResponse> {
+            override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
+                Log.w(
+                    ContentValues.TAG,
+                    "Response body track: " + response
+                )
+                if (response.code() == 200) {
+
+
+                  /*  Log.w(
+                        ContentValues.TAG,
+                        "Response : " + response.body()?.message?.body?.track?.track_id
+                    )*/
+
+
+                    Log.w(
+                        ContentValues.TAG,
+                        "Response body track: " + Gson().toJson(response.body())
+                    )
+
+
+                 /*   Log.w(
+                        ContentValues.TAG,
+                        "Response body track: " + Gson().toJson(response.body()?.message?.body?.track?.track_id)
+                    )*/
+
+
+
+                }
+            }
+
+
+            override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
+                Log.w(
+                    ContentValues.TAG,
+                    "response Failure"
+                )
+            }
+        })
+
+    }
+
 }

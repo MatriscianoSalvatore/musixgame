@@ -31,5 +31,6 @@
             android:name=".GameActivity"
             android:theme="@style/Theme.Musixmatch" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
 </manifest>

@@ -1,5 +1,6 @@
 package com.matrisciano.musixmatch
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.service.controls.ControlsProviderService
@@ -34,10 +35,23 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.musixmatch.ui.theme.winGreen
+import io.grpc.ClientInterceptors.intercept
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.Query
 
 class GameActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -54,8 +68,8 @@ class GameActivity : ComponentActivity() {
         val currentUser = auth.currentUser
 
         var startChar = 0
-        if (testLyrics.length > maxChars * 3) startChar = (0..testLyrics.length/3).random()
-        else if (testLyrics.length > maxChars * 2) startChar = (0..testLyrics.length/2).random()
+        if (testLyrics.length > maxChars * 3) startChar = (0..testLyrics.length / 3).random()
+        else if (testLyrics.length > maxChars * 2) startChar = (0..testLyrics.length / 2).random()
         testLyrics = testLyrics.substring(startChar, testLyrics.length - 1)
         testLyrics = testLyrics.substring(testLyrics.indexOf(" ", startChar))
         testLyrics = testLyrics.substring(0, maxChars)
@@ -135,22 +149,33 @@ class GameActivity : ComponentActivity() {
                         onClick = {
 
                             val db = Firebase.firestore
-                            var points : Long
+                            var points: Long
                             db.collection("users")
                                 .get()
                                 .addOnSuccessListener { result ->
                                     for (document in result) {
-                                        Log.d(ControlsProviderService.TAG, "${document.id} => ${document.data}")
+                                        Log.d(
+                                            ControlsProviderService.TAG,
+                                            "${document.id} => ${document.data}"
+                                        )
                                         if (document.data["email"] == user?.email) {
                                             points = document.data["points"] as Long
-                                            if (answer.toLowerCase().trim() == replacedWord.toLowerCase().trim())
-                                                db.collection("users").document(document.id).update("points", points + 5)
-                                            else db.collection("users").document(document.id).update("points", points - 1)
+                                            if (answer.toLowerCase()
+                                                    .trim() == replacedWord.toLowerCase().trim()
+                                            )
+                                                db.collection("users").document(document.id)
+                                                    .update("points", points + 5)
+                                            else db.collection("users").document(document.id)
+                                                .update("points", points - 1)
                                         }
                                     }
                                 }
                                 .addOnFailureListener { exception ->
-                                    Log.w(ControlsProviderService.TAG, "Error getting documents.", exception)
+                                    Log.w(
+                                        ControlsProviderService.TAG,
+                                        "Error getting documents.",
+                                        exception
+                                    )
                                 }
 
 
