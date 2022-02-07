@@ -340,15 +340,6 @@ class MainActivity : ComponentActivity() {
         ProfileScreen(Firebase.auth.currentUser)
     }
 
-    //https://api.musixmatch.com/ws/1.1/track.search?
-    // q_artist=cesare%20cremonini
-    // &q_track=%2250%20special
-    // &page_size=1
-    // &s_track_rating=desc
-    // &s_artist_rating=desc
-    // &apikey=4ac3d61572388ffbcb08f9e160fec313s
-
-
     interface GetTrackID {
         @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
         @GET("track.search")
@@ -422,6 +413,8 @@ class MainActivity : ComponentActivity() {
                         ContentValues.TAG,
                         "Response body track: " + Gson().toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id)
                     )
+
+                    getLyrics(Gson().toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id))
                 }
             }
 
@@ -443,20 +436,11 @@ class MainActivity : ComponentActivity() {
 
 
 
-
-
-
-
-
-
-
-
-
-    interface GetTracks {
+    interface GetLyrics {
         @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
-        @GET("track.get")
+        @GET("track.lyrics.get")
         fun getCurrentTrackData(
-            @Query("track_id") track_id: Number,
+            @Query("track_id") track_id: String,
             @Query("apikey") apikey: String
         ): Call<TrackResponse>
     }
@@ -472,16 +456,16 @@ class MainActivity : ComponentActivity() {
     }
 
     class Body {
-        @SerializedName("track")
-        var track: Track? = null
+        @SerializedName("lyrics")
+        var lyrics: Lyrics? = null
     }
 
-    class Track {
-        @SerializedName("track_id")
-        var track_id: Object? = null
+    class Lyrics {
+        @SerializedName("lyrics_body")
+        var lyrics_body: Object? = null
     }
 
-    fun getTrack() {
+    fun getLyrics(trackID: String) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
@@ -497,8 +481,8 @@ class MainActivity : ComponentActivity() {
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
-        val service = retrofit.create(GetTracks::class.java)
-        val call = service.getCurrentTrackData(5920049, "4ac3d61572388ffbcb08f9e160fec313")
+        val service = retrofit.create(GetLyrics::class.java)
+        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
         call.enqueue(object : Callback<TrackResponse> {
             override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
                 Log.w(
@@ -514,7 +498,7 @@ class MainActivity : ComponentActivity() {
 
                     Log.w(
                         ContentValues.TAG,
-                        "Response body track: " + Gson().toJson(response.body()?.message?.body?.track?.track_id)
+                        "Response body track: " + Gson().toJson(response.body()?.message?.body?.lyrics?.lyrics_body)
                     )
                 }
             }
