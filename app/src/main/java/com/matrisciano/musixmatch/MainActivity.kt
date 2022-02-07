@@ -351,10 +351,10 @@ class MainActivity : ComponentActivity() {
 
     class TrackResponse {
         @SerializedName("message")
-        var message: Object? = null
+        var message: Message? = null
     }
 
-    /*class Message {
+    class Message {
         @SerializedName("body")
         var body: Body? = null
     }
@@ -366,14 +366,10 @@ class MainActivity : ComponentActivity() {
 
     class Track {
         @SerializedName("track_id")
-        var track_id: TrackID? = null
-    }
-
-    class TrackID {
-        @SerializedName("track_id")
         var track_id: Object? = null
     }
-*/
+    
+
 
     fun getTrackID() {
 
@@ -405,10 +401,6 @@ class MainActivity : ComponentActivity() {
                 if (response.code() == 200) {
 
 
-                  /*  Log.w(
-                        ContentValues.TAG,
-                        "Response : " + response.body()?.message?.body?.track?.track_id
-                    )*/
 
 
                     Log.w(
@@ -416,11 +408,10 @@ class MainActivity : ComponentActivity() {
                         "Response body track: " + Gson().toJson(response.body())
                     )
 
-
-                 /*   Log.w(
+                    Log.w(
                         ContentValues.TAG,
                         "Response body track: " + Gson().toJson(response.body()?.message?.body?.track?.track_id)
-                    )*/
+                    )
 
 
 
