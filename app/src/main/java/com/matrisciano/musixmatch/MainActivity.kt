@@ -61,8 +61,6 @@ class MainActivity : ComponentActivity() {
     private val leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
 
-    private var trackID = ""
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
@@ -163,7 +161,7 @@ class MainActivity : ComponentActivity() {
                                 .width(200.dp),
                             onClick = {
 
-                                getTrackID()
+                                getTrackID(artist, title)
 
 
                             },
@@ -427,7 +425,7 @@ class MainActivity : ComponentActivity() {
         var track_id: Object? = null
     }
 
-    fun getTrackID() {
+    fun getTrackID(artist: String, title: String) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
@@ -445,8 +443,8 @@ class MainActivity : ComponentActivity() {
             .build()
         val service = retrofit.create(GetTrackID::class.java)
         val call = service.GetTrackIDData(
-            "cesare cremonini",
-            "50 special",
+            artist,
+            title,
             1,
             "desc",
             "desc",
