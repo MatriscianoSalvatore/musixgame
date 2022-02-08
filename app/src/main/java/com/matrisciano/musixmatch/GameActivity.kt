@@ -59,16 +59,20 @@ class GameActivity : ComponentActivity() {
         //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
 
         var startChar = 0
-        if (lyrics.length > maxChars * 3) startChar = (0..lyrics.length / 3 * 2 - safeChars).random()
-        else if (lyrics.length > maxChars * 2) startChar = (0..lyrics.length / 2 - safeChars).random()
-        else if (lyrics.length > 2* safeChars) startChar = (0..safeChars).random()
+        when {
+            lyrics.length > maxChars * 3 -> startChar =
+                (0..lyrics.length / 3 * 2 - safeChars).random()
+            lyrics.length > maxChars * 2 -> startChar =
+                (0..lyrics.length / 2 - safeChars).random()
+            lyrics.length > 2 * safeChars -> startChar = (0..safeChars).random()
+        }
         lyrics = lyrics.substring(startChar)
         lyrics = lyrics.substring(lyrics.indexOf(" "))
         if (lyrics.length > maxChars) lyrics = lyrics.substring(0, maxChars)
         lyrics = lyrics.substring(0, lyrics.lastIndexOf(" "))
         if (startChar != 0) lyrics = "... $lyrics"
         lyrics += " ..."
-        var words = lyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
+        val words = lyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
         var found = false
         while (!found) {
             var randomNumber = (words.indices).random()
@@ -152,8 +156,9 @@ class GameActivity : ComponentActivity() {
                                         )
                                         if (document.data["email"] == user?.email) {
                                             points = document.data["points"] as Long
-                                            if (answer.toLowerCase()
-                                                    .trim() == replacedWord.toLowerCase().trim()
+                                            if (answer.lowercase(Locale.getDefault())
+                                                    .trim() == replacedWord.lowercase(Locale.getDefault())
+                                                    .trim()
                                             )
                                                 db.collection("users").document(document.id)
                                                     .update("points", points + 5)
@@ -170,7 +175,10 @@ class GameActivity : ComponentActivity() {
                                     )
                                 }
 
-                            if (answer.toLowerCase().trim() == replacedWord.toLowerCase().trim())
+                            if (answer.lowercase(Locale.getDefault())
+                                    .trim() == replacedWord.lowercase(Locale.getDefault())
+                                    .trim()
+                            )
                                 navCtrl.navigate("win_screen")
                             else navCtrl.navigate("lose_screen")
                         },
