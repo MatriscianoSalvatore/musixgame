@@ -185,7 +185,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .width(200.dp),
                                 onClick = {
-
+                                    getTopTracks()
                                 },
                                 colors = ButtonDefaults.textButtonColors(
                                     backgroundColor = MaterialTheme.colors.primary,
@@ -212,7 +212,6 @@ class MainActivity : ComponentActivity() {
                     state = scrollState,
                     orientation = Orientation.Vertical
                 )
-
         ) {
 
             var sortedLeaderboard: MutableMap<String, Long> = LinkedHashMap()
@@ -375,7 +374,7 @@ class MainActivity : ComponentActivity() {
     interface GetTrack {
         @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
         @GET("track.search")
-        fun GetTrackIDData(
+        fun getTrackIDData(
             @Query("q_artist") q_artist: String,
             @Query("q_track") q_track: String,
             @Query("page_size") page_size: Number,
@@ -427,7 +426,7 @@ class MainActivity : ComponentActivity() {
             .client(okHttpClient)
             .build()
         val service = retrofit.create(GetTrack::class.java)
-        val call = service.GetTrackIDData(
+        val call = service.getTrackIDData(
             artist,
             title,
             1,
@@ -525,6 +524,86 @@ class MainActivity : ComponentActivity() {
             }
 
             override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
+                showTrackNotFoundToast()
+            }
+        })
+    }
+
+    interface GetTopTracks {
+        @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
+        @GET("track.lyrics.get")
+        fun getTopTracks(
+            @Query("chart_name") chart_name: String,
+            @Query("page") page: Number,
+            @Query("page_size") page_size: Number,
+            @Query("country") country: String,
+            @Query("f_has_lyrics") f_has_lyrics: Number,
+            @Query("apikey") apikey: String
+        ): Call<TopTracksResponse>
+    }
+
+    class TopTracksResponse {
+        @SerializedName("message")
+        var message: TopTracksMessage? = null
+    }
+
+    class TopTracksMessage {
+        @SerializedName("body")
+        var body: TopTracksBody? = null
+    }
+
+    class TopTracksBody {
+        @SerializedName("track_list")
+        var track_list: List<TopTracksTrackList>? = null
+    }
+
+    class TopTracksTrackList {
+        @SerializedName("track")
+        var track: TopTracksTrack? = null
+    }
+
+    class TopTracksTrack {
+        @SerializedName("track_id")
+        var track_id: Object? = null
+    }
+
+
+    fun getTopTracks() {
+        var okHttpClient = OkHttpClient.Builder().apply {
+            addInterceptor(
+                Interceptor { chain ->
+                    val builder = chain.request().newBuilder()
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
+                    return@Interceptor chain.proceed(builder.build())
+                }
+            )
+        }.build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.musixmatch.com/ws/1.1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+        val service = retrofit.create(GetTopTracks::class.java)
+        val call = service.getTopTracks("top", 1, 100, "it", 1, "4ac3d61572388ffbcb08f9e160fec313")
+        call.enqueue(object : Callback<TopTracksResponse> {
+            override fun onResponse(call: Call<TopTracksResponse>, response: Response<TopTracksResponse>) {
+                if (response.code() == 200) {
+                    try {
+                        var lyrics = Gson().newBuilder().disableHtmlEscaping().create()
+                            .toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id)
+                        if (lyrics != null) {
+                            val intent = Intent(this@MainActivity, GameActivity::class.java)
+                            intent.putExtra("lyrics", lyrics)
+                            startActivity(intent)
+                        } else showTrackNotFoundToast()
+                    } catch (e: Exception) {
+                        showTrackNotFoundToast()
+                    }
+                } else showTrackNotFoundToast()
+            }
+
+            override fun onFailure(call: Call<TopTracksResponse>, t: Throwable) {
                 showTrackNotFoundToast()
             }
         })
