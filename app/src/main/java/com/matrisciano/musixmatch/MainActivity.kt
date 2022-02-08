@@ -1,10 +1,10 @@
 package com.matrisciano.musixmatch
 
-import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.text.htmlEncode
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -46,7 +45,6 @@ import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -55,6 +53,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
+import kotlin.Exception
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -123,10 +122,8 @@ class MainActivity : ComponentActivity() {
                 contentAlignment = Alignment.Center
             ) {
 
-
                 Column(
                 ) {
-
 
                     Column(
                         modifier = Modifier
@@ -160,10 +157,7 @@ class MainActivity : ComponentActivity() {
                                 .padding(20.dp)
                                 .width(200.dp),
                             onClick = {
-
-                                getTrackID(artist, title)
-
-
+                                getTrack(artist, title)
                             },
                             colors = ButtonDefaults.textButtonColors(
                                 backgroundColor = MaterialTheme.colors.primary,
@@ -172,8 +166,6 @@ class MainActivity : ComponentActivity() {
                         ) {
                             Text(text = "GUESS THE WORD! \uD83C\uDFA4")
                         }
-
-
 
                         Column(
                             modifier = Modifier
@@ -189,12 +181,10 @@ class MainActivity : ComponentActivity() {
                                     .padding(0.dp, 90.dp, 0.dp, 16.dp),
                             )
 
-
                             TextButton(
                                 modifier = Modifier
                                     .width(200.dp),
                                 onClick = {
-
 
                                 },
                                 colors = ButtonDefaults.textButtonColors(
@@ -204,13 +194,8 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 Text(text = "WHO SINGS? \uD83C\uDFA4")
                             }
-
                         }
-
-
                     }
-
-
                 }
             }
         }
@@ -387,7 +372,7 @@ class MainActivity : ComponentActivity() {
         ProfileScreen(Firebase.auth.currentUser)
     }
 
-    interface GetTrackID {
+    interface GetTrack {
         @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
         @GET("track.search")
         fun GetTrackIDData(
@@ -425,7 +410,7 @@ class MainActivity : ComponentActivity() {
         var track_id: Object? = null
     }
 
-    fun getTrackID(artist: String, title: String) {
+    fun getTrack(artist: String, title: String) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
@@ -441,7 +426,7 @@ class MainActivity : ComponentActivity() {
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
-        val service = retrofit.create(GetTrackID::class.java)
+        val service = retrofit.create(GetTrack::class.java)
         val call = service.GetTrackIDData(
             artist,
             title,
@@ -455,39 +440,25 @@ class MainActivity : ComponentActivity() {
                 call: Call<TrackIDResponse>,
                 response: Response<TrackIDResponse>
             ) {
-                Log.w(
-                    ContentValues.TAG,
-                    "Response body track: " + response
-                )
                 if (response.code() == 200) {
-
-                    Log.w(
-                        ContentValues.TAG,
-                        "Response body track: " + Gson().toJson(response.body())
-                    )
-
-                    Log.w(
-                        ContentValues.TAG,
-                        "Response body track: " + Gson().toJson(
-                            response.body()?.message?.body?.track_list?.get(
-                                0
-                            )?.track?.track_id
-                        )
-                    )
-
-                    getLyrics(Gson().toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id))
-                }
+                    try {
+                        if (response.body() != null && response.body()?.message != null && response.body()?.message?.body?.track_list != null) {
+                            var trackID =
+                                Gson().toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id)
+                            if (trackID != null) getLyrics(trackID)
+                            else showTrackNotFoundToast()
+                        } else showTrackNotFoundToast()
+                    } catch (e: Exception) {
+                        showTrackNotFoundToast()
+                    }
+                } else showTrackNotFoundToast()
             }
 
             override fun onFailure(call: Call<TrackIDResponse>, t: Throwable) {
-                Log.w(
-                    ContentValues.TAG,
-                    "response Failure"
-                )
+                showTrackNotFoundToast()
             }
         })
     }
-
 
     interface GetLyrics {
         @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
@@ -538,39 +509,31 @@ class MainActivity : ComponentActivity() {
         val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
         call.enqueue(object : Callback<TrackResponse> {
             override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
-                Log.w(
-                    ContentValues.TAG,
-                    "Response body track: " + response
-                )
                 if (response.code() == 200) {
-
-                    Log.w(
-                        ContentValues.TAG,
-                        "Response body track: " + Gson().toJson(response.body())
-                    )
-
-                    Log.w(
-                        ContentValues.TAG,
-                        "Response body track: " + Gson().toJson(response.body()?.message?.body?.lyrics?.lyrics_body)
-                    )
-
-                    val intent = Intent(this@MainActivity, GameActivity::class.java)
-                    intent.putExtra(
-                        "lyrics", Gson().newBuilder().disableHtmlEscaping().create()
+                    try {
+                        var lyrics = Gson().newBuilder().disableHtmlEscaping().create()
                             .toJson(response.body()?.message?.body?.lyrics?.lyrics_body)
-                    )
-                    startActivity(intent)
-
-
-                }
+                        if (lyrics != null) {
+                            val intent = Intent(this@MainActivity, GameActivity::class.java)
+                            intent.putExtra("lyrics", lyrics)
+                            startActivity(intent)
+                        } else showTrackNotFoundToast()
+                    } catch (e: Exception) {
+                        showTrackNotFoundToast()
+                    }
+                } else showTrackNotFoundToast()
             }
 
             override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
-                Log.w(
-                    ContentValues.TAG,
-                    "response Failure"
-                )
+                showTrackNotFoundToast()
             }
         })
+    }
+
+    fun showTrackNotFoundToast() {
+        Toast.makeText(
+            baseContext, "Track not found",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

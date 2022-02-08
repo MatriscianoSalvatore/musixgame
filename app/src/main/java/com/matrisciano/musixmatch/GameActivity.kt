@@ -1,6 +1,5 @@
 package com.matrisciano.musixmatch
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.service.controls.ControlsProviderService
@@ -35,26 +34,10 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.musixmatch.ui.theme.winGreen
-
-import io.grpc.ClientInterceptors.intercept
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Query
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 import java.util.*
 
 class GameActivity : ComponentActivity() {
@@ -62,35 +45,30 @@ class GameActivity : ComponentActivity() {
 
     private val maxChars = 185;
     private val safeChars = 45;
-    //private var testLyrics =
-    //    "Vespe truccate anni '60\nGirano in centro sfiorando i 90\nRosse di fuoco, comincia la danza\nDi frecce con dietro attaccata una targa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza\nMa quanto è bello andare in giro con le ali sotto ai piedi\nSe hai una\nVespa Special che ti toglie i problemi\nMa quanto è bello andare in giro per i colli bolognesi\nSe hai una Vespa Special che i toglie i problemi\nE la scuola non va\nMa ho una Vespa, una donna non ho\nHo una Vespa, domenica è già\nE una Vespa mi porterà (Mi porterà, mi porterà)\nFuori città\nFuori città\nFuori città\nFuori città\nFuori città\nEsco di fretta dalla mia stanza\nA marce ingranate dalla prima alla quarta\nDevo fare in fretta, devo andare a una festa\nFammi fare un giro prima sulla mia Vespa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza\nMa quanto è bello andare in giro con le ali sotto ai piedi\nSe hai una Vespa Special che ti toglie i problemi\nMa quanto è bello andare in giro per i colli bolognesi\nSe hai una Vespa Special che i toglie i problemi\nE la scuola non va\nMa ho una Vespa, una donna non ho\nHo una\nVespa, domenica è già\nE una Vespa mi porterà (Mi porterà, mi porterà)\nFuori città\nFuori città\nFuori città"
-    //var lyrics = intent.extras?.getString("lyrics").toString()
     private var replacedTestLyrics = ""
     private var replacedWord = ""
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         val currentUser = auth.currentUser
 
-
         var lyrics = getIntent().getStringExtra("lyrics")
         lyrics = lyrics!!.replace("\\n******* This Lyrics is NOT for Commercial use *******\\n", "")
-        lyrics = lyrics!!.replace("\\n", "\n")
+        lyrics = lyrics.replace("\\n", "\n")
         //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
 
         var startChar = 0
-        if (lyrics!!.length > maxChars * 3) startChar = (0..lyrics!!.length / 3 * 2 - safeChars).random()
-        else if (lyrics!!.length > maxChars * 2) startChar = (0..lyrics!!.length / 2 - safeChars).random()
-        else if (lyrics!!.length > 2* safeChars) startChar = (0..safeChars).random()
-        lyrics = lyrics!!.substring(startChar)
-        lyrics = lyrics!!.substring(lyrics!!.indexOf(" "))
-        if (lyrics!!.length > maxChars) lyrics = lyrics!!.substring(0, maxChars)
-        lyrics = lyrics!!.substring(0, lyrics!!.lastIndexOf(" "))
+        if (lyrics.length > maxChars * 3) startChar = (0..lyrics.length / 3 * 2 - safeChars).random()
+        else if (lyrics.length > maxChars * 2) startChar = (0..lyrics.length / 2 - safeChars).random()
+        else if (lyrics.length > 2* safeChars) startChar = (0..safeChars).random()
+        lyrics = lyrics.substring(startChar)
+        lyrics = lyrics.substring(lyrics.indexOf(" "))
+        if (lyrics.length > maxChars) lyrics = lyrics.substring(0, maxChars)
+        lyrics = lyrics.substring(0, lyrics.lastIndexOf(" "))
         if (startChar != 0) lyrics = "... $lyrics"
         lyrics += " ..."
-        var words = lyrics!!.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
+        var words = lyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
         var found = false
         while (!found) {
             var randomNumber = (words.indices).random()
@@ -100,7 +78,7 @@ class GameActivity : ComponentActivity() {
                 var replacement = ""
                 for (char in replacedWord)
                     replacement += "*"
-                replacedTestLyrics = lyrics!!.replaceFirst(replacedWord, replacement)
+                replacedTestLyrics = lyrics.replaceFirst(replacedWord, replacement)
             }
         }
 
@@ -192,11 +170,9 @@ class GameActivity : ComponentActivity() {
                                     )
                                 }
 
-
                             if (answer.toLowerCase().trim() == replacedWord.toLowerCase().trim())
                                 navCtrl.navigate("win_screen")
                             else navCtrl.navigate("lose_screen")
-
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
