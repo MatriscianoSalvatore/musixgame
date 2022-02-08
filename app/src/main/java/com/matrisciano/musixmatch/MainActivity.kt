@@ -1,7 +1,9 @@
 package com.matrisciano.musixmatch
 
+import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
+import android.service.controls.ControlsProviderService
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import android.widget.Toast
@@ -53,12 +55,15 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
+import java.util.*
 import kotlin.Exception
+import kotlin.collections.LinkedHashMap
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private val leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
+    private val maxTracks = 100;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -371,6 +376,7 @@ class MainActivity : ComponentActivity() {
         ProfileScreen(Firebase.auth.currentUser)
     }
 
+
     interface GetTrack {
         @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
         @GET("track.search")
@@ -459,6 +465,7 @@ class MainActivity : ComponentActivity() {
         })
     }
 
+
     interface GetLyrics {
         @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
         @GET("track.lyrics.get")
@@ -529,9 +536,10 @@ class MainActivity : ComponentActivity() {
         })
     }
 
+
     interface GetTopTracks {
         @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
-        @GET("track.lyrics.get")
+        @GET("chart.tracks.get")
         fun getTopTracks(
             @Query("chart_name") chart_name: String,
             @Query("page") page: Number,
@@ -565,8 +573,8 @@ class MainActivity : ComponentActivity() {
     class TopTracksTrack {
         @SerializedName("track_id")
         var track_id: Object? = null
+        var artist_name: Object? = null
     }
-
 
     fun getTopTracks() {
         var okHttpClient = OkHttpClient.Builder().apply {
@@ -585,17 +593,65 @@ class MainActivity : ComponentActivity() {
             .client(okHttpClient)
             .build()
         val service = retrofit.create(GetTopTracks::class.java)
-        val call = service.getTopTracks("top", 1, 100, "it", 1, "4ac3d61572388ffbcb08f9e160fec313")
+        val call =
+            service.getTopTracks("top", 1, maxTracks, "it", 1, "4ac3d61572388ffbcb08f9e160fec313")
         call.enqueue(object : Callback<TopTracksResponse> {
-            override fun onResponse(call: Call<TopTracksResponse>, response: Response<TopTracksResponse>) {
+            override fun onResponse(
+                call: Call<TopTracksResponse>,
+                response: Response<TopTracksResponse>
+            ) {
                 if (response.code() == 200) {
                     try {
-                        var lyrics = Gson().newBuilder().disableHtmlEscaping().create()
-                            .toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id)
-                        if (lyrics != null) {
-                            val intent = Intent(this@MainActivity, GameActivity::class.java)
+                        var topTracks = Gson().newBuilder().disableHtmlEscaping().create()
+                            .toJson(response.body()?.message?.body?.track_list)
+                        if (topTracks != null) {
+                            var i1 = (0..99).random()
+                            var track1 = ""
+                            var artist1 = ""
+                            var artist2 = ""
+                            var artist3 = ""
+
+                            while (artist1 == artist2 || artist2 == artist3) {
+                                Log.d(
+                                    ControlsProviderService.TAG,
+                                    "ciaone"
+                                )
+                                var i2 = (0..99).random()
+                                var i3 = (0..99).random()
+
+                                track1 = Gson().newBuilder().disableHtmlEscaping().create()
+                                    .toJson(response.body()?.message?.body?.track_list?.get(i1)?.track?.track_id)
+                                artist1 = Gson().newBuilder().disableHtmlEscaping().create()
+                                    .toJson(response.body()?.message?.body?.track_list?.get(i1)?.track?.artist_name)
+                                artist2 = Gson().newBuilder().disableHtmlEscaping().create()
+                                    .toJson(response.body()?.message?.body?.track_list?.get(i2)?.track?.artist_name)
+                                artist3 = Gson().newBuilder().disableHtmlEscaping().create()
+                                    .toJson(response.body()?.message?.body?.track_list?.get(i3)?.track?.artist_name)
+                            }
+
+                            Log.d(
+                                ControlsProviderService.TAG,
+                                "ciao track1: " + track1
+                            )
+
+                            Log.d(
+                                ControlsProviderService.TAG,
+                                "ciao artist1: " + artist1
+                            )
+
+                            Log.d(
+                                ControlsProviderService.TAG,
+                                "ciao artist2: " + artist2
+                            )
+
+                            Log.d(
+                                ControlsProviderService.TAG,
+                                "ciao artist3: " + artist3
+                            )
+
+                            /*val intent = Intent(this@MainActivity, GameActivity::class.java)
                             intent.putExtra("lyrics", lyrics)
-                            startActivity(intent)
+                            startActivity(intent)*/
                         } else showTrackNotFoundToast()
                     } catch (e: Exception) {
                         showTrackNotFoundToast()
