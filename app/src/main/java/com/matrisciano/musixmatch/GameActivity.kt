@@ -41,6 +41,7 @@ import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.musixmatch.ui.theme.winGreen
+
 import io.grpc.ClientInterceptors.intercept
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -52,6 +53,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+import java.util.*
 
 class GameActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -59,7 +63,6 @@ class GameActivity : ComponentActivity() {
     private val maxChars = 185;
     //private var testLyrics =
     //    "Vespe truccate anni '60\nGirano in centro sfiorando i 90\nRosse di fuoco, comincia la danza\nDi frecce con dietro attaccata una targa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza\nMa quanto è bello andare in giro con le ali sotto ai piedi\nSe hai una\nVespa Special che ti toglie i problemi\nMa quanto è bello andare in giro per i colli bolognesi\nSe hai una Vespa Special che i toglie i problemi\nE la scuola non va\nMa ho una Vespa, una donna non ho\nHo una Vespa, domenica è già\nE una Vespa mi porterà (Mi porterà, mi porterà)\nFuori città\nFuori città\nFuori città\nFuori città\nFuori città\nEsco di fretta dalla mia stanza\nA marce ingranate dalla prima alla quarta\nDevo fare in fretta, devo andare a una festa\nFammi fare un giro prima sulla mia Vespa\nDammi una Special, l'estate che avanza\nDammi una Vespa e ti porto in vacanza\nMa quanto è bello andare in giro con le ali sotto ai piedi\nSe hai una Vespa Special che ti toglie i problemi\nMa quanto è bello andare in giro per i colli bolognesi\nSe hai una Vespa Special che i toglie i problemi\nE la scuola non va\nMa ho una Vespa, una donna non ho\nHo una\nVespa, domenica è già\nE una Vespa mi porterà (Mi porterà, mi porterà)\nFuori città\nFuori città\nFuori città"
-
     //var lyrics = intent.extras?.getString("lyrics").toString()
     private var replacedTestLyrics = ""
     private var replacedWord = ""
@@ -72,14 +75,15 @@ class GameActivity : ComponentActivity() {
 
 
         var lyrics = getIntent().getStringExtra("lyrics")
+        //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
 
 
         var startChar = 0
-        if (lyrics!!.length > maxChars * 4) startChar = (0..lyrics!!.length / 3).random()
-        else if (lyrics!!.length > maxChars * 3) startChar = (0..lyrics!!.length / 2).random()
+        if (lyrics!!.length > maxChars * 3) startChar = (0..(lyrics!!.length / 3)).random()
+        else if (lyrics!!.length > maxChars * 2) startChar = (0..(lyrics!!.length / 2)).random()
         lyrics = lyrics!!.substring(startChar, lyrics!!.length - 1)
         lyrics = lyrics!!.substring(lyrics!!.indexOf(" ", startChar))
-        lyrics = lyrics!!.substring(0, maxChars)
+        if (lyrics!!.length > maxChars) lyrics = lyrics!!.substring(0, maxChars)
         lyrics = lyrics!!.substring(0, lyrics!!.lastIndexOf(" "))
         if (startChar != 0) lyrics = "... $lyrics"
         lyrics += " ..."

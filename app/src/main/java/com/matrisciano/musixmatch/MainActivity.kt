@@ -22,11 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.htmlEncode
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -122,43 +124,95 @@ class MainActivity : ComponentActivity() {
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
+
+
                 Column(
-                    modifier = Modifier
-                        .wrapContentSize(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    var title by rememberSaveable { mutableStateOf("") }
-                    MusixGameTextField(
-                        title,
-                        onInputChanged = { title = it },
-                        hint = "Title",
-                    )
 
-                    var artist by rememberSaveable { mutableStateOf("") }
-                    MusixGameTextField(
-                        artist,
-                        onInputChanged = { artist = it },
-                        hint = "Artist",
-                    )
-
-                    TextButton(
+                    Column(
                         modifier = Modifier
-                            .padding(20.dp)
-                            .width(200.dp),
-                        onClick = {
-
-                            getTrackID()
-
-
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            backgroundColor = MaterialTheme.colors.primary,
-                            contentColor = Color.White
-                        ), enabled = (title != "" && artist != "")
+                            .wrapContentSize(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "PLAY")
-                    };
+
+                        Text(
+                            text = "Game 1: guess the missing word",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp)
+                        )
+
+                        var title by rememberSaveable { mutableStateOf("") }
+                        MusixGameTextField(
+                            title,
+                            onInputChanged = { title = it },
+                            hint = "Title",
+                        )
+
+                        var artist by rememberSaveable { mutableStateOf("") }
+                        MusixGameTextField(
+                            artist,
+                            onInputChanged = { artist = it },
+                            hint = "Artist",
+                        )
+
+                        TextButton(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .width(200.dp),
+                            onClick = {
+
+                                getTrackID()
+
+
+                            },
+                            colors = ButtonDefaults.textButtonColors(
+                                backgroundColor = MaterialTheme.colors.primary,
+                                contentColor = Color.White
+                            ), enabled = (title != "" && artist != "")
+                        ) {
+                            Text(text = "GUESS THE WORD! \uD83C\uDFA4")
+                        }
+
+
+
+                        Column(
+                            modifier = Modifier
+                                .wrapContentSize(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+                            Text(
+                                text = "Game 2: guess the singer",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                modifier = Modifier
+                                    .padding(0.dp, 90.dp, 0.dp, 16.dp),
+                            )
+
+
+                            TextButton(
+                                modifier = Modifier
+                                    .width(200.dp),
+                                onClick = {
+
+
+                                },
+                                colors = ButtonDefaults.textButtonColors(
+                                    backgroundColor = MaterialTheme.colors.primary,
+                                    contentColor = Color.White
+                                ), enabled = true
+                            ) {
+                                Text(text = "WHO SINGS? \uD83C\uDFA4")
+                            }
+
+                        }
+
+
+                    }
+
+
                 }
             }
         }
@@ -390,9 +444,19 @@ class MainActivity : ComponentActivity() {
             .client(okHttpClient)
             .build()
         val service = retrofit.create(GetTrackID::class.java)
-        val call = service.GetTrackIDData("cesare cremonini", "50 special", 1, "desc", "desc", "4ac3d61572388ffbcb08f9e160fec313")
+        val call = service.GetTrackIDData(
+            "cesare cremonini",
+            "50 special",
+            1,
+            "desc",
+            "desc",
+            "4ac3d61572388ffbcb08f9e160fec313"
+        )
         call.enqueue(object : Callback<TrackIDResponse> {
-            override fun onResponse(call: Call<TrackIDResponse>, response: Response<TrackIDResponse>) {
+            override fun onResponse(
+                call: Call<TrackIDResponse>,
+                response: Response<TrackIDResponse>
+            ) {
                 Log.w(
                     ContentValues.TAG,
                     "Response body track: " + response
@@ -406,7 +470,11 @@ class MainActivity : ComponentActivity() {
 
                     Log.w(
                         ContentValues.TAG,
-                        "Response body track: " + Gson().toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id)
+                        "Response body track: " + Gson().toJson(
+                            response.body()?.message?.body?.track_list?.get(
+                                0
+                            )?.track?.track_id
+                        )
                     )
 
                     getLyrics(Gson().toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id))
@@ -421,14 +489,6 @@ class MainActivity : ComponentActivity() {
             }
         })
     }
-
-
-
-
-
-
-
-
 
 
     interface GetLyrics {
@@ -457,7 +517,7 @@ class MainActivity : ComponentActivity() {
 
     class Lyrics {
         @SerializedName("lyrics_body")
-        var lyrics_body: Object? = null
+        var lyrics_body: String? = null
     }
 
     fun getLyrics(trackID: String) {
@@ -497,7 +557,10 @@ class MainActivity : ComponentActivity() {
                     )
 
                     val intent = Intent(this@MainActivity, GameActivity::class.java)
-                    intent.putExtra("lyrics", Gson().toJson(response.body()?.message?.body?.lyrics?.lyrics_body))
+                    intent.putExtra(
+                        "lyrics", Gson().newBuilder().disableHtmlEscaping().create()
+                            .toJson(response.body()?.message?.body?.lyrics?.lyrics_body)
+                    )
                     startActivity(intent)
 
 
