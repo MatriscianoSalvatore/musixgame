@@ -75,6 +75,8 @@ class GameActivity : ComponentActivity() {
 
 
         var lyrics = getIntent().getStringExtra("lyrics")
+        lyrics = lyrics!!.replace("\\n", "\n")
+        lyrics = lyrics!!.replace("\\n\\n******* This Lyrics is NOT for Commercial use *******\\n", "")
         //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
 
 
