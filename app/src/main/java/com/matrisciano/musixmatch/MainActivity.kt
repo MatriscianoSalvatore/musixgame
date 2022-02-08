@@ -616,8 +616,8 @@ class MainActivity : ComponentActivity() {
                                     ControlsProviderService.TAG,
                                     "ciaone"
                                 )
-                                var i2 = (0..99).random()
-                                var i3 = (0..99).random()
+                                var i2 = (0 until maxTracks).random()
+                                var i3 = (0 until maxTracks).random()
 
                                 track1 = Gson().newBuilder().disableHtmlEscaping().create()
                                     .toJson(response.body()?.message?.body?.track_list?.get(i1)?.track?.track_id)
@@ -628,6 +628,8 @@ class MainActivity : ComponentActivity() {
                                 artist3 = Gson().newBuilder().disableHtmlEscaping().create()
                                     .toJson(response.body()?.message?.body?.track_list?.get(i3)?.track?.artist_name)
                             }
+
+                            getSnippet(track1)
 
                             Log.d(
                                 ControlsProviderService.TAG,
@@ -664,6 +666,83 @@ class MainActivity : ComponentActivity() {
             }
         })
     }
+
+
+    interface GetSnippet {
+        @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
+        @GET("track.snippet.get")
+        fun getCurrentTrackData(
+            @Query("track_id") track_id: String,
+            @Query("apikey") apikey: String
+        ): Call<SnippetResponse>
+    }
+
+    class SnippetResponse {
+        @SerializedName("message")
+        var message: SnippetMessage? = null
+    }
+
+    class SnippetMessage {
+        @SerializedName("body")
+        var body: SnippetBody? = null
+    }
+
+    class SnippetBody {
+        @SerializedName("snippet")
+        var snippet: SnippetLyrics? = null
+    }
+
+    class SnippetLyrics {
+        @SerializedName("snippet_body")
+        var snippet_body: String? = null
+    }
+
+    fun getSnippet(trackID: String) {
+        var okHttpClient = OkHttpClient.Builder().apply {
+            addInterceptor(
+                Interceptor { chain ->
+                    val builder = chain.request().newBuilder()
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
+                    return@Interceptor chain.proceed(builder.build())
+                }
+            )
+        }.build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.musixmatch.com/ws/1.1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+        val service = retrofit.create(GetSnippet::class.java)
+        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
+        call.enqueue(object : Callback<SnippetResponse> {
+            override fun onResponse(call: Call<SnippetResponse>, response: Response<SnippetResponse>) {
+                if (response.code() == 200) {
+                    try {
+                        var snippet = Gson().newBuilder().disableHtmlEscaping().create()
+                            .toJson(response.body()?.message?.body?.snippet?.snippet_body)
+                        if (snippet != null) {
+                            Log.d(
+                                ControlsProviderService.TAG,
+                                "ciaone: " + snippet
+                            )
+                          /*  val intent = Intent(this@MainActivity, GameActivity::class.java)
+                            intent.putExtra("lyrics", lyrics)
+                            startActivity(intent)*/
+                        } else showTrackNotFoundToast()
+                    } catch (e: Exception) {
+                        showTrackNotFoundToast()
+                    }
+                } else showTrackNotFoundToast()
+            }
+
+            override fun onFailure(call: Call<SnippetResponse>, t: Throwable) {
+                showTrackNotFoundToast()
+            }
+        })
+    }
+
+
 
     fun showTrackNotFoundToast() {
         Toast.makeText(
