@@ -76,14 +76,15 @@ class GameActivity : ComponentActivity() {
 
 
         var lyrics = getIntent().getStringExtra("lyrics")
-        lyrics = lyrics!!.replace("\\n\\n******* This Lyrics is NOT for Commercial use *******\\n", "")
+        lyrics = lyrics!!.replace("\\n******* This Lyrics is NOT for Commercial use *******\\n", "")
         lyrics = lyrics!!.replace("\\n", "\n")
         //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
 
 
         var startChar = 0
-        if (lyrics!!.length > maxChars * 3) startChar = (0..(lyrics!!.length / 3 * 2 - safeChars)).random()
-        else if (lyrics!!.length > maxChars * 2) startChar = (0..(lyrics!!.length / 2 - safeChars)).random()
+        if (lyrics!!.length > maxChars * 3) startChar = (0..lyrics!!.length / 2).random()
+        else if (lyrics!!.length > maxChars * 2) startChar = (0..lyrics!!.length / 2 - safeChars).random()
+        else if (lyrics!!.length > 2* safeChars) startChar = (0..safeChars).random()
         lyrics = lyrics!!.substring(startChar, lyrics!!.length - 1)
         lyrics = lyrics!!.substring(lyrics!!.indexOf(" ", startChar))
         if (lyrics!!.length > maxChars) lyrics = lyrics!!.substring(0, maxChars)
