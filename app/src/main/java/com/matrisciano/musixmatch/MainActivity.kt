@@ -743,6 +743,7 @@ class MainActivity : ComponentActivity() {
                             intent.putExtra("artist1", artist1)
                             intent.putExtra("artist2", artist2)
                             intent.putExtra("artist3", artist3)
+                            intent.putExtra("correctIndex", correctIndex)
                             startActivity(intent)
 
                         } else showTrackNotFoundToast()
