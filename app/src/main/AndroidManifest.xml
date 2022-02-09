@@ -27,16 +27,19 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"/>
         <activity
+            android:noHistory="true"
             android:name=".MainActivity"
             android:theme="@style/Theme.Musixmatch"
             android:configChanges="orientation"
             android:screenOrientation="portrait"/>
         <activity
+            android:noHistory="true"
             android:name=".GuessWordActivity"
             android:theme="@style/Theme.Musixmatch"
             android:configChanges="orientation"
             android:screenOrientation="portrait"/>
         <activity
+            android:noHistory="true"
             android:name=".WhoSingsActivity"
             android:theme="@style/Theme.Musixmatch"
             android:configChanges="orientation"
