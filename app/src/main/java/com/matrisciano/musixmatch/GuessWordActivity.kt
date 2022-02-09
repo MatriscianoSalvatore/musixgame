@@ -162,12 +162,19 @@ class GuessWordActivity : ComponentActivity() {
                                             ) {
                                                 db.collection("users").document(document.id)
                                                     .update("points", points + 5)
-                                                navCtrl.navigate("win_screen")
+                                                navCtrl.navigate("win_screen") {
+                                                    popUpTo("game_screen") {
+                                                        inclusive = true
+                                                    }
+                                                }
                                             } else {
                                                 db.collection("users").document(document.id)
                                                     .update("points", points - 1)
-                                                navCtrl.navigate("lose_screen")
-
+                                                navCtrl.navigate("lose_screen") {
+                                                    popUpTo("game_screen") {
+                                                        inclusive = true
+                                                    }
+                                                }
                                             }
                                         }
                                     }
