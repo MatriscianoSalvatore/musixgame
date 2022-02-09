@@ -36,9 +36,6 @@ import java.util.*
 class WhoSingsActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private var snippet: String? = ""
-    private var artist1: String? = ""
-    private var artist2: String? = ""
-    private var artist3: String? = ""
     private var correctIndex = 0
     private var maxArtistChar = 55
     private var artists: MutableList<String> = mutableListOf()
@@ -49,13 +46,10 @@ class WhoSingsActivity : ComponentActivity() {
         val currentUser = auth.currentUser
 
         snippet = getIntent().getStringExtra("snippet")
-        artist1 = getIntent().getStringExtra("artist1")
-        artist2 = getIntent().getStringExtra("artist2")
-        artist3 = getIntent().getStringExtra("artist3")
+        artists.add(getIntent().getStringExtra("artist1")!!)
+        artists.add(getIntent().getStringExtra("artist2")!!)
+        artists.add(getIntent().getStringExtra("artist3")!!)
         correctIndex = getIntent().getIntExtra("correctIndex", 0)
-        artists.add(artist1!!)
-        artists.add(artist2!!)
-        artists.add(artist3!!)
 
         setContent {
             MusixmatchPinkTheme()
