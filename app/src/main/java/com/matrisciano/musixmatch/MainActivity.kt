@@ -2,7 +2,6 @@ package com.matrisciano.musixmatch
 
 import android.content.Intent
 import android.os.Bundle
-import android.service.controls.ControlsProviderService
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import android.widget.Toast
@@ -63,6 +62,9 @@ class MainActivity : ComponentActivity() {
     private val leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
     private val maxTracks = 13;
+    private var artist1temp = ""
+    private var artist2temp = ""
+    private var artist3temp = ""
     private var artist1 = ""
     private var artist2 = ""
     private var artist3 = ""
@@ -609,59 +611,65 @@ class MainActivity : ComponentActivity() {
                         if (topTracks != null) {
                             var i1 = (0..maxTracks).random()
                             var track1 = ""
-                            artist1 = ""
-                            artist2 = ""
-                            artist3 = ""
-                            while (artist1 == artist2 || artist2 == artist3 || artist1 == artist3) {
-                                Log.d(
-                                    ControlsProviderService.TAG,
-                                    "ciaone"
-                                )
+                            artist1temp = ""
+                            artist2temp = ""
+                            artist3temp = ""
+                            while (artist1temp == artist2temp || artist2temp == artist3temp || artist1temp == artist3temp) {
+
                                 var i2 = (0 until maxTracks).random()
                                 var i3 = (0 until maxTracks).random()
 
                                 track1 = Gson().newBuilder().disableHtmlEscaping().create()
                                     .toJson(response.body()?.message?.body?.track_list?.get(i1)?.track?.track_id)
-                                artist1 = Gson().newBuilder().disableHtmlEscaping().create()
+                                artist1temp = Gson().newBuilder().disableHtmlEscaping().create()
                                     .toJson(response.body()?.message?.body?.track_list?.get(i1)?.track?.artist_name)
-                                artist2 = Gson().newBuilder().disableHtmlEscaping().create()
+                                artist2temp = Gson().newBuilder().disableHtmlEscaping().create()
                                     .toJson(response.body()?.message?.body?.track_list?.get(i2)?.track?.artist_name)
-                                artist3 = Gson().newBuilder().disableHtmlEscaping().create()
+                                artist3temp = Gson().newBuilder().disableHtmlEscaping().create()
                                     .toJson(response.body()?.message?.body?.track_list?.get(i3)?.track?.artist_name)
                             }
 
+                            var j1 = 0
+                            var j2 = 0
+                            var j3 = 0
+
+                            while (j1 == j2 || j2 == j3 || j1 == j3) {
+                                j1= (0..2).random()
+                                j2= (0..2).random()
+                                j3= (0..2).random()
+                            }
+
+                            //TODO: use array and index
+                            when (j1) {
+                                0 -> artist1 = artist1temp
+                                1 -> artist1 = artist2temp
+                                2 -> artist1 = artist3temp
+                            }
+
+                            when (j2) {
+                                0 -> artist2 = artist1temp
+                                1 -> artist2 = artist2temp
+                                2 -> artist2 = artist3temp
+                            }
+
+                            when (j3) {
+                                0 -> artist3 = artist1temp
+                                1 -> artist3 = artist2temp
+                                2 -> artist3 = artist3temp
+                            }
+
+
                             getSnippet(track1)
 
-
-                            Log.d(
-                                ControlsProviderService.TAG,
-                                "ciao track1: " + track1
-                            )
-
-                            Log.d(
-                                ControlsProviderService.TAG,
-                                "ciao artist1: " + artist1
-                            )
-
-                            Log.d(
-                                ControlsProviderService.TAG,
-                                "ciao artist2: " + artist2
-                            )
-
-                            Log.d(
-                                ControlsProviderService.TAG,
-                                "ciao artist3: " + artist3
-                            )
-
-                        } else showTrackNotFoundToast("1")
+                        } else showTrackNotFoundToast()
                     } catch (e: Exception) {
-                        showTrackNotFoundToast("2")
+                        showTrackNotFoundToast()
                     }
-                } else showTrackNotFoundToast("3")
+                } else showTrackNotFoundToast()
             }
 
             override fun onFailure(call: Call<TopTracksResponse>, t: Throwable) {
-                showTrackNotFoundToast("4")
+                showTrackNotFoundToast()
             }
         })
     }
@@ -718,17 +726,10 @@ class MainActivity : ComponentActivity() {
             override fun onResponse(call: Call<SnippetResponse>, response: Response<SnippetResponse>) {
                 if (response.code() == 200) {
                     try {
-                        Log.d(
-                            ControlsProviderService.TAG,
-                            "ciao snippet: " + response.body()
-                        )
+
                         var snippet = Gson().newBuilder().disableHtmlEscaping().create()
                             .toJson(response.body()?.message?.body?.snippet?.snippet_body)
                         if (snippet != null) {
-                            Log.d(
-                                ControlsProviderService.TAG,
-                                "ciaone: " + snippet
-                            )
 
                             val intent = Intent(this@MainActivity, WhoSingsActivity::class.java)
                             intent.putExtra("snippet", snippet)
@@ -737,24 +738,24 @@ class MainActivity : ComponentActivity() {
                             intent.putExtra("artist3", artist3)
                             startActivity(intent)
 
-                        } else showTrackNotFoundToast("5")
+                        } else showTrackNotFoundToast()
                     } catch (e: Exception) {
-                        showTrackNotFoundToast("6")
+                        showTrackNotFoundToast()
                     }
-                } else showTrackNotFoundToast("7")
+                } else showTrackNotFoundToast()
             }
 
             override fun onFailure(call: Call<SnippetResponse>, t: Throwable) {
-                showTrackNotFoundToast("8")
+                showTrackNotFoundToast()
             }
         })
     }
 
 
 
-    fun showTrackNotFoundToast(param: String= "") {
+    fun showTrackNotFoundToast() {
         Toast.makeText(
-            baseContext, "Track not found " + param,
+            baseContext, "Track not found ",
             Toast.LENGTH_SHORT
         ).show()
     }
