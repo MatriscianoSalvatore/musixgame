@@ -41,6 +41,7 @@ class WhoSingsActivity : ComponentActivity() {
     private var artist3: String? = ""
     private var correctIndex = 0
     private var maxArtistChar = 55
+    private var artists: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +53,9 @@ class WhoSingsActivity : ComponentActivity() {
         artist2 = getIntent().getStringExtra("artist2")
         artist3 = getIntent().getStringExtra("artist3")
         correctIndex = getIntent().getIntExtra("correctIndex", 0)
-
+        artists.add(artist1!!)
+        artists.add(artist2!!)
+        artists.add(artist3!!)
 
         setContent {
             MusixmatchPinkTheme()
@@ -98,168 +101,58 @@ class WhoSingsActivity : ComponentActivity() {
                         modifier = Modifier.padding(15.dp)
                     )
 
-
-                    TextButton(  //TODO: use a for
-                        modifier = Modifier
-                            .width(400.dp)
-                            .padding(28.dp),
-                        onClick = {
-
-                            val db = Firebase.firestore
-                            var points: Long
-                            db.collection("users")
-                                .get()
-                                .addOnSuccessListener { result ->
-                                    for (document in result) {
-                                        Log.d(
-                                            ControlsProviderService.TAG,
-                                            "${document.id} => ${document.data}"
-                                        )
-                                        if (document.data["email"] == user?.email) {
-                                            points = document.data["points"] as Long
-                                            if (correctIndex == 0) {
-                                                db.collection("users").document(document.id)
-                                                    .update("points", points + 5)
-                                                navCtrl.navigate("win_screen")
-                                            } else {
-                                                db.collection("users").document(document.id)
-                                                    .update("points", points - 1)
-                                                navCtrl.navigate("lose_screen")
+                    for (i in 0..2) {
+                        TextButton(
+                            modifier = Modifier
+                                .width(400.dp)
+                                .padding(28.dp),
+                            onClick = {
+                                val db = Firebase.firestore
+                                var points: Long
+                                db.collection("users")
+                                    .get()
+                                    .addOnSuccessListener { result ->
+                                        for (document in result) {
+                                            Log.d(
+                                                ControlsProviderService.TAG,
+                                                "${document.id} => ${document.data}"
+                                            )
+                                            if (document.data["email"] == user?.email) {
+                                                points = document.data["points"] as Long
+                                                if (correctIndex == i) {
+                                                    db.collection("users").document(document.id)
+                                                        .update("points", points + 5)
+                                                    navCtrl.navigate("win_screen")
+                                                } else {
+                                                    db.collection("users").document(document.id)
+                                                        .update("points", points - 1)
+                                                    navCtrl.navigate("lose_screen")
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                .addOnFailureListener { exception ->
-                                    Log.w(
-                                        ControlsProviderService.TAG,
-                                        "Error getting documents.",
-                                        exception
-                                    )
-                                }
-
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            backgroundColor = MaterialTheme.colors.primary,
-                            contentColor = Color.White
-                        ),
-                        enabled = true
-                    ) {
-                        if (artist1!!.length > maxArtistChar) {
-                            artist1 = artist1!!.substring(0, maxArtistChar)
-                            artist1 = "$artist1..."
-                        }
-                        Text(text = artist1!!.replace("\"", ""), fontSize = 18.sp)
-                    };
-
-
-                    TextButton(
-                        modifier = Modifier
-                            .width(400.dp)
-                            .padding(28.dp),
-                        onClick = {
-
-
-                            val db = Firebase.firestore
-                            var points: Long
-                            db.collection("users")
-                                .get()
-                                .addOnSuccessListener { result ->
-                                    for (document in result) {
-                                        Log.d(
+                                    .addOnFailureListener { exception ->
+                                        Log.w( //TODO: show error toast
                                             ControlsProviderService.TAG,
-                                            "${document.id} => ${document.data}"
+                                            "Error getting documents.",
+                                            exception
                                         )
-                                        if (document.data["email"] == user?.email) {
-                                            points = document.data["points"] as Long
-                                            if (correctIndex == 1) {
-                                                db.collection("users").document(document.id)
-                                                    .update("points", points + 5)
-                                                navCtrl.navigate("win_screen")
-                                            } else {
-                                                db.collection("users").document(document.id)
-                                                    .update("points", points - 1)
-                                                navCtrl.navigate("lose_screen")
-                                            }
-                                        }
                                     }
-                                }
-                                .addOnFailureListener { exception ->
-                                    Log.w(
-                                        ControlsProviderService.TAG,
-                                        "Error getting documents.",
-                                        exception
-                                    )
-                                }
-
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            backgroundColor = MaterialTheme.colors.primary,
-                            contentColor = Color.White
-                        ),
-                        enabled = true
-                    ) {
-                        if (artist2!!.length > maxArtistChar) {
-                            artist2 = artist2!!.substring(0, maxArtistChar)
-                            artist2 = "$artist2..."
-                        }
-                        Text(text = artist2!!.replace("\"", ""), fontSize = 18.sp)
-                    };
-
-
-                    TextButton(
-                        modifier = Modifier
-                            .width(400.dp)
-                            .padding(28.dp),
-                        onClick = {
-
-                            val db = Firebase.firestore
-                            var points: Long
-                            db.collection("users")
-                                .get()
-                                .addOnSuccessListener { result ->
-                                    for (document in result) {
-                                        Log.d(
-                                            ControlsProviderService.TAG,
-                                            "${document.id} => ${document.data}"
-                                        )
-                                        if (document.data["email"] == user?.email) {
-                                            points = document.data["points"] as Long
-                                            if (correctIndex == 2) {
-                                                db.collection("users").document(document.id)
-                                                    .update("points", points + 5)
-                                                navCtrl.navigate("win_screen")
-                                            } else {
-                                                db.collection("users").document(document.id)
-                                                    .update("points", points - 1)
-                                                navCtrl.navigate("lose_screen")
-                                            }
-                                        }
-                                    }
-                                }
-                                .addOnFailureListener { exception ->
-                                    Log.w(
-                                        ControlsProviderService.TAG,
-                                        "Error getting documents.",
-                                        exception
-                                    )
-                                }
-                            
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            backgroundColor = MaterialTheme.colors.primary,
-                            contentColor = Color.White
-                        ),
-                        enabled = true
-                    ) {
-                        if (artist3!!.length > maxArtistChar) {
-                            artist3 = artist3!!.substring(0, maxArtistChar)
-                            artist3 = "$artist3..."
-                        }
-                        Text(text = artist3!!.replace("\"", ""), fontSize = 18.sp)
-                    };
-
+                            },
+                            colors = ButtonDefaults.textButtonColors(
+                                backgroundColor = MaterialTheme.colors.primary,
+                                contentColor = Color.White
+                            ),
+                            enabled = true
+                        ) {
+                            if (artists[i].length > maxArtistChar) {
+                                artists[i] = artists[i]!!.substring(0, maxArtistChar)
+                                artists[i] = "$artists[i]..."
+                            }
+                            Text(text = artists[i]!!.replace("\"", ""), fontSize = 18.sp)
+                        };
+                    }
                 }
-
             }
         }
     }
@@ -295,7 +188,12 @@ class WhoSingsActivity : ComponentActivity() {
                             .width(400.dp)
                             .padding(28.dp),
                         onClick = {
-                            startActivity(Intent(this@WhoSingsActivity, MainActivity::class.java))
+                            startActivity(
+                                Intent(
+                                    this@WhoSingsActivity,
+                                    MainActivity::class.java
+                                )
+                            )
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -340,7 +238,12 @@ class WhoSingsActivity : ComponentActivity() {
                             .width(400.dp)
                             .padding(28.dp),
                         onClick = {
-                            startActivity(Intent(this@WhoSingsActivity, MainActivity::class.java))
+                            startActivity(
+                                Intent(
+                                    this@WhoSingsActivity,
+                                    MainActivity::class.java
+                                )
+                            )
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -370,4 +273,5 @@ class WhoSingsActivity : ComponentActivity() {
             }
         }
     }
+
 }
