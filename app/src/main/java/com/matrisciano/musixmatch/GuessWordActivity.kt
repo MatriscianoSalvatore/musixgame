@@ -159,15 +159,21 @@ class GuessWordActivity : ComponentActivity() {
                                             if (answer.lowercase(Locale.getDefault())
                                                     .trim() == replacedWord.lowercase(Locale.getDefault())
                                                     .trim()
-                                            )
+                                            ) {
                                                 db.collection("users").document(document.id)
                                                     .update("points", points + 5)
-                                            else db.collection("users").document(document.id)
-                                                .update("points", points - 1)
+                                                navCtrl.navigate("win_screen")
+                                            } else {
+                                                db.collection("users").document(document.id)
+                                                    .update("points", points - 1)
+                                                navCtrl.navigate("lose_screen")
+
+                                            }
                                         }
                                     }
                                 }
                                 .addOnFailureListener { exception ->
+                                    //TODO: show error tost
                                     Log.w(
                                         ControlsProviderService.TAG,
                                         "Error getting documents.",
@@ -175,12 +181,6 @@ class GuessWordActivity : ComponentActivity() {
                                     )
                                 }
 
-                            if (answer.lowercase(Locale.getDefault())
-                                    .trim() == replacedWord.lowercase(Locale.getDefault())
-                                    .trim()
-                            )
-                                navCtrl.navigate("win_screen")
-                            else navCtrl.navigate("lose_screen")
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,

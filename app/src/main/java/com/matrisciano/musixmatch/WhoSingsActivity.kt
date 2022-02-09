@@ -11,16 +11,11 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,7 +30,6 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
-import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.musixmatch.ui.theme.winGreen
 import java.util.*
 
@@ -45,6 +39,7 @@ class WhoSingsActivity : ComponentActivity() {
     private var artist1: String? = ""
     private var artist2: String? = ""
     private var artist3: String? = ""
+    private var correctIndex = 0
     private var maxArtistChar = 55
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +51,7 @@ class WhoSingsActivity : ComponentActivity() {
         artist1 = getIntent().getStringExtra("artist1")
         artist2 = getIntent().getStringExtra("artist2")
         artist3 = getIntent().getStringExtra("artist3")
+        correctIndex = getIntent().getIntExtra("correctIndex", 0)
 
 
         setContent {
@@ -103,7 +99,7 @@ class WhoSingsActivity : ComponentActivity() {
                     )
 
 
-                    TextButton(
+                    TextButton(  //TODO: use a for
                         modifier = Modifier
                             .width(400.dp)
                             .padding(28.dp),
@@ -121,14 +117,15 @@ class WhoSingsActivity : ComponentActivity() {
                                         )
                                         if (document.data["email"] == user?.email) {
                                             points = document.data["points"] as Long
-                                            /*  if (answer.lowercase(Locale.getDefault())
-                                              *//*      .trim() == replacedWord.lowercase(Locale.getDefault())
-                                                    .trim()*//*
-                                            )
+                                            if (correctIndex == 0) {
                                                 db.collection("users").document(document.id)
                                                     .update("points", points + 5)
-                                            else db.collection("users").document(document.id)
-                                                .update("points", points - 1)*/
+                                                navCtrl.navigate("win_screen")
+                                            } else {
+                                                db.collection("users").document(document.id)
+                                                    .update("points", points - 1)
+                                                navCtrl.navigate("lose_screen")
+                                            }
                                         }
                                     }
                                 }
@@ -140,12 +137,6 @@ class WhoSingsActivity : ComponentActivity() {
                                     )
                                 }
 
-                            /* if (answer.lowercase(Locale.getDefault())
-                                    .trim() == replacedWord.lowercase(Locale.getDefault())
-                                    .trim()
-                            )
-                                navCtrl.navigate("win_screen")
-                            else navCtrl.navigate("lose_screen")*/
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -154,7 +145,7 @@ class WhoSingsActivity : ComponentActivity() {
                         enabled = true
                     ) {
                         if (artist1!!.length > maxArtistChar) {
-                            artist1 = artist1!!.substring(0,maxArtistChar)
+                            artist1 = artist1!!.substring(0, maxArtistChar)
                             artist1 = "$artist1..."
                         }
                         Text(text = artist1!!.replace("\"", ""), fontSize = 18.sp)
@@ -167,6 +158,7 @@ class WhoSingsActivity : ComponentActivity() {
                             .padding(28.dp),
                         onClick = {
 
+
                             val db = Firebase.firestore
                             var points: Long
                             db.collection("users")
@@ -179,14 +171,15 @@ class WhoSingsActivity : ComponentActivity() {
                                         )
                                         if (document.data["email"] == user?.email) {
                                             points = document.data["points"] as Long
-                                            /*  if (answer.lowercase(Locale.getDefault())
-                                                *//*      .trim() == replacedWord.lowercase(Locale.getDefault())
-                                                    .trim()*//*
-                                            )
+                                            if (correctIndex == 1) {
                                                 db.collection("users").document(document.id)
                                                     .update("points", points + 5)
-                                            else db.collection("users").document(document.id)
-                                                .update("points", points - 1)*/
+                                                navCtrl.navigate("win_screen")
+                                            } else {
+                                                db.collection("users").document(document.id)
+                                                    .update("points", points - 1)
+                                                navCtrl.navigate("lose_screen")
+                                            }
                                         }
                                     }
                                 }
@@ -198,12 +191,6 @@ class WhoSingsActivity : ComponentActivity() {
                                     )
                                 }
 
-                            /* if (answer.lowercase(Locale.getDefault())
-                                     .trim() == replacedWord.lowercase(Locale.getDefault())
-                                     .trim()
-                             )
-                                 navCtrl.navigate("win_screen")
-                             else navCtrl.navigate("lose_screen")*/
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -212,7 +199,7 @@ class WhoSingsActivity : ComponentActivity() {
                         enabled = true
                     ) {
                         if (artist2!!.length > maxArtistChar) {
-                            artist2 = artist2!!.substring(0,maxArtistChar)
+                            artist2 = artist2!!.substring(0, maxArtistChar)
                             artist2 = "$artist2..."
                         }
                         Text(text = artist2!!.replace("\"", ""), fontSize = 18.sp)
@@ -237,14 +224,15 @@ class WhoSingsActivity : ComponentActivity() {
                                         )
                                         if (document.data["email"] == user?.email) {
                                             points = document.data["points"] as Long
-                                            /*  if (answer.lowercase(Locale.getDefault())
-                                                *//*      .trim() == replacedWord.lowercase(Locale.getDefault())
-                                                    .trim()*//*
-                                            )
+                                            if (correctIndex == 2) {
                                                 db.collection("users").document(document.id)
                                                     .update("points", points + 5)
-                                            else db.collection("users").document(document.id)
-                                                .update("points", points - 1)*/
+                                                navCtrl.navigate("win_screen")
+                                            } else {
+                                                db.collection("users").document(document.id)
+                                                    .update("points", points - 1)
+                                                navCtrl.navigate("lose_screen")
+                                            }
                                         }
                                     }
                                 }
@@ -255,13 +243,7 @@ class WhoSingsActivity : ComponentActivity() {
                                         exception
                                     )
                                 }
-
-                            /* if (answer.lowercase(Locale.getDefault())
-                                     .trim() == replacedWord.lowercase(Locale.getDefault())
-                                     .trim()
-                             )
-                                 navCtrl.navigate("win_screen")
-                             else navCtrl.navigate("lose_screen")*/
+                            
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -270,7 +252,7 @@ class WhoSingsActivity : ComponentActivity() {
                         enabled = true
                     ) {
                         if (artist3!!.length > maxArtistChar) {
-                            artist3 = artist3!!.substring(0,maxArtistChar)
+                            artist3 = artist3!!.substring(0, maxArtistChar)
                             artist3 = "$artist3..."
                         }
                         Text(text = artist3!!.replace("\"", ""), fontSize = 18.sp)
