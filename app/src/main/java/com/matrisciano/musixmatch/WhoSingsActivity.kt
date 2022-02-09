@@ -58,7 +58,6 @@ class WhoSingsActivity : ComponentActivity() {
         artist3 = getIntent().getStringExtra("artist3")
 
 
-
         setContent {
             MusixmatchPinkTheme()
             {
