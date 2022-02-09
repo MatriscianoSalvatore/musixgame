@@ -68,6 +68,7 @@ class MainActivity : ComponentActivity() {
     private var artist1 = ""
     private var artist2 = ""
     private var artist3 = ""
+    private var correctIndex = 0;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -639,7 +640,7 @@ class MainActivity : ComponentActivity() {
                                 j3= (0..2).random()
                             }
 
-                            //TODO: use array and index
+                            //TODO: use array and index -> NO: use list and shuffle
                             when (j1) {
                                 0 -> artist1 = artist1temp
                                 1 -> artist1 = artist2temp
@@ -647,13 +648,19 @@ class MainActivity : ComponentActivity() {
                             }
 
                             when (j2) {
-                                0 -> artist2 = artist1temp
+                                0 -> {
+                                    artist2 = artist1temp
+                                    correctIndex = 1
+                                }
                                 1 -> artist2 = artist2temp
                                 2 -> artist2 = artist3temp
                             }
 
                             when (j3) {
-                                0 -> artist3 = artist1temp
+                                0 -> {
+                                    artist3 = artist1temp
+                                    correctIndex = 2
+                                }
                                 1 -> artist3 = artist2temp
                                 2 -> artist3 = artist3temp
                             }

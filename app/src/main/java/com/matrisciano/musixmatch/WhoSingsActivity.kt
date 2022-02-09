@@ -153,7 +153,10 @@ class WhoSingsActivity : ComponentActivity() {
                         ),
                         enabled = true
                     ) {
-                        if (artist1!!.length > maxArtistChar) artist1!!.substring(0,maxArtistChar)
+                        if (artist1!!.length > maxArtistChar) {
+                            artist1 = artist1!!.substring(0,maxArtistChar)
+                            artist1 = "$artist1..."
+                        }
                         Text(text = artist1!!.replace("\"", ""), fontSize = 18.sp)
                     };
 
@@ -208,7 +211,10 @@ class WhoSingsActivity : ComponentActivity() {
                         ),
                         enabled = true
                     ) {
-                        if (artist2!!.length > maxArtistChar) artist2!!.substring(0,maxArtistChar)
+                        if (artist2!!.length > maxArtistChar) {
+                            artist2 = artist2!!.substring(0,maxArtistChar)
+                            artist2 = "$artist2..."
+                        }
                         Text(text = artist2!!.replace("\"", ""), fontSize = 18.sp)
                     };
 
@@ -263,7 +269,10 @@ class WhoSingsActivity : ComponentActivity() {
                         ),
                         enabled = true
                     ) {
-                        if (artist3!!.length > maxArtistChar) artist3!!.substring(0,maxArtistChar)
+                        if (artist3!!.length > maxArtistChar) {
+                            artist3 = artist3!!.substring(0,maxArtistChar)
+                            artist3 = "$artist3..."
+                        }
                         Text(text = artist3!!.replace("\"", ""), fontSize = 18.sp)
                     };
 
