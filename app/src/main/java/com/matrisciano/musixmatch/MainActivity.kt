@@ -729,7 +729,7 @@ class MainActivity : ComponentActivity() {
 
     fun showTrackNotFoundToast() {
         Toast.makeText(
-            baseContext, "Track not found ",
+            baseContext, "Track not found",
             Toast.LENGTH_SHORT
         ).show()
     }
