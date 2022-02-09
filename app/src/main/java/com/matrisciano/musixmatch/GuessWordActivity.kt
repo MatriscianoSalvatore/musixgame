@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.service.controls.ControlsProviderService
 import android.util.Log
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -180,14 +181,11 @@ class GuessWordActivity : ComponentActivity() {
                                     }
                                 }
                                 .addOnFailureListener { exception ->
-                                    //TODO: show error tost
-                                    Log.w(
-                                        ControlsProviderService.TAG,
-                                        "Error getting documents.",
-                                        exception
-                                    )
+                                    Toast.makeText(
+                                        baseContext, "Database error",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
-
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
