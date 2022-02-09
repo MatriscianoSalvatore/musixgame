@@ -1,6 +1,5 @@
 package com.matrisciano.musixmatch
 
-import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
 import android.service.controls.ControlsProviderService
@@ -63,7 +62,10 @@ class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private val leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
-    private val maxTracks = 100;
+    private val maxTracks = 13;
+    private var artist1 = ""
+    private var artist2 = ""
+    private var artist3 = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -520,7 +522,7 @@ class MainActivity : ComponentActivity() {
                         var lyrics = Gson().newBuilder().disableHtmlEscaping().create()
                             .toJson(response.body()?.message?.body?.lyrics?.lyrics_body)
                         if (lyrics != null) {
-                            val intent = Intent(this@MainActivity, GameActivity::class.java)
+                            val intent = Intent(this@MainActivity, GuessWordActivity::class.java)
                             intent.putExtra("lyrics", lyrics)
                             startActivity(intent)
                         } else showTrackNotFoundToast()
@@ -605,13 +607,12 @@ class MainActivity : ComponentActivity() {
                         var topTracks = Gson().newBuilder().disableHtmlEscaping().create()
                             .toJson(response.body()?.message?.body?.track_list)
                         if (topTracks != null) {
-                            var i1 = (0..99).random()
+                            var i1 = (0..maxTracks).random()
                             var track1 = ""
-                            var artist1 = ""
-                            var artist2 = ""
-                            var artist3 = ""
-
-                            while (artist1 == artist2 || artist2 == artist3) {
+                            artist1 = ""
+                            artist2 = ""
+                            artist3 = ""
+                            while (artist1 == artist2 || artist2 == artist3 || artist1 == artist3) {
                                 Log.d(
                                     ControlsProviderService.TAG,
                                     "ciaone"
@@ -630,6 +631,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             getSnippet(track1)
+
 
                             Log.d(
                                 ControlsProviderService.TAG,
@@ -651,18 +653,15 @@ class MainActivity : ComponentActivity() {
                                 "ciao artist3: " + artist3
                             )
 
-                            /*val intent = Intent(this@MainActivity, GameActivity::class.java)
-                            intent.putExtra("lyrics", lyrics)
-                            startActivity(intent)*/
-                        } else showTrackNotFoundToast()
+                        } else showTrackNotFoundToast("1")
                     } catch (e: Exception) {
-                        showTrackNotFoundToast()
+                        showTrackNotFoundToast("2")
                     }
-                } else showTrackNotFoundToast()
+                } else showTrackNotFoundToast("3")
             }
 
             override fun onFailure(call: Call<TopTracksResponse>, t: Throwable) {
-                showTrackNotFoundToast()
+                showTrackNotFoundToast("4")
             }
         })
     }
@@ -719,6 +718,10 @@ class MainActivity : ComponentActivity() {
             override fun onResponse(call: Call<SnippetResponse>, response: Response<SnippetResponse>) {
                 if (response.code() == 200) {
                     try {
+                        Log.d(
+                            ControlsProviderService.TAG,
+                            "ciao snippet: " + response.body()
+                        )
                         var snippet = Gson().newBuilder().disableHtmlEscaping().create()
                             .toJson(response.body()?.message?.body?.snippet?.snippet_body)
                         if (snippet != null) {
@@ -726,27 +729,32 @@ class MainActivity : ComponentActivity() {
                                 ControlsProviderService.TAG,
                                 "ciaone: " + snippet
                             )
-                          /*  val intent = Intent(this@MainActivity, GameActivity::class.java)
-                            intent.putExtra("lyrics", lyrics)
-                            startActivity(intent)*/
-                        } else showTrackNotFoundToast()
+
+                            val intent = Intent(this@MainActivity, WhoSingsActivity::class.java)
+                            intent.putExtra("snippet", snippet)
+                            intent.putExtra("artist1", artist1)
+                            intent.putExtra("artist2", artist2)
+                            intent.putExtra("artist3", artist3)
+                            startActivity(intent)
+
+                        } else showTrackNotFoundToast("5")
                     } catch (e: Exception) {
-                        showTrackNotFoundToast()
+                        showTrackNotFoundToast("6")
                     }
-                } else showTrackNotFoundToast()
+                } else showTrackNotFoundToast("7")
             }
 
             override fun onFailure(call: Call<SnippetResponse>, t: Throwable) {
-                showTrackNotFoundToast()
+                showTrackNotFoundToast("8")
             }
         })
     }
 
 
 
-    fun showTrackNotFoundToast() {
+    fun showTrackNotFoundToast(param: String= "") {
         Toast.makeText(
-            baseContext, "Track not found",
+            baseContext, "Track not found " + param,
             Toast.LENGTH_SHORT
         ).show()
     }

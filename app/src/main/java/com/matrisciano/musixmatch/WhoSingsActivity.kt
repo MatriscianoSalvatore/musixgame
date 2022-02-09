@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.service.controls.ControlsProviderService
 import android.util.Log
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -40,53 +39,26 @@ import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.musixmatch.ui.theme.winGreen
 import java.util.*
 
-class GameActivity : ComponentActivity() {
+class WhoSingsActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
-
-    private val maxChars = 185;
-    private val safeChars = 45;
-    private var replacedTestLyrics = ""
-    private var replacedWord = ""
+    private var snippet: String? = ""
+    private var artist1: String? = ""
+    private var artist2: String? = ""
+    private var artist3: String? = ""
+    private var maxArtistChar = 55
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         val currentUser = auth.currentUser
 
-        var lyrics = getIntent().getStringExtra("lyrics")
-        lyrics = lyrics!!.replace("\\n******* This Lyrics is NOT for Commercial use *******\\n", "")
-        lyrics = lyrics.replace("\\n", "\n")
-        //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
+        snippet = getIntent().getStringExtra("snippet")
+        artist1 = getIntent().getStringExtra("artist1")
+        artist2 = getIntent().getStringExtra("artist2")
+        artist3 = getIntent().getStringExtra("artist3")
 
-        var startChar = 0
-        when {
-            lyrics.length > maxChars * 3 -> startChar =
-                (0..lyrics.length / 3 * 2 - safeChars).random()
-            lyrics.length > maxChars * 2 -> startChar =
-                (0..lyrics.length / 2 - safeChars).random()
-            lyrics.length > 2 * safeChars -> startChar = (0..safeChars).random()
-        }
-        lyrics = lyrics.substring(startChar)
-        lyrics = lyrics.substring(lyrics.indexOf(" "))
-        if (lyrics.length > maxChars) lyrics = lyrics.substring(0, maxChars)
-        lyrics = lyrics.substring(0, lyrics.lastIndexOf(" "))
-        if (startChar != 0) lyrics = "... $lyrics"
-        lyrics += " ..."
-        val words = lyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
-        var found = false
-        while (!found) {
-            var randomNumber = (words.indices).random()
-            replacedWord = words[randomNumber]
-            if (replacedWord.length > 3) {
-                found = true
-                var replacement = ""
-                for (char in replacedWord)
-                    replacement += "*"
-                replacedTestLyrics = lyrics.replaceFirst(replacedWord, replacement)
-            }
-        }
 
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         setContent {
             MusixmatchPinkTheme()
             {
@@ -124,23 +96,17 @@ class GameActivity : ComponentActivity() {
                 ) {
 
                     Text(
-                        text = replacedTestLyrics,
+                        text = snippet!!,
                         color = Color.White,
                         fontSize = 27.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(15.dp)
                     )
 
-                    var answer by rememberSaveable { mutableStateOf("") }
-                    GameTextField(
-                        answer,
-                        onInputChanged = { answer = it },
-                        hint = "Missing word",
-                    )
 
                     TextButton(
                         modifier = Modifier
-                            .width(200.dp)
+                            .width(400.dp)
                             .padding(28.dp),
                         onClick = {
 
@@ -156,14 +122,14 @@ class GameActivity : ComponentActivity() {
                                         )
                                         if (document.data["email"] == user?.email) {
                                             points = document.data["points"] as Long
-                                            if (answer.lowercase(Locale.getDefault())
-                                                    .trim() == replacedWord.lowercase(Locale.getDefault())
-                                                    .trim()
+                                            /*  if (answer.lowercase(Locale.getDefault())
+                                              *//*      .trim() == replacedWord.lowercase(Locale.getDefault())
+                                                    .trim()*//*
                                             )
                                                 db.collection("users").document(document.id)
                                                     .update("points", points + 5)
                                             else db.collection("users").document(document.id)
-                                                .update("points", points - 1)
+                                                .update("points", points - 1)*/
                                         }
                                     }
                                 }
@@ -175,22 +141,135 @@ class GameActivity : ComponentActivity() {
                                     )
                                 }
 
-                            if (answer.lowercase(Locale.getDefault())
+                            /* if (answer.lowercase(Locale.getDefault())
                                     .trim() == replacedWord.lowercase(Locale.getDefault())
                                     .trim()
                             )
                                 navCtrl.navigate("win_screen")
-                            else navCtrl.navigate("lose_screen")
+                            else navCtrl.navigate("lose_screen")*/
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
                         ),
-                        enabled = (answer != "")
+                        enabled = true
                     ) {
-                        Text(text = "CONFIRM", fontSize = 18.sp)
+                        if (artist1!!.length > maxArtistChar) artist1!!.substring(0,maxArtistChar)
+                        Text(text = artist1!!.replace("\"", ""), fontSize = 18.sp)
                     };
+
+
+                    TextButton(
+                        modifier = Modifier
+                            .width(400.dp)
+                            .padding(28.dp),
+                        onClick = {
+
+                            val db = Firebase.firestore
+                            var points: Long
+                            db.collection("users")
+                                .get()
+                                .addOnSuccessListener { result ->
+                                    for (document in result) {
+                                        Log.d(
+                                            ControlsProviderService.TAG,
+                                            "${document.id} => ${document.data}"
+                                        )
+                                        if (document.data["email"] == user?.email) {
+                                            points = document.data["points"] as Long
+                                            /*  if (answer.lowercase(Locale.getDefault())
+                                                *//*      .trim() == replacedWord.lowercase(Locale.getDefault())
+                                                    .trim()*//*
+                                            )
+                                                db.collection("users").document(document.id)
+                                                    .update("points", points + 5)
+                                            else db.collection("users").document(document.id)
+                                                .update("points", points - 1)*/
+                                        }
+                                    }
+                                }
+                                .addOnFailureListener { exception ->
+                                    Log.w(
+                                        ControlsProviderService.TAG,
+                                        "Error getting documents.",
+                                        exception
+                                    )
+                                }
+
+                            /* if (answer.lowercase(Locale.getDefault())
+                                     .trim() == replacedWord.lowercase(Locale.getDefault())
+                                     .trim()
+                             )
+                                 navCtrl.navigate("win_screen")
+                             else navCtrl.navigate("lose_screen")*/
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            contentColor = Color.White
+                        ),
+                        enabled = true
+                    ) {
+                        if (artist2!!.length > maxArtistChar) artist2!!.substring(0,maxArtistChar)
+                        Text(text = artist2!!.replace("\"", ""), fontSize = 18.sp)
+                    };
+
+
+                    TextButton(
+                        modifier = Modifier
+                            .width(400.dp)
+                            .padding(28.dp),
+                        onClick = {
+
+                            val db = Firebase.firestore
+                            var points: Long
+                            db.collection("users")
+                                .get()
+                                .addOnSuccessListener { result ->
+                                    for (document in result) {
+                                        Log.d(
+                                            ControlsProviderService.TAG,
+                                            "${document.id} => ${document.data}"
+                                        )
+                                        if (document.data["email"] == user?.email) {
+                                            points = document.data["points"] as Long
+                                            /*  if (answer.lowercase(Locale.getDefault())
+                                                *//*      .trim() == replacedWord.lowercase(Locale.getDefault())
+                                                    .trim()*//*
+                                            )
+                                                db.collection("users").document(document.id)
+                                                    .update("points", points + 5)
+                                            else db.collection("users").document(document.id)
+                                                .update("points", points - 1)*/
+                                        }
+                                    }
+                                }
+                                .addOnFailureListener { exception ->
+                                    Log.w(
+                                        ControlsProviderService.TAG,
+                                        "Error getting documents.",
+                                        exception
+                                    )
+                                }
+
+                            /* if (answer.lowercase(Locale.getDefault())
+                                     .trim() == replacedWord.lowercase(Locale.getDefault())
+                                     .trim()
+                             )
+                                 navCtrl.navigate("win_screen")
+                             else navCtrl.navigate("lose_screen")*/
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            contentColor = Color.White
+                        ),
+                        enabled = true
+                    ) {
+                        if (artist3!!.length > maxArtistChar) artist3!!.substring(0,maxArtistChar)
+                        Text(text = artist3!!.replace("\"", ""), fontSize = 18.sp)
+                    };
+
                 }
+
             }
         }
     }
@@ -223,10 +302,10 @@ class GameActivity : ComponentActivity() {
 
                     TextButton(
                         modifier = Modifier
-                            .width(200.dp)
+                            .width(400.dp)
                             .padding(28.dp),
                         onClick = {
-                            startActivity(Intent(this@GameActivity, MainActivity::class.java))
+                            startActivity(Intent(this@WhoSingsActivity, MainActivity::class.java))
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -268,10 +347,10 @@ class GameActivity : ComponentActivity() {
 
                     TextButton(
                         modifier = Modifier
-                            .width(200.dp)
+                            .width(400.dp)
                             .padding(28.dp),
                         onClick = {
-                            startActivity(Intent(this@GameActivity, MainActivity::class.java))
+                            startActivity(Intent(this@WhoSingsActivity, MainActivity::class.java))
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -285,33 +364,6 @@ class GameActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun GameTextField(
-        value: String,
-        onInputChanged: (String) -> Unit,
-        hint: String,
-    ) {
-        val focusManager = LocalFocusManager.current
-        TextField(
-            value = value,
-            maxLines = 1,
-            singleLine = true,
-            onValueChange = onInputChanged,
-            modifier = Modifier
-                .padding(18.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = musixmatchPinkLight,
-                textColor = Color(0xFFFFFFFF),
-                unfocusedLabelColor = Color(0x70FFFFFF),
-            ),
-            textStyle = LocalTextStyle.current.copy(
-                fontSize = 24.sp
-            ),
-            label = { Text(hint) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-        )
-    }
 
     @Composable
     fun Navigation(user: FirebaseUser?) {
