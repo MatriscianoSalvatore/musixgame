@@ -23,13 +23,24 @@
         <activity
             android:noHistory="true"
             android:name=".SigninActivity"
-            android:theme="@style/Theme.Musixmatch" />
+            android:theme="@style/Theme.Musixmatch"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".MainActivity"
-            android:theme="@style/Theme.Musixmatch" />
+            android:theme="@style/Theme.Musixmatch"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity
-            android:name=".GameActivity"
-            android:theme="@style/Theme.Musixmatch" />
+            android:name=".GuessWordActivity"
+            android:theme="@style/Theme.Musixmatch"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".WhoSingsActivity"
+            android:theme="@style/Theme.Musixmatch"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
     </application>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
