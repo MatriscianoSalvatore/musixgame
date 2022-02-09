@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private val leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
-    private val maxTracks = 13;
+    private val maxTracks = 45;
     private var artists: MutableList<String> = mutableListOf()
     private var correctIndex = 0;
     private var correctArtist = ""
@@ -208,7 +208,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun LeaderboardScreen() {
+    fun LeaderboardScreen(user: FirebaseUser?) {
         val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
@@ -231,6 +231,7 @@ class MainActivity : ComponentActivity() {
                     i.toString() + "°- " + element.key + ": " + element.value + " musixpoints",
                     textAlign = TextAlign.Start,
                     fontSize = 17.sp,
+                    fontWeight = if (element.key == user?.email) FontWeight.Bold else FontWeight.Normal
                 )
             }
         }
@@ -338,7 +339,7 @@ class MainActivity : ComponentActivity() {
                 HomeScreen()
             }
             composable("leaderboard_screen") {
-                LeaderboardScreen()
+                LeaderboardScreen(user)
             }
             composable("profile_screen") {
                 ProfileScreen(user)
