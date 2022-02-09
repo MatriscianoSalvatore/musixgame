@@ -62,13 +62,9 @@ class MainActivity : ComponentActivity() {
     private val leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
     private val maxTracks = 13;
-    private var artist1temp = ""
-    private var artist2temp = ""
-    private var artist3temp = ""
-    private var artist1 = ""
-    private var artist2 = ""
-    private var artist3 = ""
+    private var artists: MutableList<String> = mutableListOf()
     private var correctIndex = 0;
+    private var correctArtist = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -610,63 +606,32 @@ class MainActivity : ComponentActivity() {
                         var topTracks = Gson().newBuilder().disableHtmlEscaping().create()
                             .toJson(response.body()?.message?.body?.track_list)
                         if (topTracks != null) {
-                            var i1 = (0..maxTracks).random()
-                            var track1 = ""
-                            artist1temp = ""
-                            artist2temp = ""
-                            artist3temp = ""
-                            while (artist1temp == artist2temp || artist2temp == artist3temp || artist1temp == artist3temp) {
+                            var indexes = arrayOf(0, 1, 2)
+                            indexes[0] = (0 until maxTracks).random()
+                            var track = ""
+                            for (i in 0..2) artists.add("")
+                            while (artists[0] == artists[1] || artists[1] == artists[2] || artists[0] == artists[2]) {
 
-                                var i2 = (0 until maxTracks).random()
-                                var i3 = (0 until maxTracks).random()
+                                indexes[1] = (0 until maxTracks).random()
+                                indexes[2] = (0 until maxTracks).random()
 
-                                track1 = Gson().newBuilder().disableHtmlEscaping().create()
-                                    .toJson(response.body()?.message?.body?.track_list?.get(i1)?.track?.track_id)
-                                artist1temp = Gson().newBuilder().disableHtmlEscaping().create()
-                                    .toJson(response.body()?.message?.body?.track_list?.get(i1)?.track?.artist_name)
-                                artist2temp = Gson().newBuilder().disableHtmlEscaping().create()
-                                    .toJson(response.body()?.message?.body?.track_list?.get(i2)?.track?.artist_name)
-                                artist3temp = Gson().newBuilder().disableHtmlEscaping().create()
-                                    .toJson(response.body()?.message?.body?.track_list?.get(i3)?.track?.artist_name)
+                                track = Gson().newBuilder().disableHtmlEscaping().create()
+                                    .toJson(response.body()?.message?.body?.track_list?.get(indexes[0])?.track?.track_id)
+
+                                for (i in 0..2)
+                                    artists[i] = Gson().newBuilder().disableHtmlEscaping().create()
+                                        .toJson(
+                                            response.body()?.message?.body?.track_list?.get(
+                                                indexes[i]
+                                            )?.track?.artist_name
+                                        )
                             }
 
-                            var j1 = 0
-                            var j2 = 0
-                            var j3 = 0
+                            correctArtist = artists[0]
+                            artists.shuffle()
+                            correctIndex = artists.indexOf(correctArtist)
 
-                            while (j1 == j2 || j2 == j3 || j1 == j3) {
-                                j1= (0..2).random()
-                                j2= (0..2).random()
-                                j3= (0..2).random()
-                            }
-
-                            //TODO: use array and index -> NO: use list and shuffle
-                            when (j1) {
-                                0 -> artist1 = artist1temp
-                                1 -> artist1 = artist2temp
-                                2 -> artist1 = artist3temp
-                            }
-
-                            when (j2) {
-                                0 -> {
-                                    artist2 = artist1temp
-                                    correctIndex = 1
-                                }
-                                1 -> artist2 = artist2temp
-                                2 -> artist2 = artist3temp
-                            }
-
-                            when (j3) {
-                                0 -> {
-                                    artist3 = artist1temp
-                                    correctIndex = 2
-                                }
-                                1 -> artist3 = artist2temp
-                                2 -> artist3 = artist3temp
-                            }
-
-
-                            getSnippet(track1)
+                            getSnippet(track)
 
                         } else showTrackNotFoundToast()
                     } catch (e: Exception) {
@@ -730,7 +695,10 @@ class MainActivity : ComponentActivity() {
         val service = retrofit.create(GetSnippet::class.java)
         val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
         call.enqueue(object : Callback<SnippetResponse> {
-            override fun onResponse(call: Call<SnippetResponse>, response: Response<SnippetResponse>) {
+            override fun onResponse(
+                call: Call<SnippetResponse>,
+                response: Response<SnippetResponse>
+            ) {
                 if (response.code() == 200) {
                     try {
 
@@ -740,9 +708,7 @@ class MainActivity : ComponentActivity() {
 
                             val intent = Intent(this@MainActivity, WhoSingsActivity::class.java)
                             intent.putExtra("snippet", snippet)
-                            intent.putExtra("artist1", artist1)
-                            intent.putExtra("artist2", artist2)
-                            intent.putExtra("artist3", artist3)
+                            for (i in 0..2) intent.putExtra("artist$i", artists[i])
                             intent.putExtra("correctIndex", correctIndex)
                             startActivity(intent)
 
@@ -758,7 +724,6 @@ class MainActivity : ComponentActivity() {
             }
         })
     }
-
 
 
     fun showTrackNotFoundToast() {

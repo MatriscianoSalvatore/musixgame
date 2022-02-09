@@ -37,8 +37,8 @@ class WhoSingsActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private var snippet: String? = ""
     private var correctIndex = 0
-    private var maxArtistChar = 55
-    private var artists: MutableList<String> = mutableListOf()
+    private var maxArtistChars = 55
+    private var artists = arrayOf("", "", "")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,9 +46,7 @@ class WhoSingsActivity : ComponentActivity() {
         val currentUser = auth.currentUser
 
         snippet = getIntent().getStringExtra("snippet")
-        artists.add(getIntent().getStringExtra("artist1")!!)
-        artists.add(getIntent().getStringExtra("artist2")!!)
-        artists.add(getIntent().getStringExtra("artist3")!!)
+        for (i in 0..2) artists[i] = (getIntent().getStringExtra("artist$i")!!)
         correctIndex = getIntent().getIntExtra("correctIndex", 0)
 
         setContent {
@@ -139,8 +137,8 @@ class WhoSingsActivity : ComponentActivity() {
                             ),
                             enabled = true
                         ) {
-                            if (artists[i].length > maxArtistChar) {
-                                artists[i] = artists[i]!!.substring(0, maxArtistChar)
+                            if (artists[i].length > maxArtistChars) {
+                                artists[i] = artists[i]!!.substring(0, maxArtistChars)
                                 artists[i] = "$artists[i]..."
                             }
                             Text(text = artists[i]!!.replace("\"", ""), fontSize = 18.sp)
@@ -267,5 +265,4 @@ class WhoSingsActivity : ComponentActivity() {
             }
         }
     }
-
 }
