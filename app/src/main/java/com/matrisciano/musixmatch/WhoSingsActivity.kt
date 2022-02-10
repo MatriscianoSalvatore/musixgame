@@ -45,7 +45,7 @@ import java.util.*
 class WhoSingsActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private var snippet: String? = ""
-    private val maxArtistChars = 9
+    private val maxArtistChars = 55
     private val matchesNumber = 3
     var tracks = Array<String?>(matchesNumber) { null }
     private var correctIndexes = Array<Int?>(matchesNumber) { null }
