@@ -59,12 +59,13 @@ import kotlin.collections.LinkedHashMap
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
-    private val leaderboard = hashMapOf<String, Long>()
+    private var leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
     private val maxTracks = 45;
-    private var artists: MutableList<String> = mutableListOf()
-    private var correctIndex = 0;
-    private var correctArtist = ""
+    private val matchesNumber = 3
+    private var correctIndexes =  Array<Int?>(matchesNumber) { null }
+    private var artists = Array(matchesNumber) { arrayOf("", "", "") }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -607,32 +608,37 @@ class MainActivity : ComponentActivity() {
                         var topTracks = Gson().newBuilder().disableHtmlEscaping().create()
                             .toJson(response.body()?.message?.body?.track_list)
                         if (topTracks != null) {
-                            var indexes = arrayOf(0, 1, 2)
-                            indexes[0] = (0 until maxTracks).random()
-                            var track = ""
-                            for (i in 0..2) artists.add("")
-                            while (artists[0] == artists[1] || artists[1] == artists[2] || artists[0] == artists[2]) {
 
-                                indexes[1] = (0 until maxTracks).random()
-                                indexes[2] = (0 until maxTracks).random()
 
-                                track = Gson().newBuilder().disableHtmlEscaping().create()
-                                    .toJson(response.body()?.message?.body?.track_list?.get(indexes[0])?.track?.track_id)
+                            var tracks =  Array<String?>(matchesNumber) { null }
+                            var indexes = Array(matchesNumber) { arrayOf(0, 1, 2) }
+                            for (i in 0 until matchesNumber) {
 
-                                for (i in 0..2)
-                                    artists[i] = Gson().newBuilder().disableHtmlEscaping().create()
-                                        .toJson(
-                                            response.body()?.message?.body?.track_list?.get(
-                                                indexes[i]
-                                            )?.track?.artist_name
-                                        )
+                                indexes[i][0] = (0 until maxTracks).random()
+                                while (artists[i][0] == artists[i][1] || artists[i][1] == artists[i][2] || artists[i][0] == artists[i][2]) {
+
+                                    indexes[i][1] = (0 until maxTracks).random()
+                                    indexes[i][2] = (0 until maxTracks).random()
+
+                                    tracks[i] = Gson().newBuilder().disableHtmlEscaping().create()
+                                        .toJson(response.body()?.message?.body?.track_list?.get(indexes[i][0])?.track?.track_id)
+
+                                    for (j in 0..2)
+                                        artists[i][j] = Gson().newBuilder().disableHtmlEscaping().create()
+                                            .toJson(
+                                                response.body()?.message?.body?.track_list?.get(
+                                                    indexes[i][j]
+                                                )?.track?.artist_name
+                                            )
+                                }
+
+                                var correctArtist = artists[i][0]
+                                artists[i].shuffle()
+                                correctIndexes[i] = artists[i].indexOf(correctArtist)
                             }
 
-                            correctArtist = artists[0]
-                            artists.shuffle()
-                            correctIndex = artists.indexOf(correctArtist)
+                            tracks[0]?.let { getSnippet(it) }
 
-                            getSnippet(track)
 
                         } else showTrackNotFoundToast()
                     } catch (e: Exception) {
@@ -705,12 +711,12 @@ class MainActivity : ComponentActivity() {
 
                         var snippet = Gson().newBuilder().disableHtmlEscaping().create()
                             .toJson(response.body()?.message?.body?.snippet?.snippet_body)
-                        if (snippet != null) {
 
+                        if (snippet != null) {
                             val intent = Intent(this@MainActivity, WhoSingsActivity::class.java)
                             intent.putExtra("snippet", snippet)
-                            for (i in 0..2) intent.putExtra("artist$i", artists[i])
-                            intent.putExtra("correctIndex", correctIndex)
+                            for (i in 0..2) intent.putExtra("artist$i", artists[0][i])
+                            intent.putExtra("correctIndex", correctIndexes[0])
                             startActivity(intent)
 
                         } else showTrackNotFoundToast()
