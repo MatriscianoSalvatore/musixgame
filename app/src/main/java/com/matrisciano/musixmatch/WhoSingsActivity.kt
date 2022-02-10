@@ -30,7 +30,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.winGreen
@@ -41,20 +40,17 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Query
 import java.util.*
 
 class WhoSingsActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private var snippet: String? = ""
-    private val maxArtistChars = 55
+    private val maxArtistChars = 9
     private val matchesNumber = 3
     var tracks = Array<String?>(matchesNumber) { null }
     private var correctIndexes = Array<Int?>(matchesNumber) { null }
     private var artists = Array(matchesNumber) { arrayOf("", "", "") }
-    private var step = 0
+    private var currentMatch = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,7 +127,7 @@ class WhoSingsActivity : ComponentActivity() {
                                             )
                                             if (document.data["email"] == user?.email) {
                                                 points = document.data["points"] as Long
-                                                if (correctIndexes[step] == i) {
+                                                if (correctIndexes[currentMatch] == i) {
                                                     db.collection("users").document(document.id)
                                                         .update("points", points + 5)
                                                     navCtrl.navigate("win_screen") {
@@ -164,12 +160,12 @@ class WhoSingsActivity : ComponentActivity() {
                             ),
                             enabled = true
                         ) {
-                            if (artists[step][i].length > maxArtistChars) {
-                                artists[step][i] = artists[step][i]!!.substring(0, maxArtistChars)
-                                artists[step][i] = "$artists[i]..."
+                            if (artists[currentMatch][i].length > maxArtistChars) {
+                                artists[currentMatch][i] = artists[currentMatch][i]!!.substring(0, maxArtistChars)
+                                artists[currentMatch][i] = "$artists[i]..."
                             }
                             Text(
-                                text = artists[step][i]!!.replace("\"", ""),
+                                text = artists[currentMatch][i]!!.replace("\"", ""),
                                 fontSize = 18.sp,
                                 textAlign = TextAlign.Center
                             )
@@ -284,36 +280,8 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
 
-    interface GetSnippet {
-        @Headers("apikey: " + "276b2392f053c47db5b3b5f072f54aa7")
-        @GET("track.snippet.get")
-        fun getCurrentTrackData(
-            @Query("track_id") track_id: String,
-            @Query("apikey") apikey: String
-        ): Call<SnippetResponse>
-    }
 
-    class SnippetResponse {
-        @SerializedName("message")
-        var message: SnippetMessage? = null
-    }
-
-    class SnippetMessage {
-        @SerializedName("body")
-        var body: SnippetBody? = null
-    }
-
-    class SnippetBody {
-        @SerializedName("snippet")
-        var snippet: SnippetLyrics? = null
-    }
-
-    class SnippetLyrics {
-        @SerializedName("snippet_body")
-        var snippet_body: String? = null
-    }
-
-    fun getSnippet(trackID: String, navCtrl: NavController) {
+    private fun getSnippet(trackID: String, navCtrl: NavController) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
@@ -329,12 +297,12 @@ class WhoSingsActivity : ComponentActivity() {
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
-        val service = retrofit.create(GetSnippet::class.java)
+        val service = retrofit.create(Api.GetSnippet::class.java)
         val call = service.getCurrentTrackData(trackID, "276b2392f053c47db5b3b5f072f54aa7")
-        call.enqueue(object : Callback<SnippetResponse> {
+        call.enqueue(object : Callback<Api.SnippetResponse> {
             override fun onResponse(
-                call: Call<SnippetResponse>,
-                response: Response<SnippetResponse>
+                call: Call<Api.SnippetResponse>,
+                response: Response<Api.SnippetResponse>
             ) {
                 if (response.code() == 200) {
                     try {
@@ -357,15 +325,15 @@ class WhoSingsActivity : ComponentActivity() {
                 } else showTrackNotFoundToast()
             }
 
-            override fun onFailure(call: Call<SnippetResponse>, t: Throwable) {
+            override fun onFailure(call: Call<Api.SnippetResponse>, t: Throwable) {
                 showTrackNotFoundToast()
             }
         })
     }
 
-    fun nextStep(navCtrl: NavController) {
-        step++
-        if (step < matchesNumber) getSnippet(tracks[step]!!, navCtrl)
+    private fun nextStep(navCtrl: NavController) {
+        currentMatch++
+        if (currentMatch < matchesNumber) getSnippet(tracks[currentMatch]!!, navCtrl)
         else startActivity(
             Intent(
                 this@WhoSingsActivity,
