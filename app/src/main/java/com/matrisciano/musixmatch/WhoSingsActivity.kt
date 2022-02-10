@@ -29,26 +29,46 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.winGreen
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.Query
 import java.util.*
 
 class WhoSingsActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private var snippet: String? = ""
-    private var correctIndex = 0
-    private var maxArtistChars = 55
-    private var artists = arrayOf("", "", "")
+    private val maxArtistChars = 55
+    private val matchesNumber = 3
+    var tracks =  Array<String?>(matchesNumber) { null }
+    private var correctIndexes =  Array<Int?>(matchesNumber) { null }
+    private var artists = Array(matchesNumber) { arrayOf("", "", "") }
+    private var step = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         val currentUser = auth.currentUser
 
-        snippet = getIntent().getStringExtra("snippet")
-        for (i in 0..2) artists[i] = (getIntent().getStringExtra("artist$i")!!)
-        correctIndex = getIntent().getIntExtra("correctIndex", 0)
+
+        for (i in 0 until matchesNumber) {
+            for (j in 0..2) artists[i][j] = getIntent().getStringExtra("artist" + i + "_" + j)!!
+            tracks[i] = getIntent().getStringExtra("track$i")
+            correctIndexes[i] = getIntent().getIntExtra("correctIndex$i", 0)
+        }
+
+
 
         setContent {
             MusixmatchPinkTheme()
@@ -66,6 +86,10 @@ class WhoSingsActivity : ComponentActivity() {
 
     @Composable
     fun GameScreen(navCtrl: NavController, user: FirebaseUser) {
+
+        getSnippet(tracks[step]!!)
+
+
         MusixmatchPinkTheme()
         {
             Box(
@@ -112,7 +136,7 @@ class WhoSingsActivity : ComponentActivity() {
                                             )
                                             if (document.data["email"] == user?.email) {
                                                 points = document.data["points"] as Long
-                                                if (correctIndex == i) {
+                                                if (correctIndexes[step] == i) {
                                                     db.collection("users").document(document.id)
                                                         .update("points", points + 5)
                                                     navCtrl.navigate("win_screen") {
@@ -145,11 +169,11 @@ class WhoSingsActivity : ComponentActivity() {
                             ),
                             enabled = true
                         ) {
-                            if (artists[i].length > maxArtistChars) {
-                                artists[i] = artists[i]!!.substring(0, maxArtistChars)
-                                artists[i] = "$artists[i]..."
+                            if (artists[step][i].length > maxArtistChars) {
+                                artists[step][i] = artists[step][i]!!.substring(0, maxArtistChars)
+                                artists[step][i] = "$artists[i]..."
                             }
-                            Text(text = artists[i]!!.replace("\"", ""), fontSize = 18.sp)
+                            Text(text = artists[step][i]!!.replace("\"", ""), fontSize = 18.sp)
                         };
                     }
                 }
@@ -273,4 +297,109 @@ class WhoSingsActivity : ComponentActivity() {
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+    interface GetSnippet {
+        @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
+        @GET("track.snippet.get")
+        fun getCurrentTrackData(
+            @Query("track_id") track_id: String,
+            @Query("apikey") apikey: String
+        ): Call<SnippetResponse>
+    }
+
+    class SnippetResponse {
+        @SerializedName("message")
+        var message: SnippetMessage? = null
+    }
+
+    class SnippetMessage {
+        @SerializedName("body")
+        var body: SnippetBody? = null
+    }
+
+    class SnippetBody {
+        @SerializedName("snippet")
+        var snippet: SnippetLyrics? = null
+    }
+
+    class SnippetLyrics {
+        @SerializedName("snippet_body")
+        var snippet_body: String? = null
+    }
+
+    fun getSnippet(trackID: String) {
+        var okHttpClient = OkHttpClient.Builder().apply {
+            addInterceptor(
+                Interceptor { chain ->
+                    val builder = chain.request().newBuilder()
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
+                    return@Interceptor chain.proceed(builder.build())
+                }
+            )
+        }.build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.musixmatch.com/ws/1.1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+        val service = retrofit.create(GetSnippet::class.java)
+        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
+        call.enqueue(object : Callback<SnippetResponse> {
+            override fun onResponse(
+                call: Call<SnippetResponse>,
+                response: Response<SnippetResponse>
+            ) {
+                if (response.code() == 200) {
+                    try {
+
+                        var snippet = Gson().newBuilder().disableHtmlEscaping().create()
+                            .toJson(response.body()?.message?.body?.snippet?.snippet_body)
+
+                        if (snippet != null) {
+                             //TODO:
+                        } else showTrackNotFoundToast()
+                    } catch (e: Exception) {
+                        showTrackNotFoundToast()
+                    }
+                } else showTrackNotFoundToast()
+            }
+
+            override fun onFailure(call: Call<SnippetResponse>, t: Throwable) {
+                showTrackNotFoundToast()
+            }
+        })
+
+    }
+
+
+
+
+
+    fun showTrackNotFoundToast() {
+        Toast.makeText(
+            baseContext, "Track not foundd ",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+
+
+
+
+
+
+
+
+
 }
