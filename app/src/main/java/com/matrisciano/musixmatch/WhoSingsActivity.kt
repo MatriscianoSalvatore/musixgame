@@ -61,14 +61,12 @@ class WhoSingsActivity : ComponentActivity() {
         auth = Firebase.auth
         val currentUser = auth.currentUser
 
-
         for (i in 0 until matchesNumber) {
             for (j in 0..2) artists[i][j] = getIntent().getStringExtra("artist" + i + "_" + j)!!
             tracks[i] = getIntent().getStringExtra("track$i")
             correctIndexes[i] = getIntent().getIntExtra("correctIndex$i", 0)
         }
         snippet = getIntent().getStringExtra("snippet")
-
 
         setContent {
             MusixmatchPinkTheme()
@@ -207,14 +205,7 @@ class WhoSingsActivity : ComponentActivity() {
                         modifier = Modifier
                             .width(400.dp)
                             .padding(28.dp),
-                        onClick = {
-                            startActivity(
-                                Intent(
-                                    this@WhoSingsActivity,
-                                    MainActivity::class.java
-                                )
-                            )
-                        },
+                        onClick = { nextStep(navCtrl)},
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -257,14 +248,7 @@ class WhoSingsActivity : ComponentActivity() {
                         modifier = Modifier
                             .width(400.dp)
                             .padding(28.dp),
-                        onClick = {
-                            startActivity(
-                                Intent(
-                                    this@WhoSingsActivity,
-                                    MainActivity::class.java
-                                )
-                            )
-                        },
+                        onClick = { nextStep(navCtrl)},
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -324,7 +308,7 @@ class WhoSingsActivity : ComponentActivity() {
         var snippet_body: String? = null
     }
 
-    fun getSnippet(trackID: String) {
+    fun getSnippet(trackID: String, navCtrl: NavController) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
@@ -350,11 +334,17 @@ class WhoSingsActivity : ComponentActivity() {
                 if (response.code() == 200) {
                     try {
 
-                        var snippet = Gson().newBuilder().disableHtmlEscaping().create()
+                        var currentSnippet = Gson().newBuilder().disableHtmlEscaping().create()
                             .toJson(response.body()?.message?.body?.snippet?.snippet_body)
 
-                        if (snippet != null) {
-                            //TODO:
+                        if (currentSnippet != null) {
+                            snippet = currentSnippet
+                            navCtrl.navigate("game_screen") {
+                                popUpTo("game_screen") {
+                                    inclusive = true
+                                }
+                            }
+
                         } else showTrackNotFoundToast()
                     } catch (e: Exception) {
                         showTrackNotFoundToast()
@@ -366,16 +356,24 @@ class WhoSingsActivity : ComponentActivity() {
                 showTrackNotFoundToast()
             }
         })
+    }
 
+    fun nextStep (navCtrl: NavController) {
+        step++
+        if (step < matchesNumber) getSnippet(tracks[step]!!, navCtrl)
+        else startActivity(
+            Intent(
+                this@WhoSingsActivity,
+                MainActivity::class.java
+            )
+        )
     }
 
 
     fun showTrackNotFoundToast() {
         Toast.makeText(
-            baseContext, "Track not foundd ",
+            baseContext, "Track not found",
             Toast.LENGTH_SHORT
         ).show()
     }
-
-
 }
