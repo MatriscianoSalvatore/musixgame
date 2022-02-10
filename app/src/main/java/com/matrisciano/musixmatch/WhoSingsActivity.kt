@@ -51,8 +51,8 @@ class WhoSingsActivity : ComponentActivity() {
     private var snippet: String? = ""
     private val maxArtistChars = 55
     private val matchesNumber = 3
-    var tracks =  Array<String?>(matchesNumber) { null }
-    private var correctIndexes =  Array<Int?>(matchesNumber) { null }
+    var tracks = Array<String?>(matchesNumber) { null }
+    private var correctIndexes = Array<Int?>(matchesNumber) { null }
     private var artists = Array(matchesNumber) { arrayOf("", "", "") }
     private var step = 0
 
@@ -67,7 +67,7 @@ class WhoSingsActivity : ComponentActivity() {
             tracks[i] = getIntent().getStringExtra("track$i")
             correctIndexes[i] = getIntent().getIntExtra("correctIndex$i", 0)
         }
-
+        snippet = getIntent().getStringExtra("snippet")
 
 
         setContent {
@@ -86,10 +86,6 @@ class WhoSingsActivity : ComponentActivity() {
 
     @Composable
     fun GameScreen(navCtrl: NavController, user: FirebaseUser) {
-
-        getSnippet(tracks[step]!!)
-
-
         MusixmatchPinkTheme()
         {
             Box(
@@ -299,15 +295,6 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
 
-
-
-
-
-
-
-
-
-
     interface GetSnippet {
         @Headers("apikey: " + "276b2392f053c47db5b3b5f072f54aa7")
         @GET("track.snippet.get")
@@ -367,7 +354,7 @@ class WhoSingsActivity : ComponentActivity() {
                             .toJson(response.body()?.message?.body?.snippet?.snippet_body)
 
                         if (snippet != null) {
-                             //TODO:
+                            //TODO:
                         } else showTrackNotFoundToast()
                     } catch (e: Exception) {
                         showTrackNotFoundToast()
@@ -383,23 +370,12 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
 
-
-
-
     fun showTrackNotFoundToast() {
         Toast.makeText(
             baseContext, "Track not foundd ",
             Toast.LENGTH_SHORT
         ).show()
     }
-
-
-
-
-
-
-
-
 
 
 }

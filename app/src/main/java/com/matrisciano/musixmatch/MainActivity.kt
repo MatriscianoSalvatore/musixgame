@@ -63,8 +63,9 @@ class MainActivity : ComponentActivity() {
     private var points: Long = 0
     private val maxTracks = 45;
     private val matchesNumber = 3
-    private var correctIndexes =  Array<Int?>(matchesNumber) { null }
+    private var correctIndexes = Array<Int?>(matchesNumber) { null }
     private var artists = Array(matchesNumber) { arrayOf("", "", "") }
+    private var tracks = Array<String?>(matchesNumber) { null }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -229,9 +230,9 @@ class MainActivity : ComponentActivity() {
             for (element in sortedLeaderboard) {
                 i++
                 Text(
-                    i.toString() + "°- " + element.key + ": " + element.value + " musixpoints",
+                    i.toString() + "° " + element.key + ": " + element.value + " musixpoints",
                     textAlign = TextAlign.Start,
-                    fontSize = 17.sp,
+                    fontSize = 16.sp,
                     fontWeight = if (element.key == user?.email) FontWeight.Bold else FontWeight.Normal
                 )
             }
@@ -454,16 +455,16 @@ class MainActivity : ComponentActivity() {
                             var trackID =
                                 Gson().toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id)
                             if (trackID != null) getLyrics(trackID)
-                            else showTrackNotFoundToast("1")
-                        } else showTrackNotFoundToast("2")
+                            else showTrackNotFoundToast()
+                        } else showTrackNotFoundToast()
                     } catch (e: Exception) {
-                        showTrackNotFoundToast("3")
+                        showTrackNotFoundToast()
                     }
-                } else showTrackNotFoundToast("4")
+                } else showTrackNotFoundToast()
             }
 
             override fun onFailure(call: Call<TrackIDResponse>, t: Throwable) {
-                showTrackNotFoundToast("5")
+                showTrackNotFoundToast()
             }
         })
     }
@@ -526,15 +527,16 @@ class MainActivity : ComponentActivity() {
                             val intent = Intent(this@MainActivity, GuessWordActivity::class.java)
                             intent.putExtra("lyrics", lyrics)
                             startActivity(intent)
-                        } else showTrackNotFoundToast("6")
+
+                        } else showTrackNotFoundToast()
                     } catch (e: Exception) {
-                        showTrackNotFoundToast("7")
+                        showTrackNotFoundToast()
                     }
-                } else showTrackNotFoundToast("8")
+                } else showTrackNotFoundToast()
             }
 
             override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
-                showTrackNotFoundToast("9")
+                showTrackNotFoundToast()
             }
         })
     }
@@ -610,7 +612,6 @@ class MainActivity : ComponentActivity() {
                         if (topTracks != null) {
 
 
-                            var tracks =  Array<String?>(matchesNumber) { null }
                             var indexes = Array(matchesNumber) { arrayOf(0, 1, 2) }
                             for (i in 0 until matchesNumber) {
 
@@ -621,15 +622,20 @@ class MainActivity : ComponentActivity() {
                                     indexes[i][2] = (0 until maxTracks).random()
 
                                     tracks[i] = Gson().newBuilder().disableHtmlEscaping().create()
-                                        .toJson(response.body()?.message?.body?.track_list?.get(indexes[i][0])?.track?.track_id)
+                                        .toJson(
+                                            response.body()?.message?.body?.track_list?.get(
+                                                indexes[i][0]
+                                            )?.track?.track_id
+                                        )
 
                                     for (j in 0..2)
-                                        artists[i][j] = Gson().newBuilder().disableHtmlEscaping().create()
-                                            .toJson(
-                                                response.body()?.message?.body?.track_list?.get(
-                                                    indexes[i][j]
-                                                )?.track?.artist_name
-                                            )
+                                        artists[i][j] =
+                                            Gson().newBuilder().disableHtmlEscaping().create()
+                                                .toJson(
+                                                    response.body()?.message?.body?.track_list?.get(
+                                                        indexes[i][j]
+                                                    )?.track?.artist_name
+                                                )
                                 }
 
                                 var correctArtist = artists[i][0]
@@ -638,37 +644,115 @@ class MainActivity : ComponentActivity() {
                             }
 
 
-
-                            val intent = Intent(this@MainActivity, WhoSingsActivity::class.java)
-                            for (i in 0 until matchesNumber) {
-                                for (j in 0..2) intent.putExtra("artist" + i + "_" + j, artists[i][j])
-                                intent.putExtra("correctIndex$i", correctIndexes[i])
-                                intent.putExtra("track$i", tracks[i])
-
-                            }
-                            startActivity(intent)
+                            getSnippet(tracks[0]!!)
 
 
-
-                        } else showTrackNotFoundToast("10")
+                        } else showTrackNotFoundToast()
                     } catch (e: Exception) {
-                        showTrackNotFoundToast("11")
+                        showTrackNotFoundToast()
                     }
-                } else showTrackNotFoundToast("12")
+                } else showTrackNotFoundToast()
             }
 
             override fun onFailure(call: Call<TopTracksResponse>, t: Throwable) {
-                showTrackNotFoundToast("13")
+                showTrackNotFoundToast()
             }
         })
     }
 
 
+    interface GetSnippet {
+        @Headers("apikey: " + "276b2392f053c47db5b3b5f072f54aa7")
+        @GET("track.snippet.get")
+        fun getCurrentTrackData(
+            @Query("track_id") track_id: String,
+            @Query("apikey") apikey: String
+        ): Call<SnippetResponse>
+    }
+
+    class SnippetResponse {
+        @SerializedName("message")
+        var message: SnippetMessage? = null
+    }
+
+    class SnippetMessage {
+        @SerializedName("body")
+        var body: SnippetBody? = null
+    }
+
+    class SnippetBody {
+        @SerializedName("snippet")
+        var snippet: SnippetLyrics? = null
+    }
+
+    class SnippetLyrics {
+        @SerializedName("snippet_body")
+        var snippet_body: String? = null
+    }
+
+    fun getSnippet(trackID: String) {
+        var okHttpClient = OkHttpClient.Builder().apply {
+            addInterceptor(
+                Interceptor { chain ->
+                    val builder = chain.request().newBuilder()
+                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
+                    return@Interceptor chain.proceed(builder.build())
+                }
+            )
+        }.build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.musixmatch.com/ws/1.1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+        val service = retrofit.create(GetSnippet::class.java)
+        val call = service.getCurrentTrackData(trackID, "276b2392f053c47db5b3b5f072f54aa7")
+        call.enqueue(object : Callback<SnippetResponse> {
+            override fun onResponse(
+                call: Call<SnippetResponse>,
+                response: Response<SnippetResponse>
+            ) {
+                if (response.code() == 200) {
+                    try {
+
+                        var snippet = Gson().newBuilder().disableHtmlEscaping().create()
+                            .toJson(response.body()?.message?.body?.snippet?.snippet_body)
+
+                        if (snippet != null) {
 
 
-    fun showTrackNotFoundToast(a: String) {
+                            val intent = Intent(this@MainActivity, WhoSingsActivity::class.java)
+                            for (i in 0 until matchesNumber) {
+                                for (j in 0..2) intent.putExtra(
+                                    "artist" + i + "_" + j,
+                                    artists[i][j]
+                                )
+                                intent.putExtra("correctIndex$i", correctIndexes[i])
+                                intent.putExtra("track$i", tracks[i])
+                                intent.putExtra("snippet", snippet)
+                            }
+                            startActivity(intent)
+
+
+                        } else showTrackNotFoundToast()
+                    } catch (e: Exception) {
+                        showTrackNotFoundToast()
+                    }
+                } else showTrackNotFoundToast()
+            }
+
+            override fun onFailure(call: Call<SnippetResponse>, t: Throwable) {
+                showTrackNotFoundToast()
+            }
+        })
+
+    }
+
+
+    fun showTrackNotFoundToast() {
         Toast.makeText(
-            baseContext, "Track not found" + a,
+            baseContext, "Track not found",
             Toast.LENGTH_SHORT
         ).show()
     }
