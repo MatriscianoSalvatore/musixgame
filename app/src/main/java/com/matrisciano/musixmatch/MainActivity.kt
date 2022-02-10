@@ -162,8 +162,8 @@ class MainActivity : ComponentActivity() {
 
                         TextButton(
                             modifier = Modifier
-                                .padding(20.dp)
-                                .width(200.dp),
+                                .padding(15.dp)
+                                .width(215.dp),
                             onClick = {
                                 getTrack(artist, title)
                             },
@@ -191,7 +191,7 @@ class MainActivity : ComponentActivity() {
 
                             TextButton(
                                 modifier = Modifier
-                                    .width(200.dp),
+                                    .width(215.dp),
                                 onClick = {
                                     getTopTracks()
                                 },

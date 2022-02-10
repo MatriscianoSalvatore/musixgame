@@ -10,7 +10,10 @@ import androidx.compose.ui.graphics.Color
 private val DarkColorPalette = darkColors(
     primary = musixmatchPink,
     primaryVariant = musixmatchPinkDark,
-    secondary = Teal200
+    secondary = Teal200,
+    onPrimary = Color.White,
+    background = Color.White,
+    surface = Color.White,
 )
 
 private val LightColorPalette = lightColors(
@@ -18,7 +21,8 @@ private val LightColorPalette = lightColors(
     primaryVariant = musixmatchPinkDark,
     secondary = Teal200,
     onPrimary = Color.White,
-
+    background = Color.White,
+    surface = Color.White,
 
     /* Other default colors to override
     background = Color.White,
