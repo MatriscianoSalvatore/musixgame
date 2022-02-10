@@ -39,13 +39,15 @@ import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.musixmatch.ui.theme.winGreen
+import java.lang.Math.max
+import java.lang.Math.min
 import java.util.*
 
 class GuessWordActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
-    private val maxChars = 175;
-    private val safeChars = 45;
+    private val maxChars = 145;
+    private val safeChars = 30;
     private var replacedTestLyrics = ""
     private var replacedWord = ""
 
@@ -55,22 +57,33 @@ class GuessWordActivity : ComponentActivity() {
         val currentUser = auth.currentUser
 
         var lyrics = getIntent().getStringExtra("lyrics")
-        lyrics = lyrics!!.replace("\\n******* This Lyrics is NOT for Commercial use *******\\n", "")
+        lyrics = lyrics!!.replace("******* This Lyrics is NOT for Commercial use *******", "")
         lyrics = lyrics.replace("\\n", "\n")
+        lyrics = lyrics.replace("\"", "")
         //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
 
         var startChar = 0
         when {
-            lyrics.length > maxChars * 3 -> startChar =
-                (0..lyrics.length / 3 * 2 - safeChars).random()
-            lyrics.length > maxChars * 2 -> startChar =
-                (0..lyrics.length / 2 - safeChars).random()
-            lyrics.length > 2 * safeChars -> startChar = (0..safeChars).random()
+            (lyrics.length > maxChars * 4) -> startChar =
+                (0 until (lyrics.length / 4 * 3 - safeChars)).random()
+            (lyrics.length > maxChars * 3) -> startChar =
+                (0 until (lyrics.length / 3 * 2 - safeChars)).random()
+            (lyrics.length > maxChars * 2) -> startChar =
+                (0 until (lyrics.length / 2 - safeChars)).random()
+            (lyrics.length > 2 * safeChars) -> startChar = (0 until safeChars).random()
         }
         lyrics = lyrics.substring(startChar)
-        lyrics = lyrics.substring(lyrics.indexOf(" "))
+
+        var minSpaceChar = lyrics.indexOf(" ")
+        var minNewLineChar = lyrics.indexOf("\n")
+        lyrics = lyrics.substring(min(minSpaceChar, minNewLineChar))
+
         if (lyrics.length > maxChars) lyrics = lyrics.substring(0, maxChars)
-        lyrics = lyrics.substring(0, lyrics.lastIndexOf(" "))
+
+        var maxSpaceChar = lyrics.lastIndexOf(" ")
+        var maxNewLineChar = lyrics.lastIndexOf("\n")
+        lyrics = lyrics.substring(0, max(maxSpaceChar, maxNewLineChar))
+
         if (startChar != 0) lyrics = "... $lyrics"
         lyrics += " ..."
         val words = lyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
@@ -127,7 +140,7 @@ class GuessWordActivity : ComponentActivity() {
                     Text(
                         text = replacedTestLyrics,
                         color = Color.White,
-                        fontSize = 24.sp,
+                        fontSize = 22.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(14.dp)
                     )
@@ -310,7 +323,7 @@ class GuessWordActivity : ComponentActivity() {
                 unfocusedLabelColor = Color(0x70FFFFFF),
             ),
             textStyle = LocalTextStyle.current.copy(
-                fontSize = 24.sp
+                fontSize = 21.sp
             ),
             label = { Text(hint) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
