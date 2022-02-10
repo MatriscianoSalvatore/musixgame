@@ -109,12 +109,13 @@ class WhoSingsActivity : ComponentActivity() {
                         color = Color.White,
                         fontSize = 27.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(15.dp)
+                        modifier = Modifier.padding(15.dp, 15.dp, 15.dp, 25.dp)
                     )
 
                     for (i in 0..2) {
                         TextButton(
                             modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
                                 .width(400.dp)
                                 .padding(28.dp),
                             onClick = {
@@ -167,7 +168,11 @@ class WhoSingsActivity : ComponentActivity() {
                                 artists[step][i] = artists[step][i]!!.substring(0, maxArtistChars)
                                 artists[step][i] = "$artists[i]..."
                             }
-                            Text(text = artists[step][i]!!.replace("\"", ""), fontSize = 18.sp)
+                            Text(
+                                text = artists[step][i]!!.replace("\"", ""),
+                                fontSize = 18.sp,
+                                textAlign = TextAlign.Center
+                            )
                         };
                     }
                 }
@@ -203,9 +208,9 @@ class WhoSingsActivity : ComponentActivity() {
 
                     TextButton(
                         modifier = Modifier
-                            .width(400.dp)
+                            .width(200.dp)
                             .padding(28.dp),
-                        onClick = { nextStep(navCtrl)},
+                        onClick = { nextStep(navCtrl) },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -246,9 +251,9 @@ class WhoSingsActivity : ComponentActivity() {
 
                     TextButton(
                         modifier = Modifier
-                            .width(400.dp)
+                            .width(200.dp)
                             .padding(28.dp),
-                        onClick = { nextStep(navCtrl)},
+                        onClick = { nextStep(navCtrl) },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -358,7 +363,7 @@ class WhoSingsActivity : ComponentActivity() {
         })
     }
 
-    fun nextStep (navCtrl: NavController) {
+    fun nextStep(navCtrl: NavController) {
         step++
         if (step < matchesNumber) getSnippet(tracks[step]!!, navCtrl)
         else startActivity(
