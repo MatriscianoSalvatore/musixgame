@@ -44,7 +44,7 @@ import java.util.*
 class GuessWordActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
-    private val maxChars = 185;
+    private val maxChars = 175;
     private val safeChars = 45;
     private var replacedTestLyrics = ""
     private var replacedWord = ""
@@ -127,9 +127,9 @@ class GuessWordActivity : ComponentActivity() {
                     Text(
                         text = replacedTestLyrics,
                         color = Color.White,
-                        fontSize = 27.sp,
+                        fontSize = 24.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(15.dp)
+                        modifier = Modifier.padding(14.dp)
                     )
 
                     var answer by rememberSaveable { mutableStateOf("") }
