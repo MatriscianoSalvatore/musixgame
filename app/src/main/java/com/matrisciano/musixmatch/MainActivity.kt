@@ -381,7 +381,7 @@ class MainActivity : ComponentActivity() {
 
 
     interface GetTrack {
-        @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
+        @Headers("apikey: " + "276b2392f053c47db5b3b5f072f54aa7")
         @GET("track.search")
         fun getTrackIDData(
             @Query("q_artist") q_artist: String,
@@ -423,7 +423,7 @@ class MainActivity : ComponentActivity() {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
+                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -441,7 +441,7 @@ class MainActivity : ComponentActivity() {
             1,
             "desc",
             "desc",
-            "4ac3d61572388ffbcb08f9e160fec313"
+            "276b2392f053c47db5b3b5f072f54aa7"
         )
         call.enqueue(object : Callback<TrackIDResponse> {
             override fun onResponse(
@@ -470,7 +470,7 @@ class MainActivity : ComponentActivity() {
 
 
     interface GetLyrics {
-        @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
+        @Headers("apikey: " + "276b2392f053c47db5b3b5f072f54aa7")
         @GET("track.lyrics.get")
         fun getCurrentTrackData(
             @Query("track_id") track_id: String,
@@ -503,7 +503,7 @@ class MainActivity : ComponentActivity() {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
+                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -515,7 +515,7 @@ class MainActivity : ComponentActivity() {
             .client(okHttpClient)
             .build()
         val service = retrofit.create(GetLyrics::class.java)
-        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
+        val call = service.getCurrentTrackData(trackID, "276b2392f053c47db5b3b5f072f54aa7")
         call.enqueue(object : Callback<TrackResponse> {
             override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
                 if (response.code() == 200) {
@@ -541,7 +541,7 @@ class MainActivity : ComponentActivity() {
 
 
     interface GetTopTracks {
-        @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
+        @Headers("apikey: " + "276b2392f053c47db5b3b5f072f54aa7")
         @GET("chart.tracks.get")
         fun getTopTracks(
             @Query("chart_name") chart_name: String,
@@ -584,7 +584,7 @@ class MainActivity : ComponentActivity() {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
+                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -597,7 +597,7 @@ class MainActivity : ComponentActivity() {
             .build()
         val service = retrofit.create(GetTopTracks::class.java)
         val call =
-            service.getTopTracks("top", 1, maxTracks, "it", 1, "4ac3d61572388ffbcb08f9e160fec313")
+            service.getTopTracks("top", 1, maxTracks, "it", 1, "276b2392f053c47db5b3b5f072f54aa7")
         call.enqueue(object : Callback<TopTracksResponse> {
             override fun onResponse(
                 call: Call<TopTracksResponse>,

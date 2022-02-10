@@ -309,7 +309,7 @@ class WhoSingsActivity : ComponentActivity() {
 
 
     interface GetSnippet {
-        @Headers("apikey: " + "4ac3d61572388ffbcb08f9e160fec313")
+        @Headers("apikey: " + "276b2392f053c47db5b3b5f072f54aa7")
         @GET("track.snippet.get")
         fun getCurrentTrackData(
             @Query("track_id") track_id: String,
@@ -342,7 +342,7 @@ class WhoSingsActivity : ComponentActivity() {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
+                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -354,7 +354,7 @@ class WhoSingsActivity : ComponentActivity() {
             .client(okHttpClient)
             .build()
         val service = retrofit.create(GetSnippet::class.java)
-        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
+        val call = service.getCurrentTrackData(trackID, "276b2392f053c47db5b3b5f072f54aa7")
         call.enqueue(object : Callback<SnippetResponse> {
             override fun onResponse(
                 call: Call<SnippetResponse>,
