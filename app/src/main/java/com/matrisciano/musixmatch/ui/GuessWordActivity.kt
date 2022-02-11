@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch
+package com.matrisciano.musixmatch.ui
 
 import android.content.Intent
 import android.os.Bundle

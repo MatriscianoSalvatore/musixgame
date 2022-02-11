@@ -1,6 +1,7 @@
 package com.matrisciano.musixmatch
 
 import android.app.Application
+import com.matrisciano.musixmatch.di.viewModelModule
 import com.matrisciano.network.di.networkModule
 import org.koin.core.context.startKoin
 import org.koin.android.ext.koin.androidContext
@@ -12,7 +13,7 @@ class App: Application() {
         startKoin {
             androidContext(this@App)
             //androidLogger()
-            modules(listOf(networkModule))
+            modules(listOf(networkModule, viewModelModule))
         }
     }
 }

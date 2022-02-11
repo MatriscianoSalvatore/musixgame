@@ -17,7 +17,7 @@ interface MusixmatchService {
     }
 
     @GET("track.search")
-    fun getTrackID(
+    suspend fun getTrackID(
         @Query("q_artist") q_artist: String,
         @Query("q_track") q_track: String,
         @Query("page_size") page_size: Int,
