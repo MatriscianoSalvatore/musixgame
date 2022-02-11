@@ -1,6 +1,5 @@
-package com.matrisciano.musixmatch
+package com.matrisciano.musixmatch.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.service.controls.ControlsProviderService
 import android.util.Log
@@ -29,18 +28,9 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.winGreen
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.util.*
 
 class WhoSingsActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth

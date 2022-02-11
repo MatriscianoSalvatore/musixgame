@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch
+package com.matrisciano.musixmatch.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -39,6 +39,9 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.matrisciano.musixmatch.R
+import com.matrisciano.musixmatch.ui.home.HomeScreen
+import com.matrisciano.musixmatch.ui.signin.SigninActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.network.model.TrackID
@@ -115,95 +118,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun HomeScreen() {
-        MusixmatchTheme() {
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
 
-                Column(
-                ) {
-
-                    Column( //TODO: use column item instead of Columns inside Column
-                        modifier = Modifier
-                            .wrapContentSize(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        Text(
-                            text = "Game 1: guess the missing word",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp)
-                        )
-
-                        var title by rememberSaveable { mutableStateOf("") }
-                        MusixGameTextField(
-                            title,
-                            onInputChanged = { title = it },
-                            hint = "Title",
-                        )
-
-                        var artist by rememberSaveable { mutableStateOf("") }
-                        MusixGameTextField(
-                            artist,
-                            onInputChanged = { artist = it },
-                            hint = "Artist",
-                        )
-
-                        TextButton(
-                            modifier = Modifier
-                                .padding(15.dp)
-                                .width(215.dp),
-                            onClick = {
-                                //getTrack(artist, title)
-                                getTrackID(artist, title)
-                            },
-                            colors = ButtonDefaults.textButtonColors(
-                                backgroundColor = MaterialTheme.colors.primary,
-                                contentColor = Color.White
-                            ), enabled = (title != "" && artist != "")
-                        ) {
-                            Text(text = "GUESS THE WORD! \uD83C\uDFA4")
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .wrapContentSize(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            Text(
-                                text = "Game 2: guess the singer",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                modifier = Modifier
-                                    .padding(0.dp, 90.dp, 0.dp, 16.dp),
-                            )
-
-                            TextButton(
-                                modifier = Modifier
-                                    .width(215.dp),
-                                onClick = {
-                                    //getTopTracks()
-                                },
-                                colors = ButtonDefaults.textButtonColors(
-                                    backgroundColor = MaterialTheme.colors.primary,
-                                    contentColor = Color.White
-                                ), enabled = true
-                            ) {
-                                Text(text = "WHO SINGS? \uD83C\uDFA4")
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     @Composable
     fun LeaderboardScreen(user: FirebaseUser?) {
@@ -345,30 +260,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun MusixGameTextField(
-        value: String,
-        onInputChanged: (String) -> Unit,
-        hint: String,
-    ) {
-        val focusManager = LocalFocusManager.current
-        TextField(
-            value = value,
-            maxLines = 1,
-            singleLine = true,
-            onValueChange = onInputChanged,
-            modifier = Modifier
-                .padding(0.dp, 10.dp, 0.dp, 0.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = musixmatchPinkLight,
-                textColor = Color(0xFFFFFFFF),
-                unfocusedLabelColor = Color(0x70FFFFFF),
-            ),
-            label = { Text(hint) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-        )
-    }
+
 
     @Preview(showBackground = true)
     @Composable
@@ -377,7 +269,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private fun getTrackID(artist: String, title: String) {
+    /*private fun getTrackID(artist: String, title: String) {
         val network = Network().createServiceApi(MusixmatchService::class)
         val call = network.getTrackID(artist, title, 1, "desc", "desc")
         call.enqueue(object : Callback<TrackID> {
@@ -402,7 +294,7 @@ class MainActivity : ComponentActivity() {
                 showTrackNotFoundToast()
             }
         })
-    }
+    }*/
 
 
 /*  fun getLyrics(trackID: String) {
