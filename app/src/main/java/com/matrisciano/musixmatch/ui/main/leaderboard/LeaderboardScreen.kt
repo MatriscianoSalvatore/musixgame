@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch.ui.leaderboard
+package com.matrisciano.musixmatch.ui.main.leaderboard
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
