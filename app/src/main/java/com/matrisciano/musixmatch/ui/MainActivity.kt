@@ -41,6 +41,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.home.HomeScreen
+import com.matrisciano.musixmatch.ui.leaderboard.LeaderboardScreen
 import com.matrisciano.musixmatch.ui.signin.SigninActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
@@ -52,6 +53,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
 import kotlin.Exception
+import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
 class MainActivity : ComponentActivity() {
@@ -114,41 +116,13 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-            Navigation(navCtrl, currentUser)
+            Navigation(navCtrl, currentUser, leaderboard)
         }
     }
 
 
 
-    @Composable
-    fun LeaderboardScreen(user: FirebaseUser?) {
-        val scrollState = rememberScrollState()
-        Column( //TODO: use lazy column
-            modifier = Modifier
-                .wrapContentSize(Alignment.Center)
-                .padding(6.dp, 58.dp, 0.dp, 0.dp)
-                .scrollable(
-                    state = scrollState,
-                    orientation = Orientation.Vertical
-                )
-        ) {
 
-            var sortedLeaderboard: MutableMap<String, Long> = LinkedHashMap()
-            leaderboard.entries.sortedByDescending { it.value }
-                .forEach { sortedLeaderboard[it.key] = it.value }
-
-            var i = 0
-            for (element in sortedLeaderboard) {
-                i++
-                Text(
-                    i.toString() + "° " + element.key + ": " + element.value + " musixpoints",
-                    textAlign = TextAlign.Start,
-                    fontSize = 16.sp,
-                    fontWeight = if (element.key == user?.email) FontWeight.Bold else FontWeight.Normal
-                )
-            }
-        }
-    }
 
     @Composable
     fun ProfileScreen(user: FirebaseUser?) {
@@ -246,13 +220,13 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Navigation(navCtrl: NavHostController, user: FirebaseUser?) {
+    fun Navigation(navCtrl: NavHostController, user: FirebaseUser?, leaderboard: HashMap<String, Long>) {
         NavHost(navCtrl, "home_screen") {
             composable("home_screen") {
                 HomeScreen()
             }
             composable("leaderboard_screen") {
-                LeaderboardScreen(user)
+                LeaderboardScreen(user, leaderboard)
             }
             composable("profile_screen") {
                 ProfileScreen(user)
