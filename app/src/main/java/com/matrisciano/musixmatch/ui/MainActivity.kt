@@ -220,51 +220,7 @@ class MainActivity : ComponentActivity() {
     }*/
 
 
-/*  fun getLyrics(trackID: String) {
-        var okHttpClient = OkHttpClient.Builder().apply {
-            addInterceptor(
-                Interceptor { chain ->
-                    val builder = chain.request().newBuilder()
-                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
-                    return@Interceptor chain.proceed(builder.build())
-                }
-            )
-        }.build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.musixmatch.com/ws/1.1/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
-            .build()
-        val service = retrofit.create(Api.GetLyrics::class.java)
-        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
-        call.enqueue(object : Callback<Api.TrackResponse> {
-            override fun onResponse(
-                call: Call<Api.TrackResponse>,
-                response: Response<Api.TrackResponse>
-            ) {
-                if (response.code() == 200) {
-                    try {
-                        var lyrics = Gson().newBuilder().disableHtmlEscaping().create()
-                            .toJson(response.body()?.message?.body?.lyrics?.lyrics_body)
-                        if (lyrics != null) {
-                            val intent = Intent(this@MainActivity, GuessWordActivity::class.java)
-                            intent.putExtra("lyrics", lyrics)
-                            startActivity(intent)
-
-                        } else showTrackNotFoundToast()
-                    } catch (e: Exception) {
-                        showTrackNotFoundToast()
-                    }
-                } else showTrackNotFoundToast()
-            }
-
-            override fun onFailure(call: Call<Api.TrackResponse>, t: Throwable) {
-                showTrackNotFoundToast()
-            }
-        })
-    }
-
+/*
 
     fun getTopTracks() {
 

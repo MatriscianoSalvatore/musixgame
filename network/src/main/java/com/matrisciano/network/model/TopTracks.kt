@@ -16,7 +16,7 @@ data class TopTracksMessage (
 @Serializable
 data class TopTracksBody (
     @SerialName("track_list")
-    val trackList: List<TopTracksList>? = null
+    val track_list: List<TopTracksList>? = null
 )
 
 @Serializable
@@ -27,10 +27,10 @@ data class TopTracksList (
 @Serializable
 data class TopTracksClass (
     @SerialName("track_id")
-    val trackID: Long? = null,
+    val track_id: Long? = null,
 
     @SerialName("track_name")
-    val trackName: String? = null,
+    val track_name: String? = null,
 
     @SerialName("track_name_translation_list")
     val trackNameTranslationList: JsonArray? = null,
@@ -66,7 +66,7 @@ data class TopTracksClass (
     val artistID: Long? = null,
 
     @SerialName("artist_name")
-    val artistName: String? = null,
+    val artist_name: String? = null,
 
     @SerialName("track_share_url")
     val trackShareURL: String? = null,
