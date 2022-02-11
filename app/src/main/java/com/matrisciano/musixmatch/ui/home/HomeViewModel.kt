@@ -2,6 +2,7 @@ package com.matrisciano.musixmatch.ui.home
 
 import androidx.lifecycle.ViewModel
 import com.matrisciano.network.model.Lyrics
+import com.matrisciano.network.model.Snippet
 import com.matrisciano.network.model.TopTracks
 import com.matrisciano.network.model.TrackID
 import com.matrisciano.network.repository.MusixmatchRepository
@@ -23,4 +24,7 @@ class HomeViewModel(private val repository: MusixmatchRepository) : ViewModel() 
 
     suspend fun getTopTracks(): Result<TopTracks> =
         repository.getTopTracks()
+
+    suspend fun getSnippet(trackID: String): Result<Snippet> =
+        repository.getSnippet(trackID)
 }

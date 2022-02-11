@@ -30,7 +30,7 @@ data class SnippetClass (
     val instrumental: Long? = null,
 
     @SerialName("snippet_body")
-    val snippetBody: String? = null,
+    val snippet_body: String? = null,
 
     @SerialName("script_tracking_url")
     val scriptTrackingURL: String? = null,
