@@ -4,8 +4,6 @@ import com.matrisciano.network.model.Lyrics
 import com.matrisciano.network.model.Snippet
 import com.matrisciano.network.model.TopTracks
 import com.matrisciano.network.model.TrackID
-import com.matrisciano.network.utils.Result
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -27,13 +25,13 @@ interface MusixmatchService {
     ): Response<TrackID>
 
     @GET("track.lyrics.get")
-    fun getLyrics(
+    suspend fun getLyrics(
         @Query("track_id") track_id: String,
         @Query("apikey") apikey: String = apiKey
     ): Response<Lyrics>
 
     @GET("chart.tracks.get")
-    fun getTopTracks(
+    suspend fun getTopTracks(
         @Query("chart_name") chart_name: String,
         @Query("page") page: Int,
         @Query("page_size") page_size: Int,
@@ -43,7 +41,7 @@ interface MusixmatchService {
     ): Response<TopTracks>
 
     @GET("track.snippet.get")
-    fun getSnippet(
+    suspend fun getSnippet(
         @Query("track_id") track_id: String,
         @Query("apikey") apikey: String = apiKey
     ): Response<Snippet>
