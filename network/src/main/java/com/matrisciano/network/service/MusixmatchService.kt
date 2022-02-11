@@ -30,21 +30,21 @@ interface MusixmatchService {
     fun getLyrics(
         @Query("track_id") track_id: String,
         @Query("apikey") apikey: String = apiKey
-    ): Call<Lyrics>
+    ): Response<Lyrics>
 
     @GET("chart.tracks.get")
     fun getTopTracks(
         @Query("chart_name") chart_name: String,
-        @Query("page") page: Number,
-        @Query("page_size") page_size: Number,
+        @Query("page") page: Int,
+        @Query("page_size") page_size: Int,
         @Query("country") country: String,
-        @Query("f_has_lyrics") f_has_lyrics: Number,
+        @Query("f_has_lyrics") f_has_lyrics: Int,
         @Query("apikey") apikey: String = apiKey
-    ): Call<TopTracks>
+    ): Response<TopTracks>
 
     @GET("track.snippet.get")
     fun getSnippet(
         @Query("track_id") track_id: String,
         @Query("apikey") apikey: String = apiKey
-    ): Call<Snippet>
+    ): Response<Snippet>
 }
