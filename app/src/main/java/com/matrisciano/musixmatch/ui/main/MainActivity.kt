@@ -41,10 +41,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        auth = Firebase.auth
+        auth = Firebase.auth //TODO: create FirebaseAuth Repository
         val currentUser = auth.currentUser
 
-        val db = Firebase.firestore
+        val db = Firebase.firestore //TODO: create Firestore Repository
         db.collection("users")
             .get()
             .addOnSuccessListener { result ->

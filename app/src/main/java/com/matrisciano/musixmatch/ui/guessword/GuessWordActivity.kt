@@ -51,7 +51,7 @@ class GuessWordActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth
+        auth = Firebase.auth //TODO: create FirebaseAuth Repository
         val currentUser = auth.currentUser
 
         var lyrics = intent.getStringExtra("lyrics")
@@ -156,7 +156,7 @@ class GuessWordActivity : ComponentActivity() {
                             .padding(28.dp),
                         onClick = {
 
-                            val db = Firebase.firestore
+                            val db = Firebase.firestore //TODO: create Firestore Repository
                             var points: Long
                             db.collection("users")
                                 .get()
