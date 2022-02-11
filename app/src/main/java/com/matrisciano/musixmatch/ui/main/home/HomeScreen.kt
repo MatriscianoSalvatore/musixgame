@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch.ui.home
+package com.matrisciano.musixmatch.ui.main.home
 
 import android.app.Activity
 import android.content.Intent
@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.google.gson.Gson
 import com.matrisciano.musixmatch.component.MusixGameTextField
-import com.matrisciano.musixmatch.ui.GuessWordActivity
-import com.matrisciano.musixmatch.ui.MainActivity
-import com.matrisciano.musixmatch.ui.WhoSingsActivity
+import com.matrisciano.musixmatch.ui.guessword.GuessWordActivity
+import com.matrisciano.musixmatch.ui.main.MainActivity
+import com.matrisciano.musixmatch.ui.whosings.WhoSingsActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.network.utils.Result
 import kotlinx.coroutines.launch

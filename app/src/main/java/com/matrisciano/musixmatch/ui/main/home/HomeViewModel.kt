@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch.ui.home
+package com.matrisciano.musixmatch.ui.main.home
 
 import androidx.lifecycle.ViewModel
 import com.matrisciano.network.model.Lyrics

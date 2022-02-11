@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch.ui
+package com.matrisciano.musixmatch.ui.main
 
 import android.os.Bundle
 import android.util.Log
@@ -26,9 +26,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
-import com.matrisciano.musixmatch.ui.home.HomeScreen
-import com.matrisciano.musixmatch.ui.leaderboard.LeaderboardScreen
-import com.matrisciano.musixmatch.ui.profile.ProfileScreen
+import com.matrisciano.musixmatch.ui.main.home.HomeScreen
+import com.matrisciano.musixmatch.ui.main.leaderboard.LeaderboardScreen
+import com.matrisciano.musixmatch.ui.main.profile.ProfileScreen
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import java.util.*
 import kotlin.collections.HashMap

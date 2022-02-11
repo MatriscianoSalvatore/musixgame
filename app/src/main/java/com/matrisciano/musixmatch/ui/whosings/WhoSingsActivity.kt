@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch.ui
+package com.matrisciano.musixmatch.ui.whosings
 
 import android.os.Bundle
 import android.service.controls.ControlsProviderService

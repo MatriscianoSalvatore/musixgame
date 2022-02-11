@@ -37,7 +37,7 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.matrisciano.musixmatch.ui.MainActivity
+import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 

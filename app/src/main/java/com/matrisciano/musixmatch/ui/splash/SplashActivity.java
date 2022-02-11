@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch.ui;
+package com.matrisciano.musixmatch.ui.splash;
 
 import android.content.Intent;
 import android.os.Bundle;

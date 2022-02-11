@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch.ui.profile
+package com.matrisciano.musixmatch.ui.main.profile
 
 import android.content.Intent
 import androidx.compose.foundation.layout.*
@@ -17,7 +17,7 @@ import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.matrisciano.musixmatch.ui.MainActivity
+import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.signin.SigninActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 
