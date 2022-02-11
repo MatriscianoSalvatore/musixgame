@@ -289,56 +289,6 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
 
-/*    private fun getSnippet(trackID: String, navCtrl: NavController) {
-        var okHttpClient = OkHttpClient.Builder().apply {
-            addInterceptor(
-                Interceptor { chain ->
-                    val builder = chain.request().newBuilder()
-                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
-                    return@Interceptor chain.proceed(builder.build())
-                }
-            )
-        }.build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.musixmatch.com/ws/1.1/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
-            .build()
-        val service = retrofit.create(Api.GetSnippet::class.java)
-        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
-        call.enqueue(object : Callback<Api.SnippetResponse> {
-            override fun onResponse(
-                call: Call<Api.SnippetResponse>,
-                response: Response<Api.SnippetResponse>
-            ) {
-                if (response.code() == 200) {
-                    try {
-
-                        var currentSnippet = Gson().newBuilder().disableHtmlEscaping().create()
-                            .toJson(response.body()?.message?.body?.snippet?.snippet_body)
-
-                        if (currentSnippet != null) {
-                            snippet = currentSnippet
-                            navCtrl.navigate("game_screen") {
-                                popUpTo("game_screen") {
-                                    inclusive = true
-                                }
-                            }
-
-                        } else showTrackNotFoundToast()
-                    } catch (e: Exception) {
-                        showTrackNotFoundToast()
-                    }
-                } else showTrackNotFoundToast()
-            }
-
-            override fun onFailure(call: Call<Api.SnippetResponse>, t: Throwable) {
-                showTrackNotFoundToast()
-            }
-        })
-    } */
-
     private suspend fun nextStep(
         viewModel: WhoSingsViewModel?,
         navCtrl: NavController
@@ -361,6 +311,7 @@ class WhoSingsActivity : ComponentActivity() {
 
                 is Result.Error -> {
                     Log.d("WhoSingActivity", "Snipptet error: ${result.message}")
+                    showTrackNotFoundToast()
                 }
             }
 
@@ -372,7 +323,6 @@ class WhoSingsActivity : ComponentActivity() {
             )
         )
     }
-
 
     fun showTrackNotFoundToast() {
         Toast.makeText(

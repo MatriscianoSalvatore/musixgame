@@ -111,6 +111,7 @@ fun HomeScreen(activity: MainActivity) {
                                                         "HomeScreen",
                                                         "Lyrics error: ${result.message}"
                                                     )
+                                                    showTrackNotFoundToast(activity)
                                                 }
                                             }
                                         }
@@ -118,6 +119,7 @@ fun HomeScreen(activity: MainActivity) {
                                     is Result.Error -> {
                                         Log.d("HomeScreen", "TrackID error: ${result.message}")
                                     }
+                                    showTrackNotFoundToast(activity)
                                 }
                             }
                         },
@@ -234,6 +236,7 @@ fun HomeScreen(activity: MainActivity) {
                                                             "HomeScreen",
                                                             "Snippet error: ${result.message}"
                                                         )
+                                                        showTrackNotFoundToast(activity)
                                                     }
                                                 }
                                             }
