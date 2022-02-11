@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
                 Column(
                 ) {
 
-                    Column(
+                    Column( //TODO: use column item instead of Columns inside Column
                         modifier = Modifier
                             .wrapContentSize(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -207,7 +207,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun LeaderboardScreen(user: FirebaseUser?) {
         val scrollState = rememberScrollState()
-        Column(
+        Column( //TODO: use lazy column
             modifier = Modifier
                 .wrapContentSize(Alignment.Center)
                 .padding(6.dp, 58.dp, 0.dp, 0.dp)
