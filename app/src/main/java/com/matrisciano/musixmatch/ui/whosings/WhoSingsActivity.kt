@@ -2,7 +2,6 @@ package com.matrisciano.musixmatch.ui.whosings
 
 import android.content.Intent
 import android.os.Bundle
-import android.service.controls.ControlsProviderService
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -42,7 +41,7 @@ class WhoSingsActivity : ComponentActivity() {
     private var snippet: String? = ""
     private val maxArtistChars = 55
     private val matchesNumber = 3
-    var tracks = Array<String?>(matchesNumber) { null }
+    private var tracks = Array<String?>(matchesNumber) { null }
     private var correctIndexes = Array<Int?>(matchesNumber) { null }
     private var artists = Array(matchesNumber) { arrayOf("", "", "") }
     private var currentMatch = 0
@@ -53,11 +52,11 @@ class WhoSingsActivity : ComponentActivity() {
         val currentUser = auth.currentUser
 
         for (i in 0 until matchesNumber) {
-            for (j in 0..2) artists[i][j] = getIntent().getStringExtra("artist" + i + "_" + j)!!
-            tracks[i] = getIntent().getStringExtra("track$i")
-            correctIndexes[i] = getIntent().getIntExtra("correctIndex$i", 0)
+            for (j in 0..2) artists[i][j] = intent.getStringExtra("artist" + i + "_" + j)!!
+            tracks[i] = intent.getStringExtra("track$i")
+            correctIndexes[i] = intent.getIntExtra("correctIndex$i", 0)
         }
-        snippet = getIntent().getStringExtra("snippet")
+        snippet = intent.getStringExtra("snippet")
 
 
         setContent {
@@ -119,10 +118,10 @@ class WhoSingsActivity : ComponentActivity() {
                                     .addOnSuccessListener { result ->
                                         for (document in result) {
                                             Log.d(
-                                                ControlsProviderService.TAG,
+                                                "Firestore",
                                                 "${document.id} => ${document.data}"
                                             )
-                                            if (document.data["email"] == user?.email) {
+                                            if (document.data["email"] == user.email) {
                                                 points = document.data["points"] as Long
                                                 if (correctIndexes[currentMatch] == i) {
                                                     db.collection("users").document(document.id)
@@ -144,7 +143,7 @@ class WhoSingsActivity : ComponentActivity() {
                                             }
                                         }
                                     }
-                                    .addOnFailureListener { exception ->
+                                    .addOnFailureListener {
                                         Toast.makeText(
                                             baseContext, "Database error",
                                             Toast.LENGTH_SHORT
@@ -159,15 +158,15 @@ class WhoSingsActivity : ComponentActivity() {
                         ) {
                             if (artists[currentMatch][i].length > maxArtistChars) {
                                 artists[currentMatch][i] =
-                                    artists[currentMatch][i]!!.substring(0, maxArtistChars)
+                                    artists[currentMatch][i].substring(0, maxArtistChars)
                                 artists[currentMatch][i] = "$artists[i]..."
                             }
                             Text(
-                                text = artists[currentMatch][i]!!.replace("\"", ""),
+                                text = artists[currentMatch][i].replace("\"", ""),
                                 fontSize = 18.sp,
                                 textAlign = TextAlign.Center
                             )
-                        };
+                        }
                     }
                 }
             }
@@ -177,7 +176,7 @@ class WhoSingsActivity : ComponentActivity() {
     @Composable
     fun WinScreen(navCtrl: NavController) {
         val viewModel = getViewModel<WhoSingsViewModel>()
-        MusixmatchPinkTheme() {
+        MusixmatchPinkTheme {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
@@ -226,7 +225,7 @@ class WhoSingsActivity : ComponentActivity() {
     @Composable
     fun LoseScreen(navCtrl: NavController) {
         val viewModel = getViewModel<WhoSingsViewModel>()
-        MusixmatchPinkTheme() {
+        MusixmatchPinkTheme {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
@@ -265,7 +264,7 @@ class WhoSingsActivity : ComponentActivity() {
                         ), enabled = true
                     ) {
                         Text(text = "OK", fontSize = 18.sp)
-                    };
+                    }
                 }
             }
         }
@@ -324,7 +323,7 @@ class WhoSingsActivity : ComponentActivity() {
         )
     }
 
-    fun showTrackNotFoundToast() {
+    private fun showTrackNotFoundToast() {
         Toast.makeText(
             baseContext, "Track not found",
             Toast.LENGTH_SHORT

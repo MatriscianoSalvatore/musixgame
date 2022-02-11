@@ -2,7 +2,6 @@ package com.matrisciano.musixmatch.ui.signin
 
 import android.content.Intent
 import android.os.Bundle
-import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -96,7 +95,7 @@ class SigninActivity : ComponentActivity() {
                             ), enabled = true
                         ) {
                             Text(text = "LOGIN")
-                        };
+                        }
                         TextButton(
                             modifier = Modifier
                                 .padding(3.dp)
@@ -118,8 +117,8 @@ class SigninActivity : ComponentActivity() {
     }
 
     @Composable
-    fun LoginScreen(navCtrl: NavController) {
-        MusixmatchPinkTheme() {
+    fun LoginScreen() {
+        MusixmatchPinkTheme {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
@@ -157,8 +156,7 @@ class SigninActivity : ComponentActivity() {
                             if (email != "" && password != "")
                                 login(
                                     email,
-                                    password,
-                                    navCtrl
+                                    password
                                 )
                         },
                         colors = ButtonDefaults.textButtonColors(
@@ -169,15 +167,15 @@ class SigninActivity : ComponentActivity() {
 
                         Text(text = "LOGIN")
 
-                    };
+                    }
                 }
             }
         }
     }
 
     @Composable
-    fun SignupScreen(navCtrl: NavController) {
-        MusixmatchPinkTheme() {
+    fun SignupScreen() {
+        MusixmatchPinkTheme {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
@@ -224,8 +222,7 @@ class SigninActivity : ComponentActivity() {
                                 signup(
                                     name,
                                     email,
-                                    password,
-                                    navCtrl
+                                    password
                                 )
                         },
                         colors = ButtonDefaults.textButtonColors(
@@ -280,12 +277,12 @@ class SigninActivity : ComponentActivity() {
         )
     }
 
-    fun signup(name: String, email: String, password: String, navCtrl: NavController) {
+    private fun signup(name: String, email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "createUserWithEmail:success")
+                    Log.d("Firebase Authentication", "createUserWithEmail:success")
                     auth.currentUser?.updateProfile(
                         UserProfileChangeRequest.Builder()
                             .setDisplayName(name)
@@ -300,17 +297,17 @@ class SigninActivity : ComponentActivity() {
                     db.collection("users")
                         .add(user)
                         .addOnSuccessListener { documentReference ->
-                            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                            Log.d("Firestore", "DocumentSnapshot added with ID: ${documentReference.id}")
                         }
                         .addOnFailureListener { e ->
-                            Log.w(TAG, "Error adding document", e)
+                            Log.w("Firestore", "Error adding document", e)
                         }
 
                     startActivity(Intent(this@SigninActivity, MainActivity::class.java))
 
                 } else {
                     // If sign in fails, display a message to the user.
-                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                    Log.w("Firebase Authentication", "createUserWithEmail:failure", task.exception)
                     Toast.makeText(
                         baseContext, "Authentication failed.",
                         Toast.LENGTH_SHORT
@@ -319,18 +316,18 @@ class SigninActivity : ComponentActivity() {
             }
     }
 
-    fun login(email: String, password: String, navCtrl: NavController) {
+    private fun login(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInWithEmail:success")
+                    Log.d("Firebase Authentication", "signInWithEmail:success")
                     // Start main activity
                     startActivity(Intent(this@SigninActivity, MainActivity::class.java))
 
                 } else {
                     // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInWithEmail:failure", task.exception)
+                    Log.w("Firebase Authentication", "signInWithEmail:failure", task.exception)
                     Toast.makeText(
                         baseContext, "Authentication failed.",
                         Toast.LENGTH_SHORT
@@ -340,7 +337,7 @@ class SigninActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Navigation(user: FirebaseUser?) {
+    private fun Navigation(user: FirebaseUser?) {
         val navCtrl = rememberNavController()
         if (user != null) startActivity(
             Intent(
@@ -353,10 +350,10 @@ class SigninActivity : ComponentActivity() {
                     LauncherScreen(navCtrl)
                 }
                 composable("signup_screen") {
-                    SignupScreen(navCtrl)
+                    SignupScreen()
                 }
                 composable("login_screen") {
-                    LoginScreen(navCtrl)
+                    LoginScreen()
                 }
             }
         }
@@ -365,7 +362,7 @@ class SigninActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun LoginPreview() {
-        LoginScreen(rememberNavController())
+        LoginScreen()
     }
 
     enum class TextfieldType {
