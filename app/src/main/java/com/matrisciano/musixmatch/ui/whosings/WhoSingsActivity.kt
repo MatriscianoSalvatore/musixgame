@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,7 +30,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.main.MainActivity
-import com.matrisciano.musixmatch.ui.main.home.HomeViewModel
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.winGreen
@@ -178,7 +176,7 @@ class WhoSingsActivity : ComponentActivity() {
 
     @Composable
     fun WinScreen(navCtrl: NavController) {
-        val viewModel = getViewModel<WinViewModel>()
+        val viewModel = getViewModel<WhoSingsViewModel>()
         MusixmatchPinkTheme() {
             Box(
                 modifier = Modifier
@@ -211,7 +209,7 @@ class WhoSingsActivity : ComponentActivity() {
                             .padding(28.dp),
 
                         onClick = {
-                            scope.launch { nextStep(navCtrl, viewModel, null) }
+                            scope.launch { nextStep(viewModel) }
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -227,7 +225,7 @@ class WhoSingsActivity : ComponentActivity() {
 
     @Composable
     fun LoseScreen(navCtrl: NavController) {
-        val viewModel = getViewModel<LoseViewModel>()
+        val viewModel = getViewModel<WhoSingsViewModel>()
         MusixmatchPinkTheme() {
             Box(
                 modifier = Modifier
@@ -259,7 +257,7 @@ class WhoSingsActivity : ComponentActivity() {
                             .width(200.dp)
                             .padding(28.dp),
                         onClick = {
-                            scope.launch { nextStep(navCtrl, null, viewModel) }
+                            scope.launch { nextStep(viewModel) }
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -342,38 +340,21 @@ class WhoSingsActivity : ComponentActivity() {
     } */
 
     private suspend fun nextStep(
-        navCtrl: NavController,
-        winViewModel: WinViewModel?,
-        loseViewModel: LoseViewModel?
+        viewModel: WhoSingsViewModel?,
     ) {
         currentMatch++
         if (currentMatch < matchesNumber) {
 
-            if (winViewModel != null) {
-                when (val result = winViewModel.getSnippet("trackID")) {
-                    is Result.Success -> {
-                        val snippet =
-                            result.value.message?.body?.snippet?.snippet_body
-                        Log.d("HomeScreen", "TrackID: $snippet")
-                    }
-
-                    is Result.Error -> {
-                        Log.d("HomeScreen", "TrackID error: ${result.message}")
-                    }
-                }
-            } else if (loseViewModel != null) {
-                when (val result = loseViewModel.getSnippet("trackID")) {
-                    is Result.Success -> {
-                        val snippet =
-                            result.value.message?.body?.snippet?.snippet_body
-                        Log.d("HomeScreen", "TrackID: $snippet")
-                    }
-
-                    is Result.Error -> {
-                        Log.d("HomeScreen", "TrackID error: ${result.message}")
-                    }
+            when (val result = viewModel?.getSnippet("trackID")) {
+                is Result.Success -> {
+                    val snippet =
+                        result.value.message?.body?.snippet?.snippet_body
+                    Log.d("WhoSingActivity", "Snipptet: $snippet")
                 }
 
+                is Result.Error -> {
+                    Log.d("WhoSingActivity", "Snipptet error: ${result.message}")
+                }
             }
 
 

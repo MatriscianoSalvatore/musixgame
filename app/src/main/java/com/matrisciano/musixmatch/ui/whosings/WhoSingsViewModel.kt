@@ -5,7 +5,7 @@ import com.matrisciano.network.model.Snippet
 import com.matrisciano.network.repository.MusixmatchRepository
 import com.matrisciano.network.utils.Result
 
-class LoseViewModel(private val repository: MusixmatchRepository) : ViewModel() {
+class WhoSingsViewModel(private val repository: MusixmatchRepository) : ViewModel() {
 
     suspend fun getSnippet(trackID: String): Result<Snippet> =
         repository.getSnippet(trackID)
