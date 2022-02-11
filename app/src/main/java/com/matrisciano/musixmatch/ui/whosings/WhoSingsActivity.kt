@@ -1,5 +1,6 @@
 package com.matrisciano.musixmatch.ui.whosings
 
+import android.content.Intent
 import android.os.Bundle
 import android.service.controls.ControlsProviderService
 import android.util.Log
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,9 +30,14 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.matrisciano.musixmatch.ui.main.MainActivity
+import com.matrisciano.musixmatch.ui.main.home.HomeViewModel
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.winGreen
+import com.matrisciano.network.utils.Result
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.getViewModel
 
 class WhoSingsActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -54,9 +61,11 @@ class WhoSingsActivity : ComponentActivity() {
         }
         snippet = getIntent().getStringExtra("snippet")
 
+
         setContent {
             MusixmatchPinkTheme()
             {
+
                 Box(
                     modifier = Modifier
                         .background(MaterialTheme.colors.surface)
@@ -151,7 +160,8 @@ class WhoSingsActivity : ComponentActivity() {
                             enabled = true
                         ) {
                             if (artists[currentMatch][i].length > maxArtistChars) {
-                                artists[currentMatch][i] = artists[currentMatch][i]!!.substring(0, maxArtistChars)
+                                artists[currentMatch][i] =
+                                    artists[currentMatch][i]!!.substring(0, maxArtistChars)
                                 artists[currentMatch][i] = "$artists[i]..."
                             }
                             Text(
@@ -168,6 +178,7 @@ class WhoSingsActivity : ComponentActivity() {
 
     @Composable
     fun WinScreen(navCtrl: NavController) {
+        val viewModel = getViewModel<WinViewModel>()
         MusixmatchPinkTheme() {
             Box(
                 modifier = Modifier
@@ -192,11 +203,16 @@ class WhoSingsActivity : ComponentActivity() {
                         modifier = Modifier.padding(30.dp)
                     )
 
+                    val scope = rememberCoroutineScope()
+
                     TextButton(
                         modifier = Modifier
                             .width(200.dp)
                             .padding(28.dp),
-                        onClick = { nextStep(navCtrl) },
+
+                        onClick = {
+                            scope.launch { nextStep(navCtrl, viewModel, null) }
+                        },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -211,6 +227,7 @@ class WhoSingsActivity : ComponentActivity() {
 
     @Composable
     fun LoseScreen(navCtrl: NavController) {
+        val viewModel = getViewModel<LoseViewModel>()
         MusixmatchPinkTheme() {
             Box(
                 modifier = Modifier
@@ -235,11 +252,15 @@ class WhoSingsActivity : ComponentActivity() {
                         modifier = Modifier.padding(30.dp)
                     )
 
+                    val scope = rememberCoroutineScope()
+
                     TextButton(
                         modifier = Modifier
                             .width(200.dp)
                             .padding(28.dp),
-                        onClick = { nextStep(navCtrl) },
+                        onClick = {
+                            scope.launch { nextStep(navCtrl, null, viewModel) }
+                        },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -268,7 +289,6 @@ class WhoSingsActivity : ComponentActivity() {
             }
         }
     }
-
 
 
 /*    private fun getSnippet(trackID: String, navCtrl: NavController) {
@@ -321,15 +341,48 @@ class WhoSingsActivity : ComponentActivity() {
         })
     } */
 
-    private fun nextStep(navCtrl: NavController) {
+    private suspend fun nextStep(
+        navCtrl: NavController,
+        winViewModel: WinViewModel?,
+        loseViewModel: LoseViewModel?
+    ) {
         currentMatch++
-       /* if (currentMatch < matchesNumber) getSnippet(tracks[currentMatch]!!, navCtrl)
-        else startActivity(
+        if (currentMatch < matchesNumber) {
+
+            if (winViewModel != null) {
+                when (val result = winViewModel.getSnippet("trackID")) {
+                    is Result.Success -> {
+                        val snippet =
+                            result.value.message?.body?.snippet?.snippet_body
+                        Log.d("HomeScreen", "TrackID: $snippet")
+                    }
+
+                    is Result.Error -> {
+                        Log.d("HomeScreen", "TrackID error: ${result.message}")
+                    }
+                }
+            } else if (loseViewModel != null) {
+                when (val result = loseViewModel.getSnippet("trackID")) {
+                    is Result.Success -> {
+                        val snippet =
+                            result.value.message?.body?.snippet?.snippet_body
+                        Log.d("HomeScreen", "TrackID: $snippet")
+                    }
+
+                    is Result.Error -> {
+                        Log.d("HomeScreen", "TrackID error: ${result.message}")
+                    }
+                }
+
+            }
+
+
+        } else startActivity(
             Intent(
                 this@WhoSingsActivity,
                 MainActivity::class.java
             )
-        )*/
+        )
     }
 
 
