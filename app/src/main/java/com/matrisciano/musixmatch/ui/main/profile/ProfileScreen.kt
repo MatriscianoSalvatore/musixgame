@@ -75,7 +75,7 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity, points: Long) {
                     ), enabled = true
                 ) {
                     Text(text = "LOGOUT")
-                };
+                }
             }
         }
     }

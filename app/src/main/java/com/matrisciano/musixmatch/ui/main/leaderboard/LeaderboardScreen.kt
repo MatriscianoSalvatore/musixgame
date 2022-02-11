@@ -29,7 +29,7 @@ fun LeaderboardScreen(user: FirebaseUser?, leaderboard: HashMap<String, Long>) {
             )
     ) {
 
-        var sortedLeaderboard: MutableMap<String, Long> = LinkedHashMap()
+        val sortedLeaderboard: MutableMap<String, Long> = LinkedHashMap()
         leaderboard.entries.sortedByDescending { it.value }
             .forEach { sortedLeaderboard[it.key] = it.value }
 

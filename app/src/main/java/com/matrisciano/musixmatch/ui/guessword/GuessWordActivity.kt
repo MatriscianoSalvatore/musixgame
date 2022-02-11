@@ -2,7 +2,6 @@ package com.matrisciano.musixmatch.ui.guessword
 
 import android.content.Intent
 import android.os.Bundle
-import android.service.controls.ControlsProviderService
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
@@ -40,15 +39,13 @@ import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.musixmatch.ui.theme.winGreen
-import java.lang.Math.max
-import java.lang.Math.min
 import java.util.*
 
 class GuessWordActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
-    private val maxChars = 145;
-    private val safeChars = 30;
+    private val maxChars = 145
+    private val safeChars = 30
     private var replacedTestLyrics = ""
     private var replacedWord = ""
 
@@ -57,7 +54,7 @@ class GuessWordActivity : ComponentActivity() {
         auth = Firebase.auth
         val currentUser = auth.currentUser
 
-        var lyrics = getIntent().getStringExtra("lyrics")
+        var lyrics = intent.getStringExtra("lyrics")
         lyrics = lyrics!!.replace("******* This Lyrics is NOT for Commercial use *******", "")
         lyrics = lyrics.replace("\\n", "\n")
         lyrics = lyrics.replace("\\\"", "\"")
@@ -75,22 +72,22 @@ class GuessWordActivity : ComponentActivity() {
         }
         lyrics = lyrics.substring(startChar)
 
-        var minSpaceChar = lyrics.indexOf(" ")
-        var minNewLineChar = lyrics.indexOf("\n")
-        lyrics = lyrics.substring(min(minSpaceChar, minNewLineChar))
+        val minSpaceChar = lyrics.indexOf(" ")
+        val minNewLineChar = lyrics.indexOf("\n")
+        lyrics = lyrics.substring(minSpaceChar.coerceAtMost(minNewLineChar))
 
         if (lyrics.length > maxChars) lyrics = lyrics.substring(0, maxChars)
 
-        var maxSpaceChar = lyrics.lastIndexOf(" ")
-        var maxNewLineChar = lyrics.lastIndexOf("\n")
-        lyrics = lyrics.substring(0, max(maxSpaceChar, maxNewLineChar))
+        val maxSpaceChar = lyrics.lastIndexOf(" ")
+        val maxNewLineChar = lyrics.lastIndexOf("\n")
+        lyrics = lyrics.substring(0, maxSpaceChar.coerceAtLeast(maxNewLineChar))
 
         if (startChar != 0) lyrics = "... $lyrics"
         lyrics += " ..."
         val words = lyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
         var found = false
         while (!found) {
-            var randomNumber = (words.indices).random()
+            val randomNumber = (words.indices).random()
             replacedWord = words[randomNumber]
             if (replacedWord.length > 3) {
                 found = true
@@ -101,7 +98,7 @@ class GuessWordActivity : ComponentActivity() {
             }
         }
 
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContent {
             MusixmatchPinkTheme()
             {
@@ -166,10 +163,10 @@ class GuessWordActivity : ComponentActivity() {
                                 .addOnSuccessListener { result ->
                                     for (document in result) {
                                         Log.d(
-                                            ControlsProviderService.TAG,
+                                            "Firestore",
                                             "${document.id} => ${document.data}"
                                         )
-                                        if (document.data["email"] == user?.email) {
+                                        if (document.data["email"] == user.email) {
                                             points = document.data["points"] as Long
                                             if (answer.lowercase(Locale.getDefault())
                                                     .trim() == replacedWord.lowercase(Locale.getDefault())
@@ -194,7 +191,7 @@ class GuessWordActivity : ComponentActivity() {
                                         }
                                     }
                                 }
-                                .addOnFailureListener { exception ->
+                                .addOnFailureListener {
                                     Toast.makeText(
                                         baseContext, "Database error",
                                         Toast.LENGTH_SHORT
@@ -208,15 +205,15 @@ class GuessWordActivity : ComponentActivity() {
                         enabled = (answer != "")
                     ) {
                         Text(text = "CONFIRM", fontSize = 18.sp)
-                    };
+                    }
                 }
             }
         }
     }
 
     @Composable
-    fun WinScreen(navCtrl: NavController) {
-        MusixmatchPinkTheme() {
+    fun WinScreen() {
+        MusixmatchPinkTheme {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
@@ -260,8 +257,8 @@ class GuessWordActivity : ComponentActivity() {
     }
 
     @Composable
-    fun LoseScreen(navCtrl: NavController) {
-        MusixmatchPinkTheme() {
+    fun LoseScreen() {
+        MusixmatchPinkTheme {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
@@ -298,7 +295,7 @@ class GuessWordActivity : ComponentActivity() {
                         ), enabled = true
                     ) {
                         Text(text = "OK", fontSize = 18.sp)
-                    };
+                    }
                 }
             }
         }
@@ -340,10 +337,10 @@ class GuessWordActivity : ComponentActivity() {
                 GameScreen(navCtrl, user!!)
             }
             composable("win_screen") {
-                WinScreen(navCtrl)
+                WinScreen()
             }
             composable("lose_screen") {
-                LoseScreen(navCtrl)
+                LoseScreen()
             }
         }
     }
