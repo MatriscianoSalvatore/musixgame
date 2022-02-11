@@ -118,8 +118,8 @@ fun HomeScreen(activity: MainActivity) {
                                     }
                                     is Result.Error -> {
                                         Log.d("HomeScreen", "TrackID error: ${result.message}")
+                                        showTrackNotFoundToast(activity)
                                     }
-                                    showTrackNotFoundToast(activity)
                                 }
                             }
                         },
