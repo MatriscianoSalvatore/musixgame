@@ -61,11 +61,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private var leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
-    private val maxTracks = 45; //divisible for matchesNumber
-    private val matchesNumber = 3
-    private var correctIndexes = Array<Int?>(matchesNumber) { null }
-    private var artists = Array(matchesNumber) { arrayOf("", "", "") }
-    private var tracks = Array<String?>(matchesNumber) { null }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

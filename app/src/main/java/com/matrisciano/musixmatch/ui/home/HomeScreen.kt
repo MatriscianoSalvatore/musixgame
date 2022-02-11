@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
+import com.google.gson.Gson
 import com.matrisciano.musixmatch.component.MusixGameTextField
 import com.matrisciano.musixmatch.ui.GuessWordActivity
 import com.matrisciano.musixmatch.ui.MainActivity
@@ -23,6 +24,13 @@ import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.network.utils.Result
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
+
+private val maxTracks = 45; //divisible for matchesNumber
+private val matchesNumber = 3
+private var correctIndexes = Array<Int?>(matchesNumber) { null }
+private var artists = Array(matchesNumber) { arrayOf("", "", "") }
+private var tracks = Array<String?>(matchesNumber) { null }
+
 
 @Composable
 fun HomeScreen(activity: MainActivity) {
@@ -142,9 +150,73 @@ fun HomeScreen(activity: MainActivity) {
                                             val topTracks =
                                                 result.value.message?.body?.track_list
                                             Log.d("HomeScreen", "TopTracks: $topTracks")
+
+
+                                            var indexes = Array(matchesNumber) { arrayOf(0, 1, 2) }
+                                            for (i in 0 until matchesNumber) {
+
+                                                indexes[i][0] =
+                                                    ((maxTracks / matchesNumber * i) until ((maxTracks / matchesNumber * (i + 1)))).random()
+                                                while (artists[i][0] == artists[i][1] || artists[i][1] == artists[i][2] || artists[i][0] == artists[i][2]) {
+
+                                                    indexes[i][1] = (0 until maxTracks).random()
+                                                    indexes[i][2] = (0 until maxTracks).random()
+
+                                                    tracks[i] =
+                                                        Gson().newBuilder().disableHtmlEscaping()
+                                                            .create()
+                                                            .toJson(
+                                                                topTracks?.get(
+                                                                    indexes[i][0]
+                                                                )?.track?.track_id
+                                                            )
+
+                                                    for (j in 0..2)
+                                                        artists[i][j] =
+                                                            Gson().newBuilder()
+                                                                .disableHtmlEscaping().create()
+                                                                .toJson(
+                                                                    topTracks?.get(
+                                                                        indexes[i][j]
+                                                                    )?.track?.artist_name
+                                                                )
+                                                }
+
+                                                var correctArtist = artists[i][0]
+                                                artists[i].shuffle()
+                                                correctIndexes[i] =
+                                                    artists[i].indexOf(correctArtist)
+                                            }
+
+
+
+
+                                            scope.launch {
+                                                when (val result =
+                                                    viewModel.getSnippet(tracks[0]!!)) {
+                                                    is Result.Success -> {
+                                                        val snippet =
+                                                            result.value.message?.body?.snippet?.snippet_body
+                                                        Log.d("HomeScreen", "Snippet: $snippet")
+
+
+                                                    }
+                                                    is Result.Error -> {
+                                                        Log.d(
+                                                            "HomeScreen",
+                                                            "Snippet error: ${result.message}"
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+
                                         }
                                         is Result.Error -> {
-                                            Log.d("HomeScreen", "TopTracks error: ${result.message}")
+                                            Log.d(
+                                                "HomeScreen",
+                                                "TopTracks error: ${result.message}"
+                                            )
                                         }
                                     }
                                 }
