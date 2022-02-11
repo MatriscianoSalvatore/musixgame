@@ -136,7 +136,18 @@ fun HomeScreen(activity: MainActivity) {
                             modifier = Modifier
                                 .width(215.dp),
                             onClick = {
-                                //getTopTracks()
+                                scope.launch {
+                                    when (val result = viewModel.getTopTracks()) {
+                                        is Result.Success -> {
+                                            val topTracks =
+                                                result.value.message?.body?.track_list
+                                            Log.d("HomeScreen", "TopTracks: $topTracks")
+                                        }
+                                        is Result.Error -> {
+                                            Log.d("HomeScreen", "TopTracks error: ${result.message}")
+                                        }
+                                    }
+                                }
                             },
                             colors = ButtonDefaults.textButtonColors(
                                 backgroundColor = MaterialTheme.colors.primary,
