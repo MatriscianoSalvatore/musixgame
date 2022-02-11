@@ -223,7 +223,7 @@ class MainActivity : ComponentActivity() {
     fun Navigation(navCtrl: NavHostController, user: FirebaseUser?, leaderboard: HashMap<String, Long>) {
         NavHost(navCtrl, "home_screen") {
             composable("home_screen") {
-                HomeScreen()
+                HomeScreen(this@MainActivity)
             }
             composable("leaderboard_screen") {
                 LeaderboardScreen(user, leaderboard)
