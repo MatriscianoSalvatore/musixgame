@@ -209,7 +209,7 @@ class WhoSingsActivity : ComponentActivity() {
                             .padding(28.dp),
 
                         onClick = {
-                            scope.launch { nextStep(viewModel) }
+                            scope.launch { nextStep(viewModel, navCtrl) }
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -257,7 +257,7 @@ class WhoSingsActivity : ComponentActivity() {
                             .width(200.dp)
                             .padding(28.dp),
                         onClick = {
-                            scope.launch { nextStep(viewModel) }
+                            scope.launch { nextStep(viewModel, navCtrl) }
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -341,15 +341,22 @@ class WhoSingsActivity : ComponentActivity() {
 
     private suspend fun nextStep(
         viewModel: WhoSingsViewModel?,
+        navCtrl: NavController
     ) {
         currentMatch++
         if (currentMatch < matchesNumber) {
 
-            when (val result = viewModel?.getSnippet("trackID")) {
+            when (val result = viewModel?.getSnippet(tracks[currentMatch]!!)) {
                 is Result.Success -> {
-                    val snippet =
+                    val currentSnippet =
                         result.value.message?.body?.snippet?.snippet_body
-                    Log.d("WhoSingActivity", "Snipptet: $snippet")
+                    Log.d("WhoSingActivity", "Snipptet: $currentSnippet")
+                    snippet = currentSnippet
+                    navCtrl.navigate("game_screen") {
+                        popUpTo("game_screen") {
+                            inclusive = true
+                        }
+                    }
                 }
 
                 is Result.Error -> {
