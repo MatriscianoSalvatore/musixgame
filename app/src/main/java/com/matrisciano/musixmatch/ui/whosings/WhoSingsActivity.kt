@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch
+package com.matrisciano.musixmatch.ui.whosings
 
 import android.content.Intent
 import android.os.Bundle
@@ -29,18 +29,13 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
+import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.winGreen
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.util.*
+import com.matrisciano.network.utils.Result
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.getViewModel
 
 class WhoSingsActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -64,9 +59,11 @@ class WhoSingsActivity : ComponentActivity() {
         }
         snippet = getIntent().getStringExtra("snippet")
 
+
         setContent {
             MusixmatchPinkTheme()
             {
+
                 Box(
                     modifier = Modifier
                         .background(MaterialTheme.colors.surface)
@@ -161,7 +158,8 @@ class WhoSingsActivity : ComponentActivity() {
                             enabled = true
                         ) {
                             if (artists[currentMatch][i].length > maxArtistChars) {
-                                artists[currentMatch][i] = artists[currentMatch][i]!!.substring(0, maxArtistChars)
+                                artists[currentMatch][i] =
+                                    artists[currentMatch][i]!!.substring(0, maxArtistChars)
                                 artists[currentMatch][i] = "$artists[i]..."
                             }
                             Text(
@@ -178,6 +176,7 @@ class WhoSingsActivity : ComponentActivity() {
 
     @Composable
     fun WinScreen(navCtrl: NavController) {
+        val viewModel = getViewModel<WhoSingsViewModel>()
         MusixmatchPinkTheme() {
             Box(
                 modifier = Modifier
@@ -202,11 +201,16 @@ class WhoSingsActivity : ComponentActivity() {
                         modifier = Modifier.padding(30.dp)
                     )
 
+                    val scope = rememberCoroutineScope()
+
                     TextButton(
                         modifier = Modifier
                             .width(200.dp)
                             .padding(28.dp),
-                        onClick = { nextStep(navCtrl) },
+
+                        onClick = {
+                            scope.launch { nextStep(viewModel, navCtrl) }
+                        },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -221,6 +225,7 @@ class WhoSingsActivity : ComponentActivity() {
 
     @Composable
     fun LoseScreen(navCtrl: NavController) {
+        val viewModel = getViewModel<WhoSingsViewModel>()
         MusixmatchPinkTheme() {
             Box(
                 modifier = Modifier
@@ -245,11 +250,15 @@ class WhoSingsActivity : ComponentActivity() {
                         modifier = Modifier.padding(30.dp)
                     )
 
+                    val scope = rememberCoroutineScope()
+
                     TextButton(
                         modifier = Modifier
                             .width(200.dp)
                             .padding(28.dp),
-                        onClick = { nextStep(navCtrl) },
+                        onClick = {
+                            scope.launch { nextStep(viewModel, navCtrl) }
+                        },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             contentColor = Color.White
@@ -280,13 +289,12 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
 
-
-    private fun getSnippet(trackID: String, navCtrl: NavController) {
+/*    private fun getSnippet(trackID: String, navCtrl: NavController) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -298,7 +306,7 @@ class WhoSingsActivity : ComponentActivity() {
             .client(okHttpClient)
             .build()
         val service = retrofit.create(Api.GetSnippet::class.java)
-        val call = service.getCurrentTrackData(trackID, "276b2392f053c47db5b3b5f072f54aa7")
+        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
         call.enqueue(object : Callback<Api.SnippetResponse> {
             override fun onResponse(
                 call: Call<Api.SnippetResponse>,
@@ -329,12 +337,35 @@ class WhoSingsActivity : ComponentActivity() {
                 showTrackNotFoundToast()
             }
         })
-    }
+    } */
 
-    private fun nextStep(navCtrl: NavController) {
+    private suspend fun nextStep(
+        viewModel: WhoSingsViewModel?,
+        navCtrl: NavController
+    ) {
         currentMatch++
-        if (currentMatch < matchesNumber) getSnippet(tracks[currentMatch]!!, navCtrl)
-        else startActivity(
+        if (currentMatch < matchesNumber) {
+
+            when (val result = viewModel?.getSnippet(tracks[currentMatch]!!)) {
+                is Result.Success -> {
+                    val currentSnippet =
+                        result.value.message?.body?.snippet?.snippet_body
+                    Log.d("WhoSingActivity", "Snipptet: $currentSnippet")
+                    snippet = currentSnippet
+                    navCtrl.navigate("game_screen") {
+                        popUpTo("game_screen") {
+                            inclusive = true
+                        }
+                    }
+                }
+
+                is Result.Error -> {
+                    Log.d("WhoSingActivity", "Snipptet error: ${result.message}")
+                }
+            }
+
+
+        } else startActivity(
             Intent(
                 this@WhoSingsActivity,
                 MainActivity::class.java

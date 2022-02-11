@@ -1,4 +1,4 @@
-package com.matrisciano.musixmatch
+package com.matrisciano.musixmatch.ui.signin
 
 import android.content.Intent
 import android.os.Bundle
@@ -37,6 +37,8 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.matrisciano.musixmatch.ui.main.MainActivity
+import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 
 class SigninActivity : ComponentActivity() {
