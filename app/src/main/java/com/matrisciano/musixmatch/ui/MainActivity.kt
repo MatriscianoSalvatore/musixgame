@@ -42,6 +42,7 @@ import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.home.HomeScreen
 import com.matrisciano.musixmatch.ui.leaderboard.LeaderboardScreen
+import com.matrisciano.musixmatch.ui.profile.ProfileScreen
 import com.matrisciano.musixmatch.ui.signin.SigninActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
@@ -124,59 +125,7 @@ class MainActivity : ComponentActivity() {
 
 
 
-    @Composable
-    fun ProfileScreen(user: FirebaseUser?) {
-        MusixmatchTheme() {
 
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    modifier = Modifier
-                        .wrapContentSize(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-
-                ) {
-                    Text(
-                        "Name: " + user?.displayName,
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(2.dp)
-                    )
-                    Text(
-                        "Email: " + user?.email,
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(2.dp)
-                    )
-                    Text(
-                        "Musixpoints: $points",
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(2.dp)
-                    )
-                    TextButton(
-                        modifier = Modifier
-                            .padding(20.dp)
-                            .width(200.dp),
-                        onClick = {
-                            Firebase.auth.signOut()
-                            startActivity(Intent(this@MainActivity, SigninActivity::class.java))
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            backgroundColor = MaterialTheme.colors.primary,
-                            contentColor = Color.White
-                        ), enabled = true
-                    ) {
-                        Text(text = "LOGOUT")
-                    };
-                }
-            }
-        }
-    }
 
     sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: String) {
         object Home : BottomNavItem("Home", R.drawable.ic_home, "home_screen")
@@ -229,7 +178,7 @@ class MainActivity : ComponentActivity() {
                 LeaderboardScreen(user, leaderboard)
             }
             composable("profile_screen") {
-                ProfileScreen(user)
+                ProfileScreen(user, this@MainActivity, points)
             }
         }
     }
@@ -239,7 +188,7 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun ProfilePreview() {
-        ProfileScreen(Firebase.auth.currentUser)
+        ProfileScreen(Firebase.auth.currentUser, this@MainActivity, points)
     }
 
 
