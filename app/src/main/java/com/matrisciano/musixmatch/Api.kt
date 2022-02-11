@@ -49,10 +49,6 @@ class Api {
     }
 
 
-
-
-
-
     interface GetLyrics {
         @Headers("apikey: " + "YOUR_MUSIXMATCH_API_KEY")
         @GET("track.lyrics.get")
@@ -81,8 +77,6 @@ class Api {
         @SerializedName("lyrics_body")
         var lyrics_body: String? = null
     }
-
-
 
 
     interface GetTopTracks {
@@ -125,8 +119,6 @@ class Api {
     }
 
 
-
-
     interface GetSnippet {
         @Headers("apikey: " + "YOUR_MUSIXMATCH_API_KEY")
         @GET("track.snippet.get")
@@ -155,6 +147,4 @@ class Api {
         @SerializedName("snippet_body")
         var snippet_body: String? = null
     }
-
-
 }
