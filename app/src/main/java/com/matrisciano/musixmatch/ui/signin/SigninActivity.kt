@@ -9,21 +9,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -38,6 +30,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.R
+import com.matrisciano.musixmatch.component.SigninTextField
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 
 class SigninActivity : ComponentActivity() {
@@ -235,46 +228,6 @@ class SigninActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    @Composable
-    fun SigninTextField(
-        value: String,
-        onInputChanged: (String) -> Unit,
-        hint: String,
-        textfieldType: TextfieldType
-    ) {
-        val focusManager = LocalFocusManager.current
-        TextField(
-            value = value,
-            maxLines = 1,
-            singleLine = true,
-            onValueChange = onInputChanged,
-            modifier = Modifier
-                .padding(0.dp, 10.dp, 0.dp, 0.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                textColor = Color(0xFFFFFFFF),
-                unfocusedLabelColor = Color(0x70FFFFFF),
-            ),
-            label = { Text(hint) },
-            visualTransformation = if (textfieldType == TextfieldType.PASSWORD) PasswordVisualTransformation() else VisualTransformation.None,
-            keyboardActions = if (textfieldType == TextfieldType.PASSWORD) KeyboardActions(onDone = { focusManager.clearFocus() })
-            else KeyboardActions(onDone = { focusManager.moveFocus(FocusDirection.Next) }),
-            keyboardOptions = when (textfieldType) {
-                TextfieldType.PASSWORD -> KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                )
-                TextfieldType.EMAIL -> KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                )
-                else -> KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                )
-            },
-        )
     }
 
     private fun signup(name: String, email: String, password: String) {
