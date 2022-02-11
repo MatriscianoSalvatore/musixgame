@@ -20,12 +20,12 @@ data class LyricsBody (
 @Serializable
 data class LyricsClass (
     @SerialName("lyrics_id")
-    val lyricsID: Long? = null,
+    val lyrics_id: Long? = null,
 
     val explicit: Long? = null,
 
     @SerialName("lyrics_body")
-    val lyricsBody: String? = null,
+    val lyrics_body: String? = null,
 
     @SerialName("script_tracking_url")
     val scriptTrackingURL: String? = null,
