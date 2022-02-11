@@ -59,7 +59,7 @@ class GuessWordActivity : ComponentActivity() {
         var lyrics = getIntent().getStringExtra("lyrics")
         lyrics = lyrics!!.replace("******* This Lyrics is NOT for Commercial use *******", "")
         lyrics = lyrics.replace("\\n", "\n")
-        lyrics = lyrics.replace("\"", "")
+        lyrics = lyrics.replace("\\\"", "\"")
         //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
 
         var startChar = 0
