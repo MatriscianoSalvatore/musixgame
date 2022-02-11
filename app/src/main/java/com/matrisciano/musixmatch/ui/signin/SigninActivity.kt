@@ -38,7 +38,7 @@ class SigninActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth
+        auth = Firebase.auth //TODO: create FirebaseAuth Repository
         val currentUser = auth.currentUser
 
         setContent {
@@ -230,6 +230,7 @@ class SigninActivity : ComponentActivity() {
         }
     }
 
+    //TODO: move signup and login functions out from the Activity
     private fun signup(name: String, email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -242,7 +243,7 @@ class SigninActivity : ComponentActivity() {
                             .build()
                     )
 
-                    val db = Firebase.firestore
+                    val db = Firebase.firestore //TODO: create Firestore Repository
                     val user = hashMapOf(
                         "email" to email,
                         "points" to 0,
