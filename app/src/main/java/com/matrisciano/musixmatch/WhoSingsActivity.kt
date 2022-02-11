@@ -281,7 +281,7 @@ class WhoSingsActivity : ComponentActivity() {
 
 
 
-    private fun getSnippet(trackID: String, navCtrl: NavController) {
+/*    private fun getSnippet(trackID: String, navCtrl: NavController) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
@@ -329,17 +329,17 @@ class WhoSingsActivity : ComponentActivity() {
                 showTrackNotFoundToast()
             }
         })
-    }
+    } */
 
     private fun nextStep(navCtrl: NavController) {
         currentMatch++
-        if (currentMatch < matchesNumber) getSnippet(tracks[currentMatch]!!, navCtrl)
+       /* if (currentMatch < matchesNumber) getSnippet(tracks[currentMatch]!!, navCtrl)
         else startActivity(
             Intent(
                 this@WhoSingsActivity,
                 MainActivity::class.java
             )
-        )
+        )*/
     }
 
 

@@ -17,7 +17,7 @@ data class TrackIDMessage (
 @Serializable
 data class TrackIDBody (
     @SerialName("track_list")
-    val trackList: List<TrackList>? = null
+    val track_list: List<TrackList>? = null
 )
 
 @Serializable
@@ -28,7 +28,7 @@ data class TrackList (
 @Serializable
 data class Track (
     @SerialName("track_id")
-    val trackID: Long? = null,
+    val track_id: Long? = null,
 
     @SerialName("track_name")
     val trackName: String? = null,
