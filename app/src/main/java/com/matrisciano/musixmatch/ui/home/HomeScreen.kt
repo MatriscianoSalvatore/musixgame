@@ -1,5 +1,6 @@
 package com.matrisciano.musixmatch.ui.home
 
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ButtonDefaults
@@ -14,14 +15,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import com.matrisciano.musixmatch.component.MusixGameTextField
+import com.matrisciano.musixmatch.ui.GuessWordActivity
+import com.matrisciano.musixmatch.ui.MainActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.network.utils.Result
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(activity: MainActivity) {
     val viewModel = getViewModel<HomeViewModel>()
     MusixmatchTheme() {
         Box(
@@ -71,20 +75,30 @@ fun HomeScreen() {
                             scope.launch {
                                 when (val result = viewModel.getTrackID(artist, title)) {
                                     is Result.Success -> {
-                                        val trackID = result.value.message?.body?.track_list?.get(0)?.track?.track_id
+                                        val trackID =
+                                            result.value.message?.body?.track_list?.get(0)?.track?.track_id
                                         Log.d("HomeScreen", "TrackID: $trackID")
 
                                         scope.launch {
                                             when (val result =
                                                 viewModel.getLyrics(trackID.toString())) {
                                                 is Result.Success -> {
-                                                    val lyrics = result.value.message?.body?.lyrics?.lyrics_body
+                                                    val lyrics =
+                                                        result.value.message?.body?.lyrics?.lyrics_body
                                                     Log.d("HomeScreen", "Lyrics: $lyrics")
-                                                    //TODO: go to game activity
+
+                                                    val intent = Intent(
+                                                        activity,
+                                                        GuessWordActivity::class.java
+                                                    )
+                                                    intent.putExtra("lyrics", lyrics)
+                                                    startActivity(activity, intent, null)
+
                                                 }
                                                 is Result.Error -> {
                                                     Log.d(
-                                                        "HomeScreen", "Lyrics error: ${result.message}"
+                                                        "HomeScreen",
+                                                        "Lyrics error: ${result.message}"
                                                     )
                                                 }
                                             }
