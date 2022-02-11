@@ -5,5 +5,5 @@ import com.matrisciano.network.service.ApiService
 import org.koin.dsl.module
 
 val networkModule = module {
-    single { Network().createServiceApi(ApiService::class.java) }
+    single { Network().createServiceApi(ApiService::class) }
 }

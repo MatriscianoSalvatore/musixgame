@@ -42,6 +42,9 @@ import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
+import com.matrisciano.network.model.TrackID
+import com.matrisciano.network.network.Network
+import com.matrisciano.network.service.ApiService
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -65,8 +68,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         auth = Firebase.auth
         val currentUser = auth.currentUser
+
 
         val db = Firebase.firestore
         db.collection("users")
@@ -160,6 +165,7 @@ class MainActivity : ComponentActivity() {
                                 .padding(15.dp)
                                 .width(215.dp),
                             onClick = {
+                                //getTrack(artist, title)
                                 getTrack(artist, title)
                             },
                             colors = ButtonDefaults.textButtonColors(
@@ -188,7 +194,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .width(215.dp),
                                 onClick = {
-                                    getTopTracks()
+                                    //getTopTracks()
                                 },
                                 colors = ButtonDefaults.textButtonColors(
                                     backgroundColor = MaterialTheme.colors.primary,
@@ -376,12 +382,40 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    fun getTrack(artist: String, title: String) {
+    private fun getTrack(artist: String, title: String) {
+        val network = Network().createServiceApi(ApiService::class)
+        val call = network.getTrackID(artist, title, 1, "desc", "desc")
+        call.enqueue(object : Callback<TrackID> {
+            override fun onResponse(
+                call: Call<TrackID>,
+                response: Response<TrackID>
+            ) {
+                if (response.code() == 200) {
+                    try {
+                        val trackID = response.body()?.message?.body?.track_list?.get(0)?.track?.track_id
+                        if (trackID != null) {
+                            //TODO:
+                            Log.d("MainActivity", "trackID: $trackID")
+                        } else showTrackNotFoundToast()
+                    } catch (e: Exception) {
+                        showTrackNotFoundToast()
+                    }
+                } else showTrackNotFoundToast()
+            }
+
+            override fun onFailure(call: Call<TrackID>, t: Throwable) {
+                showTrackNotFoundToast()
+            }
+        })
+    }
+
+
+/*    fun getTrack(artist: String, title: String) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -399,7 +433,7 @@ class MainActivity : ComponentActivity() {
             1,
             "desc",
             "desc",
-            "276b2392f053c47db5b3b5f072f54aa7"
+            "4ac3d61572388ffbcb08f9e160fec313"
         )
         call.enqueue(object : Callback<Api.TrackIDResponse> {
             override fun onResponse(
@@ -432,7 +466,7 @@ class MainActivity : ComponentActivity() {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -444,7 +478,7 @@ class MainActivity : ComponentActivity() {
             .client(okHttpClient)
             .build()
         val service = retrofit.create(Api.GetLyrics::class.java)
-        val call = service.getCurrentTrackData(trackID, "276b2392f053c47db5b3b5f072f54aa7")
+        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
         call.enqueue(object : Callback<Api.TrackResponse> {
             override fun onResponse(
                 call: Call<Api.TrackResponse>,
@@ -474,11 +508,15 @@ class MainActivity : ComponentActivity() {
 
 
     fun getTopTracks() {
+
+
+
+        //TODO: remove
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -489,9 +527,14 @@ class MainActivity : ComponentActivity() {
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
+
+
+
+
+
         val service = retrofit.create(Api.GetTopTracks::class.java)
         val call =
-            service.getTopTracks("top", 1, maxTracks, "it", 1, "276b2392f053c47db5b3b5f072f54aa7")
+            service.getTopTracks("top", 1, maxTracks, "it", 1, "4ac3d61572388ffbcb08f9e160fec313")
         call.enqueue(object : Callback<Api.TopTracksResponse> {
             override fun onResponse(
                 call: Call<Api.TopTracksResponse>,
@@ -556,7 +599,7 @@ class MainActivity : ComponentActivity() {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -568,7 +611,7 @@ class MainActivity : ComponentActivity() {
             .client(okHttpClient)
             .build()
         val service = retrofit.create(Api.GetSnippet::class.java)
-        val call = service.getCurrentTrackData(trackID, "276b2392f053c47db5b3b5f072f54aa7")
+        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
         call.enqueue(object : Callback<Api.SnippetResponse> {
             override fun onResponse(
                 call: Call<Api.SnippetResponse>,
@@ -604,7 +647,7 @@ class MainActivity : ComponentActivity() {
                 showTrackNotFoundToast()
             }
         })
-    }
+    }*/
 
 
     fun showTrackNotFoundToast() {

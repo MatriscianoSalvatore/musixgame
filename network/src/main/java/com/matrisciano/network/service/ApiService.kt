@@ -10,6 +10,10 @@ import retrofit2.http.Query
 
 interface ApiService {
 
+    companion object {
+        const val apiKey = "4ac3d61572388ffbcb08f9e160fec313"
+    }
+
     @GET("track.search")
     fun getTrackID(
         @Query("q_artist") q_artist: String,
@@ -17,7 +21,7 @@ interface ApiService {
         @Query("page_size") page_size: Int,
         @Query("s_track_rating") s_track_rating: String,
         @Query("s_artist_rating") s_artist_rating: String,
-        @Query("apikey") apikey: String
+        @Query("apikey") apikey: String = apiKey
     ): Call<TrackID>
 
     @GET("track.lyrics.get")

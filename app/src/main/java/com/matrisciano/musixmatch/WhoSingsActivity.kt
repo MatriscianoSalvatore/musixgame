@@ -281,12 +281,12 @@ class WhoSingsActivity : ComponentActivity() {
 
 
 
-    private fun getSnippet(trackID: String, navCtrl: NavController) {
+/*    private fun getSnippet(trackID: String, navCtrl: NavController) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
                     val builder = chain.request().newBuilder()
-                    builder.header("apikey", "276b2392f053c47db5b3b5f072f54aa7")
+                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
                     return@Interceptor chain.proceed(builder.build())
                 }
             )
@@ -298,7 +298,7 @@ class WhoSingsActivity : ComponentActivity() {
             .client(okHttpClient)
             .build()
         val service = retrofit.create(Api.GetSnippet::class.java)
-        val call = service.getCurrentTrackData(trackID, "276b2392f053c47db5b3b5f072f54aa7")
+        val call = service.getCurrentTrackData(trackID, "4ac3d61572388ffbcb08f9e160fec313")
         call.enqueue(object : Callback<Api.SnippetResponse> {
             override fun onResponse(
                 call: Call<Api.SnippetResponse>,
@@ -329,17 +329,17 @@ class WhoSingsActivity : ComponentActivity() {
                 showTrackNotFoundToast()
             }
         })
-    }
+    } */
 
     private fun nextStep(navCtrl: NavController) {
         currentMatch++
-        if (currentMatch < matchesNumber) getSnippet(tracks[currentMatch]!!, navCtrl)
+       /* if (currentMatch < matchesNumber) getSnippet(tracks[currentMatch]!!, navCtrl)
         else startActivity(
             Intent(
                 this@WhoSingsActivity,
                 MainActivity::class.java
             )
-        )
+        )*/
     }
 
 
