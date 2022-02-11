@@ -1,7 +1,9 @@
 package com.matrisciano.musixmatch.ui.home
 
+import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
@@ -20,13 +22,14 @@ import com.google.gson.Gson
 import com.matrisciano.musixmatch.component.MusixGameTextField
 import com.matrisciano.musixmatch.ui.GuessWordActivity
 import com.matrisciano.musixmatch.ui.MainActivity
+import com.matrisciano.musixmatch.ui.WhoSingsActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.network.utils.Result
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
-private val maxTracks = 45; //divisible for matchesNumber
-private val matchesNumber = 3
+private const val maxTracks = 45 //divisible for matchesNumber
+private const val matchesNumber = 3
 private var correctIndexes = Array<Int?>(matchesNumber) { null }
 private var artists = Array(matchesNumber) { arrayOf("", "", "") }
 private var tracks = Array<String?>(matchesNumber) { null }
@@ -152,7 +155,7 @@ fun HomeScreen(activity: MainActivity) {
                                             Log.d("HomeScreen", "TopTracks: $topTracks")
 
 
-                                            var indexes = Array(matchesNumber) { arrayOf(0, 1, 2) }
+                                            val indexes = Array(matchesNumber) { arrayOf(0, 1, 2) }
                                             for (i in 0 until matchesNumber) {
 
                                                 indexes[i][0] =
@@ -182,7 +185,7 @@ fun HomeScreen(activity: MainActivity) {
                                                                 )
                                                 }
 
-                                                var correctArtist = artists[i][0]
+                                                val correctArtist = artists[i][0]
                                                 artists[i].shuffle()
                                                 correctIndexes[i] =
                                                     artists[i].indexOf(correctArtist)
@@ -198,6 +201,31 @@ fun HomeScreen(activity: MainActivity) {
                                                         val snippet =
                                                             result.value.message?.body?.snippet?.snippet_body
                                                         Log.d("HomeScreen", "Snippet: $snippet")
+
+
+                                                        if (snippet != null) {
+
+                                                            val intent = Intent(
+                                                                activity,
+                                                                WhoSingsActivity::class.java
+                                                            )
+                                                            for (i in 0 until matchesNumber) {
+                                                                for (j in 0..2) intent.putExtra(
+                                                                    "artist" + i + "_" + j,
+                                                                    artists[i][j]
+                                                                )
+                                                                intent.putExtra(
+                                                                    "correctIndex$i",
+                                                                    correctIndexes[i]
+                                                                )
+                                                                intent.putExtra(
+                                                                    "track$i",
+                                                                    tracks[i]
+                                                                )
+                                                                intent.putExtra("snippet", snippet)
+                                                            }
+                                                            startActivity(activity, intent, null)
+                                                        }
 
 
                                                     }
@@ -233,4 +261,11 @@ fun HomeScreen(activity: MainActivity) {
             }
         }
     }
+}
+
+fun showTrackNotFoundToast(baseContext: Activity) {
+    Toast.makeText(
+        baseContext, "Track not found",
+        Toast.LENGTH_SHORT
+    ).show()
 }
