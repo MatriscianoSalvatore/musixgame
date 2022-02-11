@@ -33,14 +33,14 @@ fun LeaderboardScreen(user: FirebaseUser?, leaderboard: HashMap<String, Long>) {
         leaderboard.entries.sortedByDescending { it.value }
             .forEach { sortedLeaderboard[it.key] = it.value }
 
-        var i = 0
-        for (element in sortedLeaderboard) {
-            i++
+        var positionIndex = 0
+        sortedLeaderboard.forEach {
+            positionIndex++
             Text(
-                i.toString() + "° " + element.key + ": " + element.value + " musixpoints",
+                positionIndex.toString() + "° " + it.key + ": " + it.value + " musixpoints",
                 textAlign = TextAlign.Start,
                 fontSize = 16.sp,
-                fontWeight = if (element.key == user?.email) FontWeight.Bold else FontWeight.Normal
+                fontWeight = if (it.key == user?.email) FontWeight.Bold else FontWeight.Normal
             )
         }
     }
