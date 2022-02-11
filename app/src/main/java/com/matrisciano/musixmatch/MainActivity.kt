@@ -53,8 +53,6 @@ import java.util.*
 import kotlin.Exception
 import kotlin.collections.LinkedHashMap
 
-
-
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private var leaderboard = hashMapOf<String, Long>()
@@ -64,7 +62,6 @@ class MainActivity : ComponentActivity() {
     private var correctIndexes = Array<Int?>(matchesNumber) { null }
     private var artists = Array(matchesNumber) { arrayOf("", "", "") }
     private var tracks = Array<String?>(matchesNumber) { null }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -379,8 +376,6 @@ class MainActivity : ComponentActivity() {
     }
 
 
-
-
     fun getTrack(artist: String, title: String) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
@@ -432,7 +427,6 @@ class MainActivity : ComponentActivity() {
     }
 
 
-
     fun getLyrics(trackID: String) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
@@ -452,7 +446,10 @@ class MainActivity : ComponentActivity() {
         val service = retrofit.create(Api.GetLyrics::class.java)
         val call = service.getCurrentTrackData(trackID, "276b2392f053c47db5b3b5f072f54aa7")
         call.enqueue(object : Callback<Api.TrackResponse> {
-            override fun onResponse(call: Call<Api.TrackResponse>, response: Response<Api.TrackResponse>) {
+            override fun onResponse(
+                call: Call<Api.TrackResponse>,
+                response: Response<Api.TrackResponse>
+            ) {
                 if (response.code() == 200) {
                     try {
                         var lyrics = Gson().newBuilder().disableHtmlEscaping().create()
@@ -474,8 +471,6 @@ class MainActivity : ComponentActivity() {
             }
         })
     }
-
-
 
 
     fun getTopTracks() {
@@ -540,9 +535,7 @@ class MainActivity : ComponentActivity() {
                                 correctIndexes[i] = artists[i].indexOf(correctArtist)
                             }
 
-
                             getSnippet(tracks[0]!!)
-
 
                         } else showTrackNotFoundToast()
                     } catch (e: Exception) {
@@ -556,7 +549,6 @@ class MainActivity : ComponentActivity() {
             }
         })
     }
-
 
 
     fun getSnippet(trackID: String) {
@@ -590,7 +582,6 @@ class MainActivity : ComponentActivity() {
 
                         if (snippet != null) {
 
-
                             val intent = Intent(this@MainActivity, WhoSingsActivity::class.java)
                             for (i in 0 until matchesNumber) {
                                 for (j in 0..2) intent.putExtra(
@@ -603,19 +594,16 @@ class MainActivity : ComponentActivity() {
                             }
                             startActivity(intent)
 
-
                         } else showTrackNotFoundToast()
                     } catch (e: Exception) {
                         showTrackNotFoundToast()
                     }
                 } else showTrackNotFoundToast()
             }
-
             override fun onFailure(call: Call<Api.SnippetResponse>, t: Throwable) {
                 showTrackNotFoundToast()
             }
         })
-
     }
 
 
