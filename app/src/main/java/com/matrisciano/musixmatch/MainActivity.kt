@@ -39,19 +39,14 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.network.model.TrackID
 import com.matrisciano.network.network.Network
-import com.matrisciano.network.service.ApiService
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
+import com.matrisciano.network.service.MusixmatchService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import kotlin.Exception
 import kotlin.collections.LinkedHashMap
@@ -166,7 +161,7 @@ class MainActivity : ComponentActivity() {
                                 .width(215.dp),
                             onClick = {
                                 //getTrack(artist, title)
-                                getTrack(artist, title)
+                                getTrackID(artist, title)
                             },
                             colors = ButtonDefaults.textButtonColors(
                                 backgroundColor = MaterialTheme.colors.primary,
@@ -382,8 +377,8 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private fun getTrack(artist: String, title: String) {
-        val network = Network().createServiceApi(ApiService::class)
+    private fun getTrackID(artist: String, title: String) {
+        val network = Network().createServiceApi(MusixmatchService::class)
         val call = network.getTrackID(artist, title, 1, "desc", "desc")
         call.enqueue(object : Callback<TrackID> {
             override fun onResponse(
@@ -394,7 +389,7 @@ class MainActivity : ComponentActivity() {
                     try {
                         val trackID = response.body()?.message?.body?.track_list?.get(0)?.track?.track_id
                         if (trackID != null) {
-                            //TODO:
+                            //TODO: getLyrics(trackID)
                             Log.d("MainActivity", "trackID: $trackID")
                         } else showTrackNotFoundToast()
                     } catch (e: Exception) {
@@ -410,58 +405,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-/*    fun getTrack(artist: String, title: String) {
-        var okHttpClient = OkHttpClient.Builder().apply {
-            addInterceptor(
-                Interceptor { chain ->
-                    val builder = chain.request().newBuilder()
-                    builder.header("apikey", "4ac3d61572388ffbcb08f9e160fec313")
-                    return@Interceptor chain.proceed(builder.build())
-                }
-            )
-        }.build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.musixmatch.com/ws/1.1/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
-            .build()
-        val service = retrofit.create(Api.GetTrack::class.java)
-        val call = service.getTrackIDData(
-            artist,
-            title,
-            1,
-            "desc",
-            "desc",
-            "4ac3d61572388ffbcb08f9e160fec313"
-        )
-        call.enqueue(object : Callback<Api.TrackIDResponse> {
-            override fun onResponse(
-                call: Call<Api.TrackIDResponse>,
-                response: Response<Api.TrackIDResponse>
-            ) {
-                if (response.code() == 200) {
-                    try {
-                        if (response.body() != null && response.body()?.message != null && response.body()?.message?.body?.track_list != null) {
-                            var trackID =
-                                Gson().toJson(response.body()?.message?.body?.track_list?.get(0)?.track?.track_id)
-                            if (trackID != null) getLyrics(trackID)
-                            else showTrackNotFoundToast()
-                        } else showTrackNotFoundToast()
-                    } catch (e: Exception) {
-                        showTrackNotFoundToast()
-                    }
-                } else showTrackNotFoundToast()
-            }
-
-            override fun onFailure(call: Call<Api.TrackIDResponse>, t: Throwable) {
-                showTrackNotFoundToast()
-            }
-        })
-    }
-
-
-    fun getLyrics(trackID: String) {
+/*  fun getLyrics(trackID: String) {
         var okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(
                 Interceptor { chain ->
