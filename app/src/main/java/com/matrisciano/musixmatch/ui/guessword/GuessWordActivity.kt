@@ -309,7 +309,7 @@ class GuessWordActivity : ComponentActivity() {
     }
 
     private fun play(user: FirebaseUser, navCtrl: NavController, answer: String) {
-        val db = Firebase.firestore //TODO: create Firestore Repository
+        val db = Firebase.firestore //TODO: use Users Repository
         var points: Long
         db.collection("users")
             .get()

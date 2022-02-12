@@ -1,7 +1,6 @@
 package com.matrisciano.musixmatch.ui.main
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -22,7 +21,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.main.home.HomeScreen
@@ -31,12 +29,8 @@ import com.matrisciano.musixmatch.ui.main.profile.ProfileScreen
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 
 import java.util.*
-import kotlin.collections.HashMap
 
 class MainActivity : ComponentActivity() {
-    private var leaderboard = hashMapOf<String, Long>()
-    private var points: Long = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -70,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-            Navigation(navCtrl, currentUser, leaderboard)
+            Navigation(navCtrl, currentUser)
         }
     }
 
@@ -119,7 +113,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Navigation(navCtrl: NavHostController, user: FirebaseUser?, leaderboard: HashMap<String, Long>) {
+    fun Navigation(navCtrl: NavHostController, user: FirebaseUser?) {
         NavHost(navCtrl, "home_screen") {
             composable("home_screen") {
                 HomeScreen(this@MainActivity)
