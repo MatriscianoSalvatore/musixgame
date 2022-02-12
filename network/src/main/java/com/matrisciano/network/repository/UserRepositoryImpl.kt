@@ -16,11 +16,27 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getAllUsers(): Flow<Result<List<User>>> = callbackFlow {
-        firestore.collection(COLLECTION_USER).get()
-            .addOnSuccessListener { collection ->
+    override fun createUser(userID: String, email: String) {
+        val user = hashMapOf(
+            "email" to email,
+            "points" to 0,
+        )
+        firestore.collection(COLLECTION_USER).document(userID).set(user)
+            .addOnSuccessListener {
+                Log.d("Firestore", "DocumentSnapshot added with ID: $userID")
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Error adding document", e)
+            }
+    }
+
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getUser(userID: String): Flow<Result<User>> = callbackFlow {
+        firestore.collection(COLLECTION_USER).document(userID).get()
+            .addOnSuccessListener { document ->
                 try {
-                    collection?.toObjects(User::class.java)?.let {
+                    document?.toObject(User::class.java)?.let {
                         trySend(Result.success(it))
                     }
                 } catch (e: Exception) {
@@ -37,11 +53,11 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getUser(userID: String): Flow<Result<User>> = callbackFlow {
-        firestore.collection(COLLECTION_USER).document(userID).get()
-            .addOnSuccessListener { document ->
+    override fun getAllUsers(): Flow<Result<List<User>>> = callbackFlow {
+        firestore.collection(COLLECTION_USER).get()
+            .addOnSuccessListener { collection ->
                 try {
-                    document?.toObject(User::class.java)?.let {
+                    collection?.toObjects(User::class.java)?.let {
                         trySend(Result.success(it))
                     }
                 } catch (e: Exception) {

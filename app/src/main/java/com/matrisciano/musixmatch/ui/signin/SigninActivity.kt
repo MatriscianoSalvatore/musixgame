@@ -26,12 +26,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.component.SigninTextField
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
+import org.koin.androidx.compose.getViewModel
 
 class SigninActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -167,6 +167,7 @@ class SigninActivity : ComponentActivity() {
 
     @Composable
     fun SignupScreen() {
+        val viewModel = getViewModel<SigninViewModel>()
         MusixmatchPinkTheme {
             Box(
                 modifier = Modifier
@@ -212,6 +213,7 @@ class SigninActivity : ComponentActivity() {
                         onClick = {
                             if (email != "" && password != "")
                                 signup(
+                                    viewModel,
                                     name,
                                     email,
                                     password
@@ -229,8 +231,7 @@ class SigninActivity : ComponentActivity() {
         }
     }
 
-    //TODO: move actual signup and login functions out from the Activity
-    private fun signup(name: String, email: String, password: String) {
+    private fun signup(viewModel: SigninViewModel, name: String, email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -242,20 +243,7 @@ class SigninActivity : ComponentActivity() {
                             .build()
                     )
 
-                    val db = Firebase.firestore //TODO: use Users Repository
-                    val user = hashMapOf(
-                        "email" to email,
-                        "points" to 0,
-                    )
-
-                    db.collection("users")
-                        .document(auth.uid!!).set(user)
-                        .addOnSuccessListener { documentReference ->
-                            Log.d("Firestore", "DocumentSnapshot added with ID: ${auth.uid}")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w("Firestore", "Error adding document", e)
-                        }
+                    viewModel.createUser(auth.uid!!, email)
 
                     startActivity(Intent(this@SigninActivity, MainActivity::class.java))
 
