@@ -150,6 +150,11 @@ fun HomeScreen(activity: MainActivity) {
                                 .width(215.dp),
                             onClick = {
                                 scope.launch {
+
+                                    correctIndexes = Array<Int?>(matchesNumber) { null }
+                                    artists = Array(matchesNumber) { arrayOf("", "", "") }
+                                    tracks = Array<String?>(matchesNumber) { null }
+
                                     when (val result = viewModel.getTopTracks()) {
                                         is Result.Success -> {
                                             val topTracks =
