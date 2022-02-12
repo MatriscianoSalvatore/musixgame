@@ -33,6 +33,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
+import com.matrisciano.musixmatch.component.GameTextField
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
@@ -217,34 +218,6 @@ class GuessWordActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    @Composable
-    fun GameTextField(
-        value: String,
-        onInputChanged: (String) -> Unit,
-        hint: String,
-    ) {
-        val focusManager = LocalFocusManager.current
-        TextField(
-            value = value,
-            maxLines = 1,
-            singleLine = true,
-            onValueChange = onInputChanged,
-            modifier = Modifier
-                .padding(18.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = musixmatchPinkLight,
-                textColor = Color(0xFFFFFFFF),
-                unfocusedLabelColor = Color(0x70FFFFFF),
-            ),
-            textStyle = LocalTextStyle.current.copy(
-                fontSize = 21.sp
-            ),
-            label = { Text(hint) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-        )
     }
 
     @Composable
