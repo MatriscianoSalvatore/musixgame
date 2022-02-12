@@ -14,11 +14,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.google.gson.Gson
+import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.component.MusixGameTextField
 import com.matrisciano.musixmatch.ui.guessword.GuessWordActivity
 import com.matrisciano.musixmatch.ui.main.MainActivity
@@ -68,14 +70,14 @@ fun HomeScreen(activity: MainActivity) {
                     MusixGameTextField(
                         title,
                         onInputChanged = { title = it },
-                        hint = "Title",
+                        hint = stringResource(R.string.title_hint),
                     )
 
                     var artist by rememberSaveable { mutableStateOf("") }
                     MusixGameTextField(
                         artist,
                         onInputChanged = { artist = it },
-                        hint = "Artist",
+                        hint = stringResource(R.string.artist_hint),
                     )
 
                     val scope = rememberCoroutineScope()
@@ -92,7 +94,7 @@ fun HomeScreen(activity: MainActivity) {
                             contentColor = Color.White
                         ), enabled = (title != "" && artist != "")
                     ) {
-                        Text(text = "GUESS THE WORD! \uD83C\uDFA4")
+                        Text(text = stringResource(R.string.guess_the_word_button))
                     }
 
                     Column(
@@ -120,7 +122,7 @@ fun HomeScreen(activity: MainActivity) {
                                 contentColor = Color.White
                             ), enabled = true
                         ) {
-                            Text(text = "WHO SINGS? \uD83C\uDFA4")
+                            Text(text = stringResource(R.string.who_sings_button))
                         }
                     }
                 }
@@ -260,9 +262,7 @@ private fun initWhoSingsGame(scope: CoroutineScope, viewModel: HomeViewModel, ac
                     result.value.message?.body?.snippet?.snippet_body
                 Log.d("HomeScreen", "Snippet: $snippet")
 
-
                 if (snippet != null) {
-
                     val intent = Intent(
                         activity,
                         WhoSingsActivity::class.java
@@ -284,7 +284,6 @@ private fun initWhoSingsGame(scope: CoroutineScope, viewModel: HomeViewModel, ac
                     }
                     startActivity(activity, intent, null)
                 }
-
             }
             is Result.Error -> {
                 Log.d(

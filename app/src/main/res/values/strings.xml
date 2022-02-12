@@ -1,3 +1,30 @@
 <resources>
+
     <string name="app_name">Musixgame</string>
+
+    <!-- SigninActivity -->
+    <string name="login_button">LOGIN</string>
+    <string name="signup_button">SIGNUP</string>
+    <string name="name_hint">Name and surname</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+
+    <!-- MainActivity -->
+    <string name="title_hint">Title</string>
+    <string name="artist_hint">Artist</string>
+    <string name="guess_the_word_button">GUESS THE WORD! 🎤</string>
+    <string name="who_sings_button">WHO SINGS? 🎤</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="musixpoints">Musixpoints</string>
+    <string name="logout_button">LOGOUT</string>
+
+    <!-- GuessWordActivity -->
+    <string name="missing_word_hint">Missing word</string>
+    <string name="confirm_button">CONFIRM</string>
+
+    <string name="win_text">Congratulations, you won 5 Musixpoints!</string>
+    <string name="lose_text">Wrong answer, you lost 1 Musixpoint!</string>
+    <string name="ok">OK</string>
+
 </resources>

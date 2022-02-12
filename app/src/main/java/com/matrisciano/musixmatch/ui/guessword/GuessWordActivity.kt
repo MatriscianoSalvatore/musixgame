@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
@@ -104,7 +106,7 @@ class GuessWordActivity : ComponentActivity() {
                     GameTextField(
                         answer,
                         onInputChanged = { answer = it },
-                        hint = "Missing word",
+                        hint = stringResource(R.string.missing_word_hint)
                     )
 
                     TextButton(
@@ -120,7 +122,7 @@ class GuessWordActivity : ComponentActivity() {
                         ),
                         enabled = (answer != "")
                     ) {
-                        Text(text = "CONFIRM", fontSize = 18.sp)
+                        Text(text = stringResource(R.string.confirm_button), fontSize = 18.sp)
                     }
                 }
             }
@@ -146,7 +148,7 @@ class GuessWordActivity : ComponentActivity() {
                 ) {
 
                     Text(
-                        text = "Congratulations, you won 5 Musixpoints!",
+                        text = stringResource(R.string.win_text),
                         color = Color.White,
                         fontSize = 27.sp,
                         textAlign = TextAlign.Center,
@@ -165,7 +167,7 @@ class GuessWordActivity : ComponentActivity() {
                             contentColor = Color.White
                         ), enabled = true
                     ) {
-                        Text(text = "OK", fontSize = 18.sp)
+                        Text(text = stringResource(R.string.ok), fontSize = 18.sp)
                     }
                 }
             }
@@ -191,7 +193,7 @@ class GuessWordActivity : ComponentActivity() {
                 ) {
 
                     Text(
-                        text = "Wrong answer, you lost 1 Musixpoint!",
+                        text = stringResource(R.string.lose_text),
                         color = Color.White,
                         fontSize = 27.sp,
                         textAlign = TextAlign.Center,
@@ -210,7 +212,7 @@ class GuessWordActivity : ComponentActivity() {
                             contentColor = Color.White
                         ), enabled = true
                     ) {
-                        Text(text = "OK", fontSize = 18.sp)
+                        Text(text = stringResource(R.string.ok), fontSize = 18.sp)
                     }
                 }
             }

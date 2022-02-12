@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
@@ -108,7 +110,7 @@ class WhoSingsActivity : ComponentActivity() {
                                 .width(400.dp)
                                 .padding(28.dp),
                             onClick = {
-                                play(correctIndexes[currentMatch] == i, user, viewModel, navCtrl)
+                                play((correctIndexes[currentMatch] == i), user, viewModel, navCtrl)
                             },
                             colors = ButtonDefaults.textButtonColors(
                                 backgroundColor = MaterialTheme.colors.primary,
@@ -154,7 +156,7 @@ class WhoSingsActivity : ComponentActivity() {
                 ) {
 
                     Text(
-                        text = "Congratulations, you won 5 Musixpoints!",
+                        text = stringResource(R.string.win_text),
                         color = Color.White,
                         fontSize = 27.sp,
                         textAlign = TextAlign.Center,
@@ -176,7 +178,7 @@ class WhoSingsActivity : ComponentActivity() {
                             contentColor = Color.White
                         ), enabled = true
                     ) {
-                        Text(text = "OK", fontSize = 18.sp)
+                        Text(text = stringResource(R.string.ok), fontSize = 18.sp)
                     }
                 }
             }
@@ -203,7 +205,7 @@ class WhoSingsActivity : ComponentActivity() {
                 ) {
 
                     Text(
-                        text = "Wrong answer, you lost 1 Musixpoint!",
+                        text = stringResource(R.string.lose_text),
                         color = Color.White,
                         fontSize = 27.sp,
                         textAlign = TextAlign.Center,
@@ -224,7 +226,7 @@ class WhoSingsActivity : ComponentActivity() {
                             contentColor = Color.White
                         ), enabled = true
                     ) {
-                        Text(text = "OK", fontSize = 18.sp)
+                        Text(text = stringResource(R.string.ok), fontSize = 18.sp)
                     }
                 }
             }
@@ -294,11 +296,20 @@ class WhoSingsActivity : ComponentActivity() {
         viewModel: WhoSingsViewModel,
         navCtrl: NavController
     ) {
-        if (win) viewModel.addPoints(user.uid, 5)
-        else viewModel.addPoints(user.uid, -1)
-        navCtrl.navigate("win_screen") {
-            popUpTo("game_screen") {
-                inclusive = true
+        if (win) {
+            viewModel.addPoints(user.uid, 5)
+            navCtrl.navigate("win_screen") {
+                popUpTo("game_screen") {
+                    inclusive = true
+                }
+            }
+        }
+        else {
+            viewModel.addPoints(user.uid, -1)
+            navCtrl.navigate("lose_screen") {
+                popUpTo("game_screen") {
+                    inclusive = true
+                }
             }
         }
     }
