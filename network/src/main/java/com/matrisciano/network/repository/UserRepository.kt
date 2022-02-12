@@ -5,6 +5,6 @@ import com.matrisciano.network.utils.Result
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    fun getUsers(): Flow<Result<List<User>>>
+    fun getAllUsers(): Flow<Result<List<User>>>
     fun getUser(userID: String): Flow<Result<User>>
 }

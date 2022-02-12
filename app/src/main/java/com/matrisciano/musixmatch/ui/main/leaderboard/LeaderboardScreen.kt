@@ -30,7 +30,7 @@ fun LeaderboardScreen(user: FirebaseUser?) {
     val viewModel = getViewModel<LeaderboardViewModel>()
     Log.d("LeaderboardScreen", "User: ${user?.uid}")
 
-    viewModel.getUsers().observeAsState().value.let {
+    viewModel.getAllUsers().observeAsState().value.let {
         if (it is Result.Success) {
             leaderboard = it.value
             Log.d("LeaderboardScreen", "Users: ${it.value}")

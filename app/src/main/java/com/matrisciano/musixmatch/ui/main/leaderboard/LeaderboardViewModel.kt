@@ -5,5 +5,5 @@ import androidx.lifecycle.asLiveData
 import com.matrisciano.network.repository.UserRepository
 
 class LeaderboardViewModel(private val userRepository: UserRepository) : ViewModel() {
-    fun getUsers() = userRepository.getUsers().asLiveData()
+    fun getAllUsers() = userRepository.getAllUsers().asLiveData()
 }
