@@ -159,7 +159,6 @@ class SigninActivity : ComponentActivity() {
                     ) {
 
                         Text(text = "LOGIN")
-
                     }
                 }
             }

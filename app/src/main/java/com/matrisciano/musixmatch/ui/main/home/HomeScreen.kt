@@ -30,7 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
-private const val maxTracks = 45 //divisible for matchesNumber
+private const val maxTracks = 60 //divisible for matchesNumber
 private const val matchesNumber = 3
 private var correctIndexes = Array<Int?>(matchesNumber) { null }
 private var artists = Array(matchesNumber) { arrayOf("", "", "") }
@@ -41,7 +41,7 @@ private var topTracks: List<TopTrack> = emptyList()
 @Composable
 fun HomeScreen(activity: MainActivity) {
     val viewModel = getViewModel<HomeViewModel>()
-    MusixmatchTheme() {
+    MusixmatchTheme {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
@@ -49,8 +49,7 @@ fun HomeScreen(activity: MainActivity) {
             contentAlignment = Alignment.Center
         ) {
 
-            Column(
-            ) {
+            Column{
 
                 Column( //TODO: use column item instead of Columns inside Column
                     modifier = Modifier
@@ -153,11 +152,11 @@ private fun startGuessWordGame(
                     Log.d("HomeScreen", "TrackID: $trackID")
 
                     scope.launch {
-                        when (val result =
+                        when (val res =
                             viewModel.getLyrics(trackID.toString())) {
                             is Result.Success -> {
                                 val lyrics =
-                                    result.value.message?.body?.lyrics?.lyrics_body
+                                    res.value.message?.body?.lyrics?.lyrics_body
                                 Log.d("HomeScreen", "Lyrics: $lyrics")
 
                                 val intent = Intent(
@@ -172,7 +171,7 @@ private fun startGuessWordGame(
                             is Result.Error -> {
                                 Log.d(
                                     "HomeScreen",
-                                    "Lyrics error: ${result.message}"
+                                    "Lyrics error: ${res.message}"
                                 )
                                 showTrackNotFoundToast(activity)
                             }

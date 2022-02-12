@@ -48,7 +48,6 @@ class WhoSingsActivity : ComponentActivity() {
     private var currentMatch = 0
     private val maxTimer: Long = 10000
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth //TODO: create FirebaseAuth Repository
@@ -128,7 +127,7 @@ class WhoSingsActivity : ComponentActivity() {
                             )
                         }
                     }
-                    Timer(navCtrl, maxTimer, user)
+                    Timer(navCtrl, user)
                 }
             }
         }
@@ -258,7 +257,7 @@ class WhoSingsActivity : ComponentActivity() {
                 is Result.Success -> {
                     val currentSnippet =
                         result.value.message?.body?.snippet?.snippet_body
-                    Log.d("WhoSingActivity", "Snipptet: $currentSnippet")
+                    Log.d("WhoSingActivity", "Snippet: $currentSnippet")
                     snippet = currentSnippet
                     navCtrl.navigate("game_screen") {
                         popUpTo("game_screen") {
@@ -334,8 +333,8 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun Timer(navCtrl: NavController, maxTimer: Long, user: FirebaseUser) {
-        val timeLeftMs by rememberCountdownTimerState(navCtrl, maxTimer, user)
+    private fun Timer(navCtrl: NavController, user: FirebaseUser) {
+        val timeLeftMs by rememberCountdownTimerState(navCtrl, user)
         Text(
             text = (timeLeftMs / 1000).toString(),
             color = Color.White,
@@ -348,11 +347,10 @@ class WhoSingsActivity : ComponentActivity() {
     @Composable
     private fun rememberCountdownTimerState(
         navCtrl: NavController,
-        initialMillis: Long,
         user: FirebaseUser
     ): MutableState<Long> {
-        val timeLeft = remember { mutableStateOf(initialMillis) }
-        LaunchedEffect(initialMillis, 1000) {
+        val timeLeft = remember { mutableStateOf(maxTimer) }
+        LaunchedEffect(maxTimer, 1000) {
             while (timeLeft.value > 1) {
                 delay(1000)
                 timeLeft.value = (timeLeft.value - 1000).coerceAtLeast(0)

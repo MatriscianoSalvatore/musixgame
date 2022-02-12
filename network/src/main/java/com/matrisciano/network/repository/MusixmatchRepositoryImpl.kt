@@ -19,7 +19,7 @@ class MusixmatchRepositoryImpl(private var musixmatchService: MusixmatchService,
     }
 
     override suspend fun getTopTracks(): Result<TopTracks> = responseHandler.getData {
-        musixmatchService.getTopTracks("top",1, 45, "it", 1)
+        musixmatchService.getTopTracks("top",1, 60, "it", 1)
     }
 
     override suspend fun getSnippet(trackID: String): Result<Snippet> = responseHandler.getData {

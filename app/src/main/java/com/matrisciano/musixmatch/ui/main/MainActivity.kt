@@ -74,11 +74,14 @@ class MainActivity : ComponentActivity() {
     }
 
     sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: String) {
-        object Home : BottomNavItem("Home", R.drawable.ic_home, "home_screen")
+        object Home :
+            BottomNavItem("Home", R.drawable.ic_home, "home_screen")
+
         object Leaderboard :
             BottomNavItem("Leaderboard", R.drawable.ic_leaderboard, "leaderboard_screen")
 
-        object Profile : BottomNavItem("Profile", R.drawable.ic_profile, "profile_screen")
+        object Profile :
+            BottomNavItem("Profile", R.drawable.ic_profile, "profile_screen")
     }
 
     @Composable

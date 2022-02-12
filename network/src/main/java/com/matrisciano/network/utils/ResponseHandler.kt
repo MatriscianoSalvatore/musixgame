@@ -5,7 +5,7 @@ import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
 
-class ResponseHandler() {
+class ResponseHandler {
     suspend fun <T> getData(call: suspend () -> Response<T>): Result<T> {
         val response = call()
         return try {
