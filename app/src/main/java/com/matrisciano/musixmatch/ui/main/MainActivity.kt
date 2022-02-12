@@ -34,15 +34,16 @@ import java.util.*
 import kotlin.collections.HashMap
 
 class MainActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
-    private lateinit var currentUser: FirebaseUser
     private var leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        getUsersInfo()
+        val auth = Firebase.auth //TODO: create FirebaseAuth Repository
+        val currentUser = auth.currentUser
+
+        getUsersInfo(currentUser)
 
         setContent {
             val navCtrl = rememberNavController()
@@ -135,17 +136,14 @@ class MainActivity : ComponentActivity() {
         ProfileScreen(Firebase.auth.currentUser, this@MainActivity, points)
     }
 
-    private fun getUsersInfo() {
-        auth = Firebase.auth //TODO: create FirebaseAuth Repository
-        val currentUser = auth.currentUser
-
+    private fun getUsersInfo(user: FirebaseUser?) {
         val db = Firebase.firestore //TODO: create Firestore Repository
         db.collection("users")
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
                     Log.d("Firestore", "${document.id} => ${document.data}")
-                    if (document.data["email"] == currentUser?.email)
+                    if (document.data["email"] == user?.email)
                         points = document.data["points"] as Long
                     leaderboard[document.data["email"] as String] = document.data["points"] as Long
                 }
