@@ -16,8 +16,29 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getUser(id: String): Flow<Result<User>> = callbackFlow {
-        firestore.collection(COLLECTION_USER).document(id).get()
+    override fun getUsers(): Flow<Result<List<User>>> = callbackFlow {
+        firestore.collection(COLLECTION_USER).get()
+            .addOnSuccessListener { collection ->
+                try {
+                    collection?.toObjects(User::class.java)?.let {
+                        trySend(Result.success(it))
+                    }
+                } catch (e: Exception) {
+                    trySend(Result.error(e.localizedMessage ?: ""))
+                    Log.e("UserRepository", "Error getting documents. ${e.localizedMessage}", e)
+                }
+            }
+            .addOnFailureListener {
+                trySend(Result.error(it.localizedMessage ?: ""))
+                Log.e("UserRepository", "Error getting documents. ${it.localizedMessage}", it)
+            }
+
+        awaitClose { channel.close() }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getUser(userID: String): Flow<Result<User>> = callbackFlow {
+        firestore.collection(COLLECTION_USER).document(userID).get()
             .addOnSuccessListener { document ->
                 try {
                     document?.toObject(User::class.java)?.let {
@@ -25,15 +46,14 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
                     }
                 } catch (e: Exception) {
                     trySend(Result.error(e.localizedMessage ?: ""))
-                    Log.e("FIREBASE_TAG", "Error getting documents. ${e.localizedMessage}", e)
+                    Log.e("UserRepository", "Error getting documents. ${e.localizedMessage}", e)
                 }
             }
             .addOnFailureListener {
                 trySend(Result.error(it.localizedMessage ?: ""))
-                Log.e("FIREBASE_TAG", "Error getting documents. ${it.localizedMessage}", it)
+                Log.e("UserRepository", "Error getting documents. ${it.localizedMessage}", it)
             }
 
         awaitClose { channel.close() }
     }
-
 }
