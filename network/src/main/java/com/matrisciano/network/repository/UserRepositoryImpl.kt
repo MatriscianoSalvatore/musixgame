@@ -16,7 +16,7 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getUsers(): Flow<Result<List<User>>> = callbackFlow {
+    override fun getAllUsers(): Flow<Result<List<User>>> = callbackFlow {
         firestore.collection(COLLECTION_USER).get()
             .addOnSuccessListener { collection ->
                 try {
