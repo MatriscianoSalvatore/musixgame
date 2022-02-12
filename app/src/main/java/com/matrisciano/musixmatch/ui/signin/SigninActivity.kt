@@ -248,7 +248,14 @@ class SigninActivity : ComponentActivity() {
                         "points" to 0,
                     )
 
-                    db.collection("users").document(auth.uid!!).set(user)
+                    db.collection("users")
+                        .document(auth.uid!!).set(user)
+                        .addOnSuccessListener { documentReference ->
+                            Log.d("Firestore", "DocumentSnapshot added with ID: ${auth.uid}")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("Firestore", "Error adding document", e)
+                        }
 
                     startActivity(Intent(this@SigninActivity, MainActivity::class.java))
 
