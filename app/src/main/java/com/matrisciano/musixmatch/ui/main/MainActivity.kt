@@ -29,6 +29,8 @@ import com.matrisciano.musixmatch.ui.main.home.HomeScreen
 import com.matrisciano.musixmatch.ui.main.leaderboard.LeaderboardScreen
 import com.matrisciano.musixmatch.ui.main.profile.ProfileScreen
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.getViewModel
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -46,14 +48,19 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navCtrl = rememberNavController()
+            //val viewModel = getViewModel<MainViewModel>()
+            //val scope = rememberCoroutineScope()
+
             MusixmatchTheme()
             {
                 Box(
+
                     modifier = Modifier
                         .background(MaterialTheme.colors.background)
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
+
                     Scaffold(
                         bottomBar = { BottomNavigation(navCtrl = navCtrl) },
                         topBar = {
