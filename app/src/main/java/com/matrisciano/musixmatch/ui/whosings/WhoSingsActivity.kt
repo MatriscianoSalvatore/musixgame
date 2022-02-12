@@ -54,18 +54,11 @@ class WhoSingsActivity : ComponentActivity() {
         auth = Firebase.auth //TODO: create FirebaseAuth Repository
         val currentUser = auth.currentUser
 
-        for (i in 0 until matchesNumber) {
-            for (j in 0..2) artists[i][j] = intent.getStringExtra("artist" + i + "_" + j)!!
-            tracks[i] = intent.getStringExtra("track$i")
-            correctIndexes[i] = intent.getIntExtra("correctIndex$i", 0)
-        }
-        snippet = intent.getStringExtra("snippet")
-
+       getActivityParams()
 
         setContent {
             MusixmatchPinkTheme()
             {
-
                 Box(
                     modifier = Modifier
                         .background(MaterialTheme.colors.surface)
@@ -238,7 +231,6 @@ class WhoSingsActivity : ComponentActivity() {
         }
     }
 
-
     @Composable
     fun Navigation(user: FirebaseUser?) {
         val navCtrl = rememberNavController()
@@ -254,7 +246,6 @@ class WhoSingsActivity : ComponentActivity() {
             }
         }
     }
-
 
     private suspend fun nextMatch(
         viewModel: WhoSingsViewModel?,
@@ -281,7 +272,6 @@ class WhoSingsActivity : ComponentActivity() {
                     showTrackNotFoundToast()
                 }
             }
-
 
         } else startActivity(
             Intent(
@@ -344,7 +334,7 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Timer(navCtrl: NavController, maxTimer: Long, user: FirebaseUser) {
+    private fun Timer(navCtrl: NavController, maxTimer: Long, user: FirebaseUser) {
         val timeLeftMs by rememberCountdownTimerState(navCtrl, maxTimer, user)
         Text(
             text = (timeLeftMs / 1000).toString(),
@@ -356,7 +346,7 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
     @Composable
-    fun rememberCountdownTimerState(
+    private fun rememberCountdownTimerState(
         navCtrl: NavController,
         initialMillis: Long,
         user: FirebaseUser
@@ -375,5 +365,14 @@ class WhoSingsActivity : ComponentActivity() {
             }
         }
         return timeLeft
+    }
+
+    private fun getActivityParams() {
+        for (i in 0 until matchesNumber) {
+            for (j in 0..2) artists[i][j] = intent.getStringExtra("artist" + i + "_" + j)!!
+            tracks[i] = intent.getStringExtra("track$i")
+            correctIndexes[i] = intent.getIntExtra("correctIndex$i", 0)
+        }
+        snippet = intent.getStringExtra("snippet")
     }
 }
