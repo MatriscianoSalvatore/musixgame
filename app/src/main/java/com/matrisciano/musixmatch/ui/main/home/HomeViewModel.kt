@@ -5,26 +5,20 @@ import com.matrisciano.network.model.Lyrics
 import com.matrisciano.network.model.Snippet
 import com.matrisciano.network.model.TopTracks
 import com.matrisciano.network.model.TrackID
-import com.matrisciano.network.repository.MusixmatchRepository
+import com.matrisciano.network.repository.MusicRepository
 import com.matrisciano.network.utils.Result
 
-class HomeViewModel(private val repository: MusixmatchRepository) : ViewModel() {
-
-    /*private var _trackID = MutableLiveData<TrackID>()
-    val trackID: LiveData<TrackID> get() = _trackID
-
-    private var _error = MutableLiveData<String>()
-    val error: LiveData<String> get() = _error*/
+class HomeViewModel(private val musicRepository: MusicRepository) : ViewModel() {
 
     suspend fun getTrackID(artist: String, title: String): Result<TrackID> =
-        repository.getTrackID(artist, title)
+        musicRepository.getTrackID(artist, title)
 
     suspend fun getLyrics(trackID: String): Result<Lyrics> =
-        repository.getLyrics(trackID)
+        musicRepository.getLyrics(trackID)
 
     suspend fun getTopTracks(): Result<TopTracks> =
-        repository.getTopTracks()
+        musicRepository.getTopTracks()
 
     suspend fun getSnippet(trackID: String): Result<Snippet> =
-        repository.getSnippet(trackID)
+        musicRepository.getSnippet(trackID)
 }

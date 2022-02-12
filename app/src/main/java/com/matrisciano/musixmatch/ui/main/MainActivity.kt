@@ -1,7 +1,6 @@
 package com.matrisciano.musixmatch.ui.main
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -22,38 +21,34 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.main.home.HomeScreen
 import com.matrisciano.musixmatch.ui.main.leaderboard.LeaderboardScreen
 import com.matrisciano.musixmatch.ui.main.profile.ProfileScreen
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
+
 import java.util.*
-import kotlin.collections.HashMap
 
 class MainActivity : ComponentActivity() {
-    private var leaderboard = hashMapOf<String, Long>()
-    private var points: Long = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val auth = Firebase.auth //TODO: create FirebaseAuth Repository
         val currentUser = auth.currentUser
 
-        getUsersInfo(currentUser)
-
         setContent {
             val navCtrl = rememberNavController()
             MusixmatchTheme()
             {
                 Box(
+
                     modifier = Modifier
                         .background(MaterialTheme.colors.background)
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
+
                     Scaffold(
                         bottomBar = { BottomNavigation(navCtrl = navCtrl) },
                         topBar = {
@@ -69,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-            Navigation(navCtrl, currentUser, leaderboard)
+            Navigation(navCtrl, currentUser)
         }
     }
 
@@ -118,16 +113,16 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Navigation(navCtrl: NavHostController, user: FirebaseUser?, leaderboard: HashMap<String, Long>) {
+    fun Navigation(navCtrl: NavHostController, user: FirebaseUser?) {
         NavHost(navCtrl, "home_screen") {
             composable("home_screen") {
                 HomeScreen(this@MainActivity)
             }
             composable("leaderboard_screen") {
-                LeaderboardScreen(user, leaderboard)
+                LeaderboardScreen(user)
             }
             composable("profile_screen") {
-                ProfileScreen(user, this@MainActivity, points)
+                ProfileScreen(user, this@MainActivity)
             }
         }
     }
@@ -135,23 +130,6 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun ProfilePreview() {
-        ProfileScreen(Firebase.auth.currentUser, this@MainActivity, points)
-    }
-
-    private fun getUsersInfo(user: FirebaseUser?) {
-        val db = Firebase.firestore //TODO: create Firestore Repository
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    Log.d("Firestore", "${document.id} => ${document.data}")
-                    if (document.data["email"] == user?.email)
-                        points = document.data["points"] as Long
-                    leaderboard[document.data["email"] as String] = document.data["points"] as Long
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.w("Firestore", "Error getting documents.", exception)
-            }
+        ProfileScreen(Firebase.auth.currentUser, this@MainActivity)
     }
 }
