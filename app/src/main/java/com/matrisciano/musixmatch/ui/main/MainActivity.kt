@@ -35,29 +35,14 @@ import kotlin.collections.HashMap
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var currentUser: FirebaseUser
     private var leaderboard = hashMapOf<String, Long>()
     private var points: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        auth = Firebase.auth //TODO: create FirebaseAuth Repository
-        val currentUser = auth.currentUser
-
-        val db = Firebase.firestore //TODO: create Firestore Repository
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    Log.d("Firestore", "${document.id} => ${document.data}")
-                    if (document.data["email"] == currentUser?.email)
-                        points = document.data["points"] as Long
-                    leaderboard[document.data["email"] as String] = document.data["points"] as Long
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.w("Firestore", "Error getting documents.", exception)
-            }
+        getUsersInfo()
 
         setContent {
             val navCtrl = rememberNavController()
@@ -148,5 +133,25 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ProfilePreview() {
         ProfileScreen(Firebase.auth.currentUser, this@MainActivity, points)
+    }
+
+    private fun getUsersInfo() {
+        auth = Firebase.auth //TODO: create FirebaseAuth Repository
+        val currentUser = auth.currentUser
+
+        val db = Firebase.firestore //TODO: create Firestore Repository
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    Log.d("Firestore", "${document.id} => ${document.data}")
+                    if (document.data["email"] == currentUser?.email)
+                        points = document.data["points"] as Long
+                    leaderboard[document.data["email"] as String] = document.data["points"] as Long
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Firestore", "Error getting documents.", exception)
+            }
     }
 }

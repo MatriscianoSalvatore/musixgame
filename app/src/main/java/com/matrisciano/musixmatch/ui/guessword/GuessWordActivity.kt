@@ -54,49 +54,7 @@ class GuessWordActivity : ComponentActivity() {
         auth = Firebase.auth //TODO: create FirebaseAuth Repository
         val currentUser = auth.currentUser
 
-        var lyrics = intent.getStringExtra("lyrics")
-        lyrics = lyrics!!.replace("******* This Lyrics is NOT for Commercial use *******", "")
-        lyrics = lyrics.replace("\\n", "\n")
-        lyrics = lyrics.replace("\\\"", "\"")
-        //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
-
-        var startChar = 0
-        when {
-            (lyrics.length > maxChars * 4) -> startChar =
-                (0 until (lyrics.length / 4 * 3 - safeChars)).random()
-            (lyrics.length > maxChars * 3) -> startChar =
-                (0 until (lyrics.length / 3 * 2 - safeChars)).random()
-            (lyrics.length > maxChars * 2) -> startChar =
-                (0 until (lyrics.length / 2 - safeChars)).random()
-            (lyrics.length > 2 * safeChars) -> startChar = (0 until safeChars).random()
-        }
-        lyrics = lyrics.substring(startChar)
-
-        val minSpaceChar = lyrics.indexOf(" ")
-        val minNewLineChar = lyrics.indexOf("\n")
-        lyrics = lyrics.substring(minSpaceChar.coerceAtMost(minNewLineChar))
-
-        if (lyrics.length > maxChars) lyrics = lyrics.substring(0, maxChars)
-
-        val maxSpaceChar = lyrics.lastIndexOf(" ")
-        val maxNewLineChar = lyrics.lastIndexOf("\n")
-        lyrics = lyrics.substring(0, maxSpaceChar.coerceAtLeast(maxNewLineChar))
-
-        if (startChar != 0) lyrics = "... $lyrics"
-        lyrics += " ..."
-        val words = lyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
-        var found = false
-        while (!found) {
-            val randomNumber = (words.indices).random()
-            replacedWord = words[randomNumber]
-            if (replacedWord.length > 3) {
-                found = true
-                var replacement = ""
-                for (char in replacedWord)
-                    replacement += "*"
-                replacedTestLyrics = lyrics.replaceFirst(replacedWord, replacement)
-            }
-        }
+        setLyricsForGame()
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContent {
@@ -155,48 +113,7 @@ class GuessWordActivity : ComponentActivity() {
                             .width(200.dp)
                             .padding(28.dp),
                         onClick = {
-
-                            val db = Firebase.firestore //TODO: create Firestore Repository
-                            var points: Long
-                            db.collection("users")
-                                .get()
-                                .addOnSuccessListener { result ->
-                                    for (document in result) {
-                                        Log.d(
-                                            "Firestore",
-                                            "${document.id} => ${document.data}"
-                                        )
-                                        if (document.data["email"] == user.email) {
-                                            points = document.data["points"] as Long
-                                            if (answer.lowercase(Locale.getDefault())
-                                                    .trim() == replacedWord.lowercase(Locale.getDefault())
-                                                    .trim()
-                                            ) {
-                                                db.collection("users").document(document.id)
-                                                    .update("points", points + 5)
-                                                navCtrl.navigate("win_screen") {
-                                                    popUpTo("game_screen") {
-                                                        inclusive = true
-                                                    }
-                                                }
-                                            } else {
-                                                db.collection("users").document(document.id)
-                                                    .update("points", points - 1)
-                                                navCtrl.navigate("lose_screen") {
-                                                    popUpTo("game_screen") {
-                                                        inclusive = true
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                .addOnFailureListener {
-                                    Toast.makeText(
-                                        baseContext, "Database error",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                            play(user, navCtrl, answer)
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -343,5 +260,95 @@ class GuessWordActivity : ComponentActivity() {
                 LoseScreen()
             }
         }
+    }
+
+    private fun setLyricsForGame() {
+        var lyrics = intent.getStringExtra("lyrics")
+        lyrics = lyrics!!.replace("******* This Lyrics is NOT for Commercial use *******", "")
+        lyrics = lyrics.replace("\\n", "\n")
+        lyrics = lyrics.replace("\\\"", "\"")
+        //lyrics = lyrics!!.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)
+
+        var startChar = 0
+        when {
+            (lyrics.length > maxChars * 4) -> startChar =
+                (0 until (lyrics.length / 4 * 3 - safeChars)).random()
+            (lyrics.length > maxChars * 3) -> startChar =
+                (0 until (lyrics.length / 3 * 2 - safeChars)).random()
+            (lyrics.length > maxChars * 2) -> startChar =
+                (0 until (lyrics.length / 2 - safeChars)).random()
+            (lyrics.length > 2 * safeChars) -> startChar = (0 until safeChars).random()
+        }
+        lyrics = lyrics.substring(startChar)
+
+        val minSpaceChar = lyrics.indexOf(" ")
+        val minNewLineChar = lyrics.indexOf("\n")
+        lyrics = lyrics.substring(minSpaceChar.coerceAtMost(minNewLineChar))
+
+        if (lyrics.length > maxChars) lyrics = lyrics.substring(0, maxChars)
+
+        val maxSpaceChar = lyrics.lastIndexOf(" ")
+        val maxNewLineChar = lyrics.lastIndexOf("\n")
+        lyrics = lyrics.substring(0, maxSpaceChar.coerceAtLeast(maxNewLineChar))
+
+        if (startChar != 0) lyrics = "... $lyrics"
+        lyrics += " ..."
+        val words = lyrics.split(" ", "\n", "'", ",", ";", ".", ":", "!", "?")
+        var found = false
+        while (!found) {
+            val randomNumber = (words.indices).random()
+            replacedWord = words[randomNumber]
+            if (replacedWord.length > 3) {
+                found = true
+                var replacement = ""
+                for (char in replacedWord)
+                    replacement += "*"
+                replacedTestLyrics = lyrics.replaceFirst(replacedWord, replacement)
+            }
+        }
+    }
+
+    private fun play(user: FirebaseUser, navCtrl: NavController, answer: String) {
+        val db = Firebase.firestore //TODO: create Firestore Repository
+        var points: Long
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    Log.d(
+                        "Firestore",
+                        "${document.id} => ${document.data}"
+                    )
+                    if (document.data["email"] == user.email) {
+                        points = document.data["points"] as Long
+                        if (answer.lowercase(Locale.getDefault())
+                                .trim() == replacedWord.lowercase(Locale.getDefault())
+                                .trim()
+                        ) {
+                            db.collection("users").document(document.id)
+                                .update("points", points + 5)
+                            navCtrl.navigate("win_screen") {
+                                popUpTo("game_screen") {
+                                    inclusive = true
+                                }
+                            }
+                        } else {
+                            db.collection("users").document(document.id)
+                                .update("points", points - 1)
+                            navCtrl.navigate("lose_screen") {
+                                popUpTo("game_screen") {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    baseContext, "Database error",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
     }
 }
