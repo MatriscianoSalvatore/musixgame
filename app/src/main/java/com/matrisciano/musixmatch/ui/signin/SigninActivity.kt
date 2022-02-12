@@ -242,7 +242,7 @@ class SigninActivity : ComponentActivity() {
                             .build()
                     )
 
-                    val db = Firebase.firestore //TODO: create Firestore Repository
+                    val db = Firebase.firestore //TODO: use Users Repository
                     val user = hashMapOf(
                         "email" to email,
                         "points" to 0,

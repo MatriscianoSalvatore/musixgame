@@ -292,7 +292,7 @@ class WhoSingsActivity : ComponentActivity() {
         user: FirebaseUser,
         navCtrl: NavController
     ) {
-        val db = Firebase.firestore //TODO: create Firestore Repository
+        val db = Firebase.firestore //TODO: use Users Repository
         var points: Long
         db.collection("users")
             .get()
