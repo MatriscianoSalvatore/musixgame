@@ -24,6 +24,7 @@ import com.matrisciano.musixmatch.ui.guessword.GuessWordActivity
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.whosings.WhoSingsActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
+import com.matrisciano.network.model.TopTrack
 import com.matrisciano.network.utils.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -34,6 +35,7 @@ private const val matchesNumber = 3
 private var correctIndexes = Array<Int?>(matchesNumber) { null }
 private var artists = Array(matchesNumber) { arrayOf("", "", "") }
 private var tracks = Array<String?>(matchesNumber) { null }
+private var topTracks: List<TopTrack> = emptyList()
 
 
 @Composable
@@ -186,102 +188,106 @@ private fun startGuessWordGame(
 private fun startWhoSingsGame(scope: CoroutineScope, viewModel: HomeViewModel, activity: Activity) {
     scope.launch {
 
-        correctIndexes = Array<Int?>(matchesNumber) { null }
+        correctIndexes = Array(matchesNumber) { null }
         artists = Array(matchesNumber) { arrayOf("", "", "") }
-        tracks = Array<String?>(matchesNumber) { null }
+        tracks = Array(matchesNumber) { null }
 
-        when (val result = viewModel.getTopTracks()) {
+        if (topTracks.isEmpty()) {
+
+            when (val result = viewModel.getTopTracks()) {
+                is Result.Success -> {
+                    topTracks =
+                        result.value.message?.body?.track_list!!
+                    Log.d("HomeScreen", "TopTracks: $topTracks")
+
+                    initWhoSingsGame(scope, viewModel, activity)
+                }
+
+                is Result.Error -> {
+                    Log.d(
+                        "HomeScreen",
+                        "TopTracks error: ${result.message}"
+                    )
+                }
+            }
+        } else initWhoSingsGame(scope, viewModel, activity)
+    }
+}
+
+private fun initWhoSingsGame(scope: CoroutineScope, viewModel: HomeViewModel, activity: Activity) {
+    val indexes = Array(matchesNumber) { arrayOf(0, 1, 2) }
+    for (i in 0 until matchesNumber) {
+
+        indexes[i][0] =
+            ((maxTracks / matchesNumber * i) until ((maxTracks / matchesNumber * (i + 1)))).random()
+        while (artists[i][0] == artists[i][1] || artists[i][1] == artists[i][2] || artists[i][0] == artists[i][2]) {
+
+            indexes[i][1] = (0 until maxTracks).random()
+            indexes[i][2] = (0 until maxTracks).random()
+
+            tracks[i] =
+                Gson().newBuilder().disableHtmlEscaping()
+                    .create()
+                    .toJson(
+                        topTracks[indexes[i][0]].track?.track_id
+                    )
+
+            for (j in 0..2)
+                artists[i][j] =
+                    Gson().newBuilder()
+                        .disableHtmlEscaping().create()
+                        .toJson(
+                            topTracks[indexes[i][j]].track?.artist_name
+                        )
+        }
+
+        val correctArtist = artists[i][0]
+        artists[i].shuffle()
+        correctIndexes[i] =
+            artists[i].indexOf(correctArtist)
+    }
+
+
+    scope.launch {
+        when (val result =
+            viewModel.getSnippet(tracks[0]!!)) {
             is Result.Success -> {
-                val topTracks =
-                    result.value.message?.body?.track_list
-                Log.d("HomeScreen", "TopTracks: $topTracks")
+                val snippet =
+                    result.value.message?.body?.snippet?.snippet_body
+                Log.d("HomeScreen", "Snippet: $snippet")
 
-                val indexes = Array(matchesNumber) { arrayOf(0, 1, 2) }
-                for (i in 0 until matchesNumber) {
 
-                    indexes[i][0] =
-                        ((maxTracks / matchesNumber * i) until ((maxTracks / matchesNumber * (i + 1)))).random()
-                    while (artists[i][0] == artists[i][1] || artists[i][1] == artists[i][2] || artists[i][0] == artists[i][2]) {
+                if (snippet != null) {
 
-                        indexes[i][1] = (0 until maxTracks).random()
-                        indexes[i][2] = (0 until maxTracks).random()
-
-                        tracks[i] =
-                            Gson().newBuilder().disableHtmlEscaping()
-                                .create()
-                                .toJson(
-                                    topTracks?.get(
-                                        indexes[i][0]
-                                    )?.track?.track_id
-                                )
-
-                        for (j in 0..2)
-                            artists[i][j] =
-                                Gson().newBuilder()
-                                    .disableHtmlEscaping().create()
-                                    .toJson(
-                                        topTracks?.get(
-                                            indexes[i][j]
-                                        )?.track?.artist_name
-                                    )
+                    val intent = Intent(
+                        activity,
+                        WhoSingsActivity::class.java
+                    )
+                    for (i in 0 until matchesNumber) {
+                        for (j in 0..2) intent.putExtra(
+                            "artist" + i + "_" + j,
+                            artists[i][j]
+                        )
+                        intent.putExtra(
+                            "correctIndex$i",
+                            correctIndexes[i]
+                        )
+                        intent.putExtra(
+                            "track$i",
+                            tracks[i]
+                        )
+                        intent.putExtra("snippet", snippet)
                     }
-
-                    val correctArtist = artists[i][0]
-                    artists[i].shuffle()
-                    correctIndexes[i] =
-                        artists[i].indexOf(correctArtist)
+                    startActivity(activity, intent, null)
                 }
 
-
-                scope.launch {
-                    when (val result =
-                        viewModel.getSnippet(tracks[0]!!)) {
-                        is Result.Success -> {
-                            val snippet =
-                                result.value.message?.body?.snippet?.snippet_body
-                            Log.d("HomeScreen", "Snippet: $snippet")
-
-
-                            if (snippet != null) {
-
-                                val intent = Intent(
-                                    activity,
-                                    WhoSingsActivity::class.java
-                                )
-                                for (i in 0 until matchesNumber) {
-                                    for (j in 0..2) intent.putExtra(
-                                        "artist" + i + "_" + j,
-                                        artists[i][j]
-                                    )
-                                    intent.putExtra(
-                                        "correctIndex$i",
-                                        correctIndexes[i]
-                                    )
-                                    intent.putExtra(
-                                        "track$i",
-                                        tracks[i]
-                                    )
-                                    intent.putExtra("snippet", snippet)
-                                }
-                                startActivity(activity, intent, null)
-                            }
-                            
-                        }
-                        is Result.Error -> {
-                            Log.d(
-                                "HomeScreen",
-                                "Snippet error: ${result.message}"
-                            )
-                            showTrackNotFoundToast(activity)
-                        }
-                    }
-                }
             }
             is Result.Error -> {
                 Log.d(
                     "HomeScreen",
-                    "TopTracks error: ${result.message}"
+                    "Snippet error: ${result.message}"
                 )
+                showTrackNotFoundToast(activity)
             }
         }
     }

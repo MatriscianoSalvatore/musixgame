@@ -230,7 +230,7 @@ class SigninActivity : ComponentActivity() {
         }
     }
 
-    //TODO: move signup and login functions out from the Activity
+    //TODO: move actual signup and login functions out from the Activity
     private fun signup(name: String, email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
