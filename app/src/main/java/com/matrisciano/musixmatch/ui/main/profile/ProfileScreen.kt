@@ -1,7 +1,6 @@
 package com.matrisciano.musixmatch.ui.main.profile
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
@@ -22,6 +21,7 @@ import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.signin.SigninActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
+import com.matrisciano.network.extention.log
 import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
 
@@ -29,11 +29,11 @@ import org.koin.androidx.compose.getViewModel
 fun ProfileScreen(user: FirebaseUser?, activity: MainActivity, points: Long) {
 
     val viewModel = getViewModel<UserViewModel>()
-    Log.d("FIREBASE_TAG", "FIREBASE USER: ${user?.uid}")
+    log("FIREBASE USER: ${user?.uid}")
 
     viewModel.getUser("GIABBA_BOY").observeAsState().value.let {
         if (it is Result.Success) {
-            Log.d("FIREBASE_TAG", "FIREBASE VIEWMODEL: ${it.value.email}")
+            log("FIREBASE VIEWMODEL: ${it.value.email}")
         }
     }
 
