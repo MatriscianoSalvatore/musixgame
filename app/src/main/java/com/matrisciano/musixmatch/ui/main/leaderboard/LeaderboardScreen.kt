@@ -53,7 +53,7 @@ fun LeaderboardScreen(user: FirebaseUser?) {
             sortedLeaderboard.forEach {
                 positionIndex++
                 Text(
-                    positionIndex.toString() + "° " + it.email + ": " + it.points + " musixpoints",
+                    text = positionIndex.toString() + "° " + it.email + ": " + it.points + " musixpoints",
                     textAlign = TextAlign.Start,
                     fontSize = 16.sp,
                     fontWeight = if (it.email == user?.email) FontWeight.Bold else FontWeight.Normal

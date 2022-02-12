@@ -42,13 +42,11 @@ class MainActivity : ComponentActivity() {
             MusixmatchTheme()
             {
                 Box(
-
                     modifier = Modifier
                         .background(MaterialTheme.colors.background)
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-
                     Scaffold(
                         bottomBar = { BottomNavigation(navCtrl = navCtrl) },
                         topBar = {
