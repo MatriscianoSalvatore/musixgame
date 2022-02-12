@@ -12,11 +12,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseUser
+import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.network.model.User
 import com.matrisciano.network.utils.Result
@@ -53,7 +55,9 @@ fun LeaderboardScreen(user: FirebaseUser?) {
             sortedLeaderboard.forEach {
                 positionIndex++
                 Text(
-                    text = positionIndex.toString() + "° " + it.email + ": " + it.points + " musixpoints",
+                    text = positionIndex.toString() + "° " + it.email + ": " + it.points + " " + stringResource(
+                        R.string.musixpoints
+                    ),
                     textAlign = TextAlign.Start,
                     fontSize = 16.sp,
                     fontWeight = if (it.email == user?.email) FontWeight.Bold else FontWeight.Normal

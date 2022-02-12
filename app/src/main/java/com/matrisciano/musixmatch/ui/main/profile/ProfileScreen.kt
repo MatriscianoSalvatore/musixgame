@@ -12,6 +12,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,6 +20,7 @@ import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.signin.SigninActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
@@ -57,19 +59,19 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
 
             ) {
                 Text(
-                    text = "Name: " + user?.displayName,
+                    text = stringResource(R.string.name) + " " + user?.displayName,
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
                 )
                 Text(
-                    text = "Email: " + user?.email,
+                    text = stringResource(R.string.email) + " " + user?.email,
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
                 )
                 Text(
-                    text = "Musixpoints: ${userObj.points}",
+                    text = stringResource(R.string.musixpoints) + "  ${userObj.points}",
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
@@ -93,7 +95,7 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
                         contentColor = Color.White
                     ), enabled = true
                 ) {
-                    Text(text = "LOGOUT")
+                    Text(text = stringResource(R.string.logout_button))
                 }
             }
         }
