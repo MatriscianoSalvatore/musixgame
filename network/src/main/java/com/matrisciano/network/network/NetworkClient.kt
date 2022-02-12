@@ -19,7 +19,7 @@ class NetworkClient {
             .build()
     }
 
-    val retrofit = Retrofit.Builder()
+    val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl("https://api.musixmatch.com/ws/1.1/")
         .addConverterFactory(GsonConverterFactory.create())
         .client(client)
