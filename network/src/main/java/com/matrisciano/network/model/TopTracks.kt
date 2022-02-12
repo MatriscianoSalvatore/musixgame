@@ -16,11 +16,11 @@ data class TopTracksMessage (
 @Serializable
 data class TopTracksBody (
     @SerialName("track_list")
-    val track_list: List<TopTracksList>? = null
+    val track_list: List<TopTrack>? = null
 )
 
 @Serializable
-data class TopTracksList (
+data class TopTrack (
     val track: TopTracksClass? = null
 )
 
