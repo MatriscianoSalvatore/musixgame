@@ -145,42 +145,47 @@ private fun startGuessWordGame(
     activity: Activity
 ) {
     scope.launch {
-        when (val result = viewModel.getTrackID(artist, title)) {
-            is Result.Success -> {
-                val trackID =
-                    result.value.message?.body?.track_list?.get(0)?.track?.track_id
-                Log.d("HomeScreen", "TrackID: $trackID")
+        try {
+            when (val result = viewModel.getTrackID(artist, title)) {
+                is Result.Success -> {
+                    val trackID =
+                        result.value.message?.body?.track_list?.get(0)?.track?.track_id
+                    Log.d("HomeScreen", "TrackID: $trackID")
 
-                scope.launch {
-                    when (val result =
-                        viewModel.getLyrics(trackID.toString())) {
-                        is Result.Success -> {
-                            val lyrics =
-                                result.value.message?.body?.lyrics?.lyrics_body
-                            Log.d("HomeScreen", "Lyrics: $lyrics")
+                    scope.launch {
+                        when (val result =
+                            viewModel.getLyrics(trackID.toString())) {
+                            is Result.Success -> {
+                                val lyrics =
+                                    result.value.message?.body?.lyrics?.lyrics_body
+                                Log.d("HomeScreen", "Lyrics: $lyrics")
 
-                            val intent = Intent(
-                                activity,
-                                GuessWordActivity::class.java
-                            )
-                            intent.putExtra("lyrics", lyrics)
-                            startActivity(activity, intent, null)
+                                val intent = Intent(
+                                    activity,
+                                    GuessWordActivity::class.java
+                                )
+                                intent.putExtra("lyrics", lyrics)
+                                startActivity(activity, intent, null)
 
-                        }
-                        is Result.Error -> {
-                            Log.d(
-                                "HomeScreen",
-                                "Lyrics error: ${result.message}"
-                            )
-                            showTrackNotFoundToast(activity)
+
+                            }
+                            is Result.Error -> {
+                                Log.d(
+                                    "HomeScreen",
+                                    "Lyrics error: ${result.message}"
+                                )
+                                showTrackNotFoundToast(activity)
+                            }
                         }
                     }
                 }
+                is Result.Error -> {
+                    Log.d("HomeScreen", "TrackID error: ${result.message}")
+                    showTrackNotFoundToast(activity)
+                }
             }
-            is Result.Error -> {
-                Log.d("HomeScreen", "TrackID error: ${result.message}")
-                showTrackNotFoundToast(activity)
-            }
+        } catch (e: Exception) {
+            showTrackNotFoundToast(activity)
         }
     }
 }
