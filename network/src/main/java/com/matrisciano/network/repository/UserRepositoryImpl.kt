@@ -23,10 +23,31 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
         )
         firestore.collection(COLLECTION_USER).document(userID).set(user)
             .addOnSuccessListener {
-                Log.d("Firestore", "DocumentSnapshot added with ID: $userID")
+                Log.d("UserRepository", "DocumentSnapshot added with ID: $userID")
             }
             .addOnFailureListener { e ->
-                Log.w("Firestore", "Error adding document", e)
+                Log.w("UserRepository", "Error adding document", e)
+            }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun addPoints(userID: String, points: Long) {
+
+        firestore.collection(COLLECTION_USER).document(userID).get()
+            .addOnSuccessListener { document ->
+
+                firestore.collection(COLLECTION_USER).document(userID)
+                    .update("points", document.data?.get("points") as Long + points)
+                    .addOnSuccessListener {
+                        Log.d("UserRepository", "DocumentSnapshot added with ID: $userID")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("UserRepository", "Error adding document", e)
+                    }
+            }
+            .addOnFailureListener {
+
+                Log.e("UserRepository", "Error getting documents. ${it.localizedMessage}", it)
             }
     }
 
