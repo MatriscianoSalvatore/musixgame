@@ -33,6 +33,7 @@ import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.winGreen
 import com.matrisciano.network.utils.Result
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
@@ -45,6 +46,8 @@ class WhoSingsActivity : ComponentActivity() {
     private var correctIndexes = Array<Int?>(matchesNumber) { null }
     private var artists = Array(matchesNumber) { arrayOf("", "", "") }
     private var currentMatch = 0
+    private val maxTimer: Long = 10000
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +100,7 @@ class WhoSingsActivity : ComponentActivity() {
                 ) {
 
                     Text(
-                        text = snippet!!,
+                        text = "\"" + snippet!! + "\"",
                         color = Color.White,
                         fontSize = 27.sp,
                         textAlign = TextAlign.Center,
@@ -105,50 +108,14 @@ class WhoSingsActivity : ComponentActivity() {
                     )
 
                     for (i in 0..2) {
+
                         TextButton(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
                                 .width(400.dp)
                                 .padding(28.dp),
                             onClick = {
-                                val db = Firebase.firestore //TODO: create Firestore Repository
-                                var points: Long
-                                db.collection("users")
-                                    .get()
-                                    .addOnSuccessListener { result ->
-                                        for (document in result) {
-                                            Log.d(
-                                                "Firestore",
-                                                "${document.id} => ${document.data}"
-                                            )
-                                            if (document.data["email"] == user.email) {
-                                                points = document.data["points"] as Long
-                                                if (correctIndexes[currentMatch] == i) {
-                                                    db.collection("users").document(document.id)
-                                                        .update("points", points + 5)
-                                                    navCtrl.navigate("win_screen") {
-                                                        popUpTo("game_screen") {
-                                                            inclusive = true
-                                                        }
-                                                    }
-                                                } else {
-                                                    db.collection("users").document(document.id)
-                                                        .update("points", points - 1)
-                                                    navCtrl.navigate("lose_screen") {
-                                                        popUpTo("game_screen") {
-                                                            inclusive = true
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .addOnFailureListener {
-                                        Toast.makeText(
-                                            baseContext, "Database error",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
+                                play(correctIndexes[currentMatch] == i, user, navCtrl)
                             },
                             colors = ButtonDefaults.textButtonColors(
                                 backgroundColor = MaterialTheme.colors.primary,
@@ -168,6 +135,7 @@ class WhoSingsActivity : ComponentActivity() {
                             )
                         }
                     }
+                    Timer(navCtrl, maxTimer, user)
                 }
             }
         }
@@ -208,7 +176,7 @@ class WhoSingsActivity : ComponentActivity() {
                             .padding(28.dp),
 
                         onClick = {
-                            scope.launch { nextStep(viewModel, navCtrl) }
+                            scope.launch { nextMatch(viewModel, navCtrl) }
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -256,7 +224,7 @@ class WhoSingsActivity : ComponentActivity() {
                             .width(200.dp)
                             .padding(28.dp),
                         onClick = {
-                            scope.launch { nextStep(viewModel, navCtrl) }
+                            scope.launch { nextMatch(viewModel, navCtrl) }
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -288,7 +256,7 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
 
-    private suspend fun nextStep(
+    private suspend fun nextMatch(
         viewModel: WhoSingsViewModel?,
         navCtrl: NavController
     ) {
@@ -328,5 +296,84 @@ class WhoSingsActivity : ComponentActivity() {
             baseContext, "Track not found",
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    private fun play(
+        win: Boolean,
+        user: FirebaseUser,
+        navCtrl: NavController
+    ) {
+        val db = Firebase.firestore //TODO: create Firestore Repository
+        var points: Long
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    Log.d(
+                        "Firestore",
+                        "${document.id} => ${document.data}"
+                    )
+                    if (document.data["email"] == user.email) {
+                        points = document.data["points"] as Long
+                        if (win) {
+                            db.collection("users").document(document.id)
+                                .update("points", points + 5)
+                            navCtrl.navigate("win_screen") {
+                                popUpTo("game_screen") {
+                                    inclusive = true
+                                }
+                            }
+                        } else {
+                            db.collection("users").document(document.id)
+                                .update("points", points - 1)
+                            navCtrl.navigate("lose_screen") {
+                                popUpTo("game_screen") {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    baseContext, "Database error",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+    @Composable
+    fun Timer(navCtrl: NavController, maxTimer: Long, user: FirebaseUser) {
+        val timeLeftMs by rememberCountdownTimerState(navCtrl, maxTimer, user)
+        Text(
+            text = (timeLeftMs / 1000).toString(),
+            color = Color.White,
+            fontSize = 35.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(30.dp)
+        )
+    }
+
+    @Composable
+    fun rememberCountdownTimerState(
+        navCtrl: NavController,
+        initialMillis: Long,
+        user: FirebaseUser
+    ): MutableState<Long> {
+        val timeLeft = remember { mutableStateOf(initialMillis) }
+        LaunchedEffect(initialMillis, 1000) {
+            while (timeLeft.value > 1) {
+                delay(1000)
+                timeLeft.value = (timeLeft.value - 1000).coerceAtLeast(0)
+            }
+            play(false, user, navCtrl)
+            navCtrl.navigate("lose_screen") {
+                popUpTo("game_screen") {
+                    inclusive = true
+                }
+            }
+        }
+        return timeLeft
     }
 }
