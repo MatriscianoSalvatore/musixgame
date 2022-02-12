@@ -2,9 +2,7 @@ package com.matrisciano.musixmatch.ui.guessword
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -32,13 +30,13 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.musixmatchPinkLight
 import com.matrisciano.musixmatch.ui.theme.winGreen
+import org.koin.androidx.compose.getViewModel
 import java.util.*
 
 class GuessWordActivity : ComponentActivity() {
@@ -75,6 +73,7 @@ class GuessWordActivity : ComponentActivity() {
     fun GameScreen(navCtrl: NavController, user: FirebaseUser) {
         MusixmatchPinkTheme()
         {
+            val viewModel = getViewModel<GuessWordViewModel>()
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
@@ -113,7 +112,7 @@ class GuessWordActivity : ComponentActivity() {
                             .width(200.dp)
                             .padding(28.dp),
                         onClick = {
-                            play(user, navCtrl, answer)
+                            play(user, navCtrl, answer, viewModel)
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -308,47 +307,30 @@ class GuessWordActivity : ComponentActivity() {
         }
     }
 
-    private fun play(user: FirebaseUser, navCtrl: NavController, answer: String) {
-        val db = Firebase.firestore //TODO: use Users Repository
-        var points: Long
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    Log.d(
-                        "Firestore",
-                        "${document.id} => ${document.data}"
-                    )
-                    if (document.data["email"] == user.email) {
-                        points = document.data["points"] as Long
-                        if (answer.lowercase(Locale.getDefault())
-                                .trim() == replacedWord.lowercase(Locale.getDefault())
-                                .trim()
-                        ) {
-                            db.collection("users").document(document.id)
-                                .update("points", points + 5)
-                            navCtrl.navigate("win_screen") {
-                                popUpTo("game_screen") {
-                                    inclusive = true
-                                }
-                            }
-                        } else {
-                            db.collection("users").document(document.id)
-                                .update("points", points - 1)
-                            navCtrl.navigate("lose_screen") {
-                                popUpTo("game_screen") {
-                                    inclusive = true
-                                }
-                            }
-                        }
-                    }
+    private fun play(
+        user: FirebaseUser,
+        navCtrl: NavController,
+        answer: String,
+        viewModel: GuessWordViewModel
+    ) {
+
+        if (answer.lowercase(Locale.getDefault())
+                .trim() == replacedWord.lowercase(Locale.getDefault())
+                .trim()
+        ) {
+            viewModel.addPoints(user.uid, 5)
+            navCtrl.navigate("win_screen") {
+                popUpTo("game_screen") {
+                    inclusive = true
                 }
             }
-            .addOnFailureListener {
-                Toast.makeText(
-                    baseContext, "Database error",
-                    Toast.LENGTH_SHORT
-                ).show()
+        } else {
+            viewModel.addPoints(user.uid, -1)
+            navCtrl.navigate("lose_screen") {
+                popUpTo("game_screen") {
+                    inclusive = true
+                }
             }
+        }
     }
 }

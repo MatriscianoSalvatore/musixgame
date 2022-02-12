@@ -26,7 +26,6 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
@@ -53,7 +52,7 @@ class WhoSingsActivity : ComponentActivity() {
         auth = Firebase.auth //TODO: create FirebaseAuth Repository
         val currentUser = auth.currentUser
 
-       getActivityParams()
+        getActivityParams()
 
         setContent {
             MusixmatchPinkTheme()
@@ -73,6 +72,8 @@ class WhoSingsActivity : ComponentActivity() {
     fun GameScreen(navCtrl: NavController, user: FirebaseUser) {
         MusixmatchPinkTheme()
         {
+            val viewModel = getViewModel<WhoSingsViewModel>()
+
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colors.surface)
@@ -107,7 +108,7 @@ class WhoSingsActivity : ComponentActivity() {
                                 .width(400.dp)
                                 .padding(28.dp),
                             onClick = {
-                                play(correctIndexes[currentMatch] == i, user, navCtrl)
+                                play(correctIndexes[currentMatch] == i, user, viewModel, navCtrl)
                             },
                             colors = ButtonDefaults.textButtonColors(
                                 backgroundColor = MaterialTheme.colors.primary,
@@ -127,7 +128,7 @@ class WhoSingsActivity : ComponentActivity() {
                             )
                         }
                     }
-                    Timer(navCtrl, user)
+                    Timer(navCtrl, user, viewModel)
                 }
             }
         }
@@ -290,51 +291,21 @@ class WhoSingsActivity : ComponentActivity() {
     private fun play(
         win: Boolean,
         user: FirebaseUser,
+        viewModel: WhoSingsViewModel,
         navCtrl: NavController
     ) {
-        val db = Firebase.firestore //TODO: use Users Repository
-        var points: Long
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    Log.d(
-                        "Firestore",
-                        "${document.id} => ${document.data}"
-                    )
-                    if (document.data["email"] == user.email) {
-                        points = document.data["points"] as Long
-                        if (win) {
-                            db.collection("users").document(document.id)
-                                .update("points", points + 5)
-                            navCtrl.navigate("win_screen") {
-                                popUpTo("game_screen") {
-                                    inclusive = true
-                                }
-                            }
-                        } else {
-                            db.collection("users").document(document.id)
-                                .update("points", points - 1)
-                            navCtrl.navigate("lose_screen") {
-                                popUpTo("game_screen") {
-                                    inclusive = true
-                                }
-                            }
-                        }
-                    }
-                }
+        if (win) viewModel.addPoints(user.uid, 5)
+        else viewModel.addPoints(user.uid, -1)
+        navCtrl.navigate("win_screen") {
+            popUpTo("game_screen") {
+                inclusive = true
             }
-            .addOnFailureListener {
-                Toast.makeText(
-                    baseContext, "Database error",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        }
     }
 
     @Composable
-    private fun Timer(navCtrl: NavController, user: FirebaseUser) {
-        val timeLeftMs by rememberCountdownTimerState(navCtrl, user)
+    private fun Timer(navCtrl: NavController, user: FirebaseUser, viewModel: WhoSingsViewModel) {
+        val timeLeftMs by rememberCountdownTimerState(navCtrl, user, viewModel)
         Text(
             text = (timeLeftMs / 1000).toString(),
             color = Color.White,
@@ -347,7 +318,8 @@ class WhoSingsActivity : ComponentActivity() {
     @Composable
     private fun rememberCountdownTimerState(
         navCtrl: NavController,
-        user: FirebaseUser
+        user: FirebaseUser,
+        viewModel: WhoSingsViewModel,
     ): MutableState<Long> {
         val timeLeft = remember { mutableStateOf(maxTimer) }
         LaunchedEffect(maxTimer, 1000) {
@@ -355,7 +327,7 @@ class WhoSingsActivity : ComponentActivity() {
                 delay(1000)
                 timeLeft.value = (timeLeft.value - 1000).coerceAtLeast(0)
             }
-            play(false, user, navCtrl)
+            play(false, user, viewModel, navCtrl)
             navCtrl.navigate("lose_screen") {
                 popUpTo("game_screen") {
                     inclusive = true
