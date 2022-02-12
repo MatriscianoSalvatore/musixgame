@@ -5,7 +5,6 @@ import com.matrisciano.network.utils.Result
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-
-    /** Get User collection from Firestore */
-    fun getUser(id: String): Flow<Result<User>>
+    fun getUsers(): Flow<Result<List<User>>>
+    fun getUser(userID: String): Flow<Result<User>>
 }

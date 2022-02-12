@@ -29,8 +29,7 @@ import com.matrisciano.musixmatch.ui.main.home.HomeScreen
 import com.matrisciano.musixmatch.ui.main.leaderboard.LeaderboardScreen
 import com.matrisciano.musixmatch.ui.main.profile.ProfileScreen
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
-import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
+
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -44,13 +43,8 @@ class MainActivity : ComponentActivity() {
         val auth = Firebase.auth //TODO: create FirebaseAuth Repository
         val currentUser = auth.currentUser
 
-        getUsersInfo(currentUser)
-
         setContent {
             val navCtrl = rememberNavController()
-            //val viewModel = getViewModel<MainViewModel>()
-            //val scope = rememberCoroutineScope()
-
             MusixmatchTheme()
             {
                 Box(
@@ -131,10 +125,10 @@ class MainActivity : ComponentActivity() {
                 HomeScreen(this@MainActivity)
             }
             composable("leaderboard_screen") {
-                LeaderboardScreen(user, leaderboard)
+                LeaderboardScreen(user)
             }
             composable("profile_screen") {
-                ProfileScreen(user, this@MainActivity, points)
+                ProfileScreen(user, this@MainActivity)
             }
         }
     }
@@ -142,23 +136,6 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun ProfilePreview() {
-        ProfileScreen(Firebase.auth.currentUser, this@MainActivity, points)
-    }
-
-    private fun getUsersInfo(user: FirebaseUser?) {
-        val db = Firebase.firestore //TODO: create Firestore Repository
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    Log.d("Firestore", "${document.id} => ${document.data}")
-                    if (document.data["email"] == user?.email)
-                        points = document.data["points"] as Long
-                    leaderboard[document.data["email"] as String] = document.data["points"] as Long
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.w("Firestore", "Error getting documents.", exception)
-            }
+        ProfileScreen(Firebase.auth.currentUser, this@MainActivity)
     }
 }

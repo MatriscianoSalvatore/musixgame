@@ -8,7 +8,7 @@ import com.matrisciano.network.service.MusixmatchService
 import com.matrisciano.network.utils.ResponseHandler
 import com.matrisciano.network.utils.Result
 
-class MusixmatchRepositoryImpl(private var musixmatchService: MusixmatchService, private var responseHandler: ResponseHandler): MusixmatchRepository {
+class MusicRepositoryImpl(private var musixmatchService: MusixmatchService, private var responseHandler: ResponseHandler): MusicRepository {
 
     override suspend fun getTrackID(artist: String, title: String): Result<TrackID> = responseHandler.getData {
         musixmatchService.getTrackID(artist, title, 1, "desc", "desc")
