@@ -2,7 +2,6 @@ package com.matrisciano.musixmatch.ui.signin
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,13 +24,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.component.SigninTextField
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
+import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
 
 class SigninActivity : ComponentActivity() {
@@ -39,7 +38,7 @@ class SigninActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth //TODO: create FirebaseAuth Repository
+        auth = Firebase.auth
         val currentUser = auth.currentUser
 
         setContent {
@@ -112,6 +111,7 @@ class SigninActivity : ComponentActivity() {
 
     @Composable
     fun LoginScreen() {
+        val viewModel = getViewModel<SigninViewModel>()
         MusixmatchPinkTheme {
             Box(
                 modifier = Modifier
@@ -149,6 +149,7 @@ class SigninActivity : ComponentActivity() {
                         onClick = {
                             if (email != "" && password != "")
                                 login(
+                                    viewModel,
                                     email,
                                     password
                                 )
@@ -233,50 +234,36 @@ class SigninActivity : ComponentActivity() {
     }
 
     private fun signup(viewModel: SigninViewModel, name: String, email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("Firebase Authentication", "createUserWithEmail:success")
-                    auth.currentUser?.updateProfile(
-                        UserProfileChangeRequest.Builder()
-                            .setDisplayName(name)
-                            .build()
-                    )
-
+        viewModel.signup(name, email, password).observeForever {
+            when (it) {
+                is Result.Success -> {
                     viewModel.createUser(auth.uid!!, email)
-
                     startActivity(Intent(this@SigninActivity, MainActivity::class.java))
-
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("Firebase Authentication", "createUserWithEmail:failure", task.exception)
+                }
+                is Result.Error -> {
                     Toast.makeText(
-                        baseContext, "Authentication failed.",
+                        baseContext, "Registration failed",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             }
+        }
     }
 
-    private fun login(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("Firebase Authentication", "signInWithEmail:success")
-                    // Start main activity
+    private fun login(viewModel: SigninViewModel, email: String, password: String) {
+        viewModel.login(email, password).observeForever {
+            when (it) {
+                is Result.Success -> {
                     startActivity(Intent(this@SigninActivity, MainActivity::class.java))
-
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("Firebase Authentication", "signInWithEmail:failure", task.exception)
+                }
+                is Result.Error -> {
                     Toast.makeText(
-                        baseContext, "Authentication failed.",
+                        baseContext, "Login failed",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             }
+        }
     }
 
     @Composable
@@ -299,7 +286,7 @@ class SigninActivity : ComponentActivity() {
                     LoginScreen()
                 }
             }
-        }
+         }
     }
 
     @Preview(showBackground = true)
