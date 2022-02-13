@@ -1,6 +1,7 @@
 package com.matrisciano.musixmatch.ui.whosings
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import com.matrisciano.network.model.Snippet
 import com.matrisciano.network.repository.MusicRepository
 import com.matrisciano.network.repository.UserRepository
@@ -15,5 +16,5 @@ class WhoSingsViewModel(
         musicRepository.getSnippet(trackID)
 
     fun addPoints(userID: String, points: Long) =
-        userRepository.addPoints(userID, points)
+        userRepository.addPoints(userID, points).asLiveData()
 }

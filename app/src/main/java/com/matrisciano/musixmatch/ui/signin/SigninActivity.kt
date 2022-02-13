@@ -237,8 +237,9 @@ class SigninActivity : ComponentActivity() {
         viewModel.signup(name, email, password).observeForever {
             when (it) {
                 is Result.Success -> {
-                    viewModel.createUser(auth.uid!!, email)
-                    startActivity(Intent(this@SigninActivity, MainActivity::class.java))
+                    viewModel.createUser(auth.uid!!, email).observeForever {
+                        startActivity(Intent(this@SigninActivity, MainActivity::class.java))
+                    }
                 }
                 is Result.Error -> {
                     Toast.makeText(
@@ -286,7 +287,7 @@ class SigninActivity : ComponentActivity() {
                     LoginScreen()
                 }
             }
-         }
+        }
     }
 
     @Preview(showBackground = true)
