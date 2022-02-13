@@ -303,8 +303,7 @@ class WhoSingsActivity : ComponentActivity() {
                     inclusive = true
                 }
             }
-        }
-        else {
+        } else {
             viewModel.addPoints(user.uid, -1)
             navCtrl.navigate("lose_screen") {
                 popUpTo("game_screen") {
