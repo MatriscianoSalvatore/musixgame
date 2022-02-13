@@ -47,7 +47,7 @@ class GuessWordActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth //TODO: create FirebaseAuth Repository
+        auth = Firebase.auth //TODO: use FirebaseAuth Repository
         val currentUser = auth.currentUser
 
         setLyricsForGame()
