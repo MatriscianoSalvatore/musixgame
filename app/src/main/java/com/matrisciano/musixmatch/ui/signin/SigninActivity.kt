@@ -159,7 +159,6 @@ class SigninActivity : ComponentActivity() {
                             contentColor = Color.White
                         ), enabled = (email != "" && password != "")
                     ) {
-
                         Text(text = stringResource(R.string.login_button))
                     }
                 }
