@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val auth = Firebase.auth //TODO: create FirebaseAuth Repository
+        val auth = Firebase.auth //TODO: use AuthRepository
         val currentUser = auth.currentUser
 
         setContent {

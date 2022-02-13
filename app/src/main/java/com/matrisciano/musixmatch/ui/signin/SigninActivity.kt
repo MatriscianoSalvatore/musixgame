@@ -34,7 +34,7 @@ import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
 
 class SigninActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
+    private lateinit var auth: FirebaseAuth //TODO: use AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
