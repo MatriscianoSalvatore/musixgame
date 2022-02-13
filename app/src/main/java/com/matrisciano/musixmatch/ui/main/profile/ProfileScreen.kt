@@ -59,19 +59,19 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
 
             ) {
                 Text(
-                    text = stringResource(R.string.name) + " " + user?.displayName,
+                    text = stringResource(R.string.name_label) + " " + user?.displayName,
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
                 )
                 Text(
-                    text = stringResource(R.string.email) + " " + user?.email,
+                    text = stringResource(R.string.email_label) + " " + user?.email,
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
                 )
                 Text(
-                    text = stringResource(R.string.musixpoints) + "  ${userObj.points}",
+                    text = stringResource(R.string.musixpoints_label) + " ${userObj.points}",
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
