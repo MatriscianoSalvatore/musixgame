@@ -3,7 +3,6 @@ package com.matrisciano.musixmatch.ui.main.profile
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
@@ -20,8 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
-import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.signin.SigninActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.network.model.User
@@ -31,7 +31,7 @@ import org.koin.androidx.compose.getViewModel
 private var userObj: User = User("", 0)
 
 @Composable
-fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
+fun ProfileScreen(user: FirebaseUser?, activity: Activity) {
 
     val viewModel = getViewModel<ProfileViewModel>()
     Log.d("LeaderboardScreen", "User: ${user?.uid}")
@@ -81,7 +81,13 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
                         .padding(20.dp)
                         .width(200.dp),
                     onClick = {
-                        logout(viewModel, activity)
+                       logout(viewModel, activity)
+                        val intent = Intent(
+                            activity,
+                            SigninActivity::class.java
+                        )
+                        startActivity(activity, intent, null)
+
                     },
                     colors = ButtonDefaults.textButtonColors(
                         backgroundColor = MaterialTheme.colors.primary,
@@ -95,8 +101,10 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
     }
 }
 
+
 private fun logout(viewModel: ProfileViewModel, activity: Activity) {
-    viewModel.logout().observeForever {
+    //TODO: use AuthRepository (function below)
+    /* viewModel.logout().observeForever {
         when (it) {
             is Result.Success -> {
                 val intent = Intent(
@@ -112,5 +120,6 @@ private fun logout(viewModel: ProfileViewModel, activity: Activity) {
                 ).show()
             }
         }
-    }
+    } */
+    Firebase.auth.signOut()
 }
