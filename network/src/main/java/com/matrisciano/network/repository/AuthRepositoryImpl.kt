@@ -55,24 +55,4 @@ class AuthRepositoryImpl(private val auth: FirebaseAuth) : AuthRepository {
         }
         awaitClose { channel.close() }
     }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getUser(): Flow<Result<FirebaseUser?>> = callbackFlow {
-        try {
-            trySend(Result.success(auth.currentUser))
-        } catch (e: Exception) {
-            trySend(Result.error(e.localizedMessage ?: ""))
-        }
-        awaitClose { channel.close() }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getUserID(): Flow<Result<String?>> = callbackFlow {
-        try {
-            trySend(Result.success(auth.uid))
-        } catch (e: Exception) {
-            trySend(Result.error(e.localizedMessage ?: ""))
-        }
-        awaitClose { channel.close() }
-    }
 }
