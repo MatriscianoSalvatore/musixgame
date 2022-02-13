@@ -20,8 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.signin.SigninActivity
@@ -42,7 +40,7 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
         viewModel.getUser(user.uid).observeAsState().value.let {
             if (it is Result.Success) {
                 userObj = it.value
-                Log.d("LeaderboardScreen", "Users: ${it.value}")
+                Log.d("ProfileScreen", "Users: ${it.value}")
             }
         }
     }
