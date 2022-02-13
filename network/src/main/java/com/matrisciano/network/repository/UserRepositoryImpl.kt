@@ -16,23 +16,32 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun createUser(userID: String, email: String) {
+    override fun createUser(userID: String, email: String): Result<Boolean> {
+
+        var result = Result.success(true)
         val user = hashMapOf(
             "email" to email,
             "points" to 0,
         )
+
         firestore.collection(COLLECTION_USER).document(userID).set(user)
             .addOnSuccessListener {
                 Log.d("UserRepository", "DocumentSnapshot added with ID: $userID")
             }
             .addOnFailureListener { e ->
                 Log.w("UserRepository", "Error adding document", e)
+                if (e.message != null)
+                    result = Result.error(e.message!!)
+                else
+                    result = Result.error("Generic error")
             }
+        return result
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun addPoints(userID: String, points: Long) {
+    override fun addPoints(userID: String, points: Long): Result<Boolean>  {
 
+        var result = Result.success(true)
         firestore.collection(COLLECTION_USER).document(userID).get()
             .addOnSuccessListener { document ->
 
@@ -43,12 +52,19 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
                     }
                     .addOnFailureListener { e ->
                         Log.w("UserRepository", "Error adding document", e)
+                        if (e.message != null)
+                            result = Result.error(e.message!!)
+                        else
+                            result = Result.error("Generic error")
                     }
             }
-            .addOnFailureListener {
-
-                Log.e("UserRepository", "Error getting documents. ${it.localizedMessage}", it)
+            .addOnFailureListener { e ->
+                if (e.message != null)
+                    result = Result.error(e.message!!)
+                else
+                    result = Result.error("Generic error")
             }
+        return result
     }
 
 
