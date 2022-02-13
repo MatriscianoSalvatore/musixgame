@@ -19,7 +19,7 @@ class AuthRepositoryImpl(private val auth: FirebaseAuth) : AuthRepository {
             Log.d("Firebase Authentication", ":success")
             trySend(Result.success(true))
         } catch (e: Exception) {
-            trySend(Result.success(true))
+            trySend(Result.error(e.localizedMessage ?: ""))
         }
         awaitClose { channel.close() }
     }
