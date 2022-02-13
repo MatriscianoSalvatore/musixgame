@@ -1,7 +1,9 @@
 package com.matrisciano.musixmatch.ui.main.profile
 
+import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
@@ -81,14 +83,7 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
                         .padding(20.dp)
                         .width(200.dp),
                     onClick = {
-                        Firebase.auth.signOut()
-
-                        val intent = Intent(
-                            activity,
-                            SigninActivity::class.java
-                        )
-                        startActivity(activity, intent, null)
-
+                        logout(viewModel, activity)
                     },
                     colors = ButtonDefaults.textButtonColors(
                         backgroundColor = MaterialTheme.colors.primary,
@@ -97,6 +92,26 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
                 ) {
                     Text(text = stringResource(R.string.logout_button))
                 }
+            }
+        }
+    }
+}
+
+private fun logout(viewModel: ProfileViewModel, activity: Activity) {
+    viewModel.logout().observeForever {
+        when (it) {
+            is Result.Success -> {
+                val intent = Intent(
+                    activity,
+                    SigninActivity::class.java
+                )
+                startActivity(activity, intent, null)
+            }
+            is Result.Error -> {
+                Toast.makeText(
+                    activity, "Logout failed",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
