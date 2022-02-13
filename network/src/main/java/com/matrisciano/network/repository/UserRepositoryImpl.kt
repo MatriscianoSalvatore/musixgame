@@ -16,9 +16,7 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun createUser(userID: String, email: String): Result<Boolean> {
-
-        var result = Result.success(true)
+    override fun createUser(userID: String, email: String): Flow<Result<Boolean>> = callbackFlow  {
         val user = hashMapOf(
             "email" to email,
             "points" to 0,
@@ -27,21 +25,17 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
         firestore.collection(COLLECTION_USER).document(userID).set(user)
             .addOnSuccessListener {
                 Log.d("UserRepository", "DocumentSnapshot added with ID: $userID")
+                trySend(Result.success(true))
             }
             .addOnFailureListener { e ->
                 Log.w("UserRepository", "Error adding document", e)
-                if (e.message != null)
-                    result = Result.error(e.message!!)
-                else
-                    result = Result.error("Generic error")
+                trySend(Result.error(e.localizedMessage ?: ""))
             }
-        return result
+        awaitClose { channel.close() }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun addPoints(userID: String, points: Long): Result<Boolean>  {
-
-        var result = Result.success(true)
+    override fun addPoints(userID: String, points: Long): Flow<Result<Boolean>> = callbackFlow  {
         firestore.collection(COLLECTION_USER).document(userID).get()
             .addOnSuccessListener { document ->
 
@@ -49,24 +43,18 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
                     .update("points", document.data?.get("points") as Long + points)
                     .addOnSuccessListener {
                         Log.d("UserRepository", "DocumentSnapshot added with ID: $userID")
+                        trySend(Result.success(true))
                     }
                     .addOnFailureListener { e ->
                         Log.w("UserRepository", "Error adding document", e)
-                        if (e.message != null)
-                            result = Result.error(e.message!!)
-                        else
-                            result = Result.error("Generic error")
+                        trySend(Result.error(e.localizedMessage ?: ""))
                     }
             }
             .addOnFailureListener { e ->
-                if (e.message != null)
-                    result = Result.error(e.message!!)
-                else
-                    result = Result.error("Generic error")
+                trySend(Result.error(e.localizedMessage ?: ""))
             }
-        return result
+        awaitClose { channel.close() }
     }
-
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getUser(userID: String): Flow<Result<User>> = callbackFlow {

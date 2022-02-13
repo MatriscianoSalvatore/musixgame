@@ -293,17 +293,19 @@ class GuessWordActivity : ComponentActivity() {
                 .trim() == replacedWord.lowercase(Locale.getDefault())
                 .trim()
         ) {
-            viewModel.addPoints(user.uid, 5)
-            navCtrl.navigate("win_screen") {
-                popUpTo("game_screen") {
-                    inclusive = true
+            viewModel.addPoints(user.uid, 5).observeForever {
+                navCtrl.navigate("win_screen") {
+                    popUpTo("game_screen") {
+                        inclusive = true
+                    }
                 }
             }
         } else {
-            viewModel.addPoints(user.uid, -1)
-            navCtrl.navigate("lose_screen") {
-                popUpTo("game_screen") {
-                    inclusive = true
+            viewModel.addPoints(user.uid, -1).observeForever {
+                navCtrl.navigate("lose_screen") {
+                    popUpTo("game_screen") {
+                        inclusive = true
+                    }
                 }
             }
         }
