@@ -164,7 +164,6 @@ class WhoSingsActivity : ComponentActivity() {
                     )
 
                     val scope = rememberCoroutineScope()
-
                     TextButton(
                         modifier = Modifier
                             .width(200.dp)
