@@ -17,6 +17,9 @@
     <string name="name">Name</string>
     <string name="email">Email</string>
     <string name="musixpoints">Musixpoints</string>
+    <string name="name_label">Name:</string>
+    <string name="email_label">Email:</string>
+    <string name="musixpoints_label">Musixpoints:</string>
     <string name="logout_button">LOGOUT</string>
 
     <!-- GuessWordActivity -->
