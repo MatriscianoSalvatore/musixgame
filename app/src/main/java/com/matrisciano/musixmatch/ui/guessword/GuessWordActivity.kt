@@ -24,34 +24,28 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.component.GameTextField
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.winGreen
+import com.matrisciano.musixmatch.utils.Preferences
+import com.matrisciano.musixmatch.utils.Preferences.get
 import org.koin.androidx.compose.getViewModel
 import java.util.*
 
 class GuessWordActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
-
     private val maxChars = 145
     private val safeChars = 30
     private var replacedTestLyrics = ""
     private var replacedWord = ""
+    private val firebaseUser: FirebaseUser = Preferences.defaultPref(baseContext)["user", null] as FirebaseUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth //TODO: create FirebaseAuth Repository
-        val currentUser = auth.currentUser
-
         setLyricsForGame()
-
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContent {
             MusixmatchPinkTheme()
@@ -63,12 +57,12 @@ class GuessWordActivity : ComponentActivity() {
                     contentAlignment = Alignment.Center
                 ) {}
             }
-            Navigation(currentUser)
+            Navigation()
         }
     }
 
     @Composable
-    fun GameScreen(navCtrl: NavController, user: FirebaseUser) {
+    fun GameScreen(navCtrl: NavController) {
         MusixmatchPinkTheme()
         {
             val viewModel = getViewModel<GuessWordViewModel>()
@@ -109,7 +103,7 @@ class GuessWordActivity : ComponentActivity() {
                             .width(200.dp)
                             .padding(28.dp),
                         onClick = {
-                            play(user, navCtrl, answer, viewModel)
+                            play(firebaseUser, navCtrl, answer, viewModel)
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -215,11 +209,11 @@ class GuessWordActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Navigation(user: FirebaseUser?) {
+    fun Navigation() {
         val navCtrl = rememberNavController()
         NavHost(navCtrl, "game_screen") {
             composable("game_screen") {
-                GameScreen(navCtrl, user!!)
+                GameScreen(navCtrl)
             }
             composable("win_screen") {
                 WinScreen()

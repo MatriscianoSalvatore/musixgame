@@ -14,6 +14,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -25,24 +26,24 @@ import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.signin.SigninActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.utils.Preferences
+import com.matrisciano.musixmatch.utils.Preferences.get
 import com.matrisciano.musixmatch.utils.Preferences.set
 import com.matrisciano.network.model.User
 import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
 
-private var userObj: User = User("", 0)
-
 @Composable
-fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
-
+fun ProfileScreen(activity: MainActivity) {
+    var user = User("", 0)
+    val firebaseUser: FirebaseUser = Preferences.defaultPref(LocalContext.current)["user", null] as FirebaseUser
     val viewModel = getViewModel<ProfileViewModel>()
-    Log.d("LeaderboardScreen", "User: ${user?.uid}")
+    Log.d("LeaderboardScreen", "User: $user")
 
-    if (user != null) {
-        viewModel.getUser(user.uid).observeAsState().value.let {
+    user.let {
+        viewModel.getUser(firebaseUser.uid).observeAsState().value.let {
             if (it is Result.Success) {
-                userObj = it.value
-                Log.d("ProfileScreen", "Users: ${it.value}")
+                user = it.value
+                Log.d("ProfileScreen", "User: ${it.value}")
             }
         }
     }
@@ -61,19 +62,19 @@ fun ProfileScreen(user: FirebaseUser?, activity: MainActivity) {
 
             ) {
                 Text(
-                    text = stringResource(R.string.name_label) + " " + user?.displayName,
+                    text = stringResource(R.string.name_label) + " ${firebaseUser.displayName}",
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
                 )
                 Text(
-                    text = stringResource(R.string.email_label) + " " + user?.email,
+                    text = stringResource(R.string.email_label) + " ${user.email}",
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
                 )
                 Text(
-                    text = stringResource(R.string.musixpoints_label) + " ${userObj.points}",
+                    text = stringResource(R.string.musixpoints_label) + " ${user.points}",
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
@@ -101,7 +102,7 @@ private fun logout(viewModel: ProfileViewModel, activity: Activity) {
     viewModel.logout().observeForever {
         when (it) {
             is Result.Success -> {
-                Preferences.defaultPref(activity)["userID"] = null
+                Preferences.defaultPref(activity)["user"] = null
                 val intent = Intent(
                     activity,
                     SigninActivity::class.java

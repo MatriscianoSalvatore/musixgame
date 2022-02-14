@@ -20,9 +20,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.main.home.HomeScreen
 import com.matrisciano.musixmatch.ui.main.leaderboard.LeaderboardScreen
@@ -34,10 +31,6 @@ import java.util.*
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val auth = Firebase.auth //TODO: use AuthRepository
-        val currentUser = auth.currentUser
-
         setContent {
             val navCtrl = rememberNavController()
             MusixmatchTheme()
@@ -63,7 +56,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-            Navigation(navCtrl, currentUser)
+            Navigation(navCtrl)
         }
     }
 
@@ -112,16 +105,16 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Navigation(navCtrl: NavHostController, user: FirebaseUser?) {
+    fun Navigation(navCtrl: NavHostController) {
         NavHost(navCtrl, "home_screen") {
             composable("home_screen") {
                 HomeScreen(this@MainActivity)
             }
             composable("leaderboard_screen") {
-                LeaderboardScreen(user)
+                LeaderboardScreen()
             }
             composable("profile_screen") {
-                ProfileScreen(user, this@MainActivity)
+                ProfileScreen(this@MainActivity)
             }
         }
     }
@@ -129,6 +122,6 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun ProfilePreview() {
-        ProfileScreen(Firebase.auth.currentUser, this@MainActivity)
+        ProfileScreen(this@MainActivity)
     }
 }
