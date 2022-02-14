@@ -2,6 +2,7 @@ package com.matrisciano.musixmatch.ui.signin
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -251,10 +253,14 @@ class SigninActivity : ComponentActivity() {
     }
 
     private fun login(viewModel: SigninViewModel, email: String, password: String) {
-        viewModel.login(email, password).observeForever {
-            when (it) {
+        viewModel.login(email, password).observe(this) { result ->
+            when (result) {
                 is Result.Success -> {
-                    startActivity(Intent(this@SigninActivity, MainActivity::class.java))
+                    result.value?.uid?.let {
+                        //TODO: save in shared preferences
+                        Log.d("Login user", "Login User: $it")
+                        startActivity(Intent(this@SigninActivity, MainActivity::class.java))
+                    }
                 }
                 is Result.Error -> {
                     Toast.makeText(
