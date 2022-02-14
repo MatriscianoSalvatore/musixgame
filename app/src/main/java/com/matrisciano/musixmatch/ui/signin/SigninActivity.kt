@@ -16,37 +16,28 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.component.SigninTextField
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.utils.Preferences
+import com.matrisciano.musixmatch.utils.Preferences.get
 import com.matrisciano.musixmatch.utils.Preferences.set
 import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
 
 class SigninActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth //TODO: use AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth
-        val currentUser = auth.currentUser
-
         setContent {
             MusixmatchPinkTheme()
             {
@@ -57,7 +48,7 @@ class SigninActivity : ComponentActivity() {
                     contentAlignment = Alignment.Center
                 ) {}
             }
-            Navigation(currentUser)
+            Navigation()
         }
     }
 
@@ -240,14 +231,20 @@ class SigninActivity : ComponentActivity() {
         }
     }
 
-    private fun signup(viewModel: SigninViewModel, name: String, email: String, password: String, context: Context) {
+    private fun signup(
+        viewModel: SigninViewModel,
+        name: String,
+        email: String,
+        password: String,
+        context: Context
+    ) {
         viewModel.signup(name, email, password).observeForever { result ->
             when (result) {
                 is Result.Success -> {
-                    result.value?.uid?.let {
-                        Log.d("Login user", "Login User id: $it")
-                        Preferences.defaultPref(context)["userID"] = it
-                        viewModel.createUser(it, email).observeForever {
+                    result.value?.let {
+                        Log.d("Login user", "Login User: $it")
+                        Preferences.defaultPref(context)["user"] = it
+                        viewModel.createUser(it.uid, email).observeForever {
                             startActivity(Intent(this@SigninActivity, MainActivity::class.java))
                         }
                     }
@@ -262,13 +259,18 @@ class SigninActivity : ComponentActivity() {
         }
     }
 
-    private fun login(viewModel: SigninViewModel, email: String, password: String, context: Context) {
+    private fun login(
+        viewModel: SigninViewModel,
+        email: String,
+        password: String,
+        context: Context
+    ) {
         viewModel.login(email, password).observe(this) { result ->
             when (result) {
                 is Result.Success -> {
-                    result.value?.uid?.let {
-                        Log.d("Login user", "Login User id: $it")
-                        Preferences.defaultPref(context)["userID"] = it
+                    result.value?.let {
+                        Log.d("Login user", "Login User: $it")
+                        Preferences.defaultPref(context)["user"] = it
                         startActivity(Intent(this@SigninActivity, MainActivity::class.java))
                     }
                 }
@@ -283,9 +285,9 @@ class SigninActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun Navigation(user: FirebaseUser?) {
+    private fun Navigation() {
         val navCtrl = rememberNavController()
-        if (user != null) startActivity(
+        if (Preferences.defaultPref(baseContext)["userID", null] != null) startActivity(
             Intent(
                 this@SigninActivity,
                 MainActivity::class.java

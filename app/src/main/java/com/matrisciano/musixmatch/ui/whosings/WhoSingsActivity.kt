@@ -24,22 +24,20 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.ui.theme.loseRed
 import com.matrisciano.musixmatch.ui.theme.winGreen
+import com.matrisciano.musixmatch.utils.Preferences
+import com.matrisciano.musixmatch.utils.Preferences.get
 import com.matrisciano.network.utils.Result
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 class WhoSingsActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
     private var snippet: String? = ""
     private val maxArtistChars = 55
     private val matchesNumber = 3
@@ -48,12 +46,10 @@ class WhoSingsActivity : ComponentActivity() {
     private var artists = Array(matchesNumber) { arrayOf("", "", "") }
     private var currentMatch = 0
     private val maxTimer: Long = 10000
+    private val firebaseUser: FirebaseUser = Preferences.defaultPref(baseContext)["user", null] as FirebaseUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth //TODO: create FirebaseAuth Repository
-        val currentUser = auth.currentUser
-
         getActivityParams()
 
         setContent {
@@ -66,12 +62,12 @@ class WhoSingsActivity : ComponentActivity() {
                     contentAlignment = Alignment.Center
                 ) {}
             }
-            Navigation(currentUser)
+            Navigation()
         }
     }
 
     @Composable
-    fun GameScreen(navCtrl: NavController, user: FirebaseUser) {
+    fun GameScreen(navCtrl: NavController) {
         MusixmatchPinkTheme()
         {
             val viewModel = getViewModel<WhoSingsViewModel>()
@@ -110,7 +106,7 @@ class WhoSingsActivity : ComponentActivity() {
                                 .width(400.dp)
                                 .padding(28.dp),
                             onClick = {
-                                play((correctIndexes[currentMatch] == i), user, viewModel, navCtrl)
+                                play((correctIndexes[currentMatch] == i), firebaseUser, viewModel, navCtrl)
                             },
                             colors = ButtonDefaults.textButtonColors(
                                 backgroundColor = MaterialTheme.colors.primary,
@@ -130,7 +126,7 @@ class WhoSingsActivity : ComponentActivity() {
                             )
                         }
                     }
-                    Timer(navCtrl, user, viewModel)
+                    Timer(navCtrl, firebaseUser, viewModel)
                 }
             }
         }
@@ -233,11 +229,11 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Navigation(user: FirebaseUser?) {
+    fun Navigation() {
         val navCtrl = rememberNavController()
         NavHost(navCtrl, "game_screen") {
             composable("game_screen") {
-                GameScreen(navCtrl, user!!)
+                GameScreen(navCtrl)
             }
             composable("win_screen") {
                 WinScreen(navCtrl)
@@ -296,7 +292,7 @@ class WhoSingsActivity : ComponentActivity() {
         navCtrl: NavController
     ) {
         if (win) {
-            viewModel.addPoints(user.uid, 5).observeForever(){
+            viewModel.addPoints(user.uid, 5).observeForever {
                 navCtrl.navigate("win_screen") {
                     popUpTo("game_screen") {
                         inclusive = true
@@ -304,7 +300,7 @@ class WhoSingsActivity : ComponentActivity() {
                 }
             }
         } else {
-            viewModel.addPoints(user.uid, -1).observeForever(){
+            viewModel.addPoints(user.uid, -1).observeForever {
                 navCtrl.navigate("lose_screen") {
                     popUpTo("game_screen") {
                         inclusive = true

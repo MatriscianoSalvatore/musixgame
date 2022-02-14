@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -20,6 +21,8 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseUser
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
+import com.matrisciano.musixmatch.utils.Preferences
+import com.matrisciano.musixmatch.utils.Preferences.get
 import com.matrisciano.network.model.User
 import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
@@ -27,10 +30,11 @@ import org.koin.androidx.compose.getViewModel
 var leaderboard: List<User> = emptyList()
 
 @Composable
-fun LeaderboardScreen(user: FirebaseUser?) {
+fun LeaderboardScreen() {
 
     val viewModel = getViewModel<LeaderboardViewModel>()
-    Log.d("LeaderboardScreen", "User: ${user?.uid}")
+    val firebaseUser: FirebaseUser = Preferences.defaultPref(LocalContext.current)["user", null] as FirebaseUser
+    Log.d("LeaderboardScreen", "User: ${firebaseUser?.uid}")
 
     viewModel.getAllUsers().observeAsState().value.let {
         if (it is Result.Success) {
@@ -60,7 +64,7 @@ fun LeaderboardScreen(user: FirebaseUser?) {
                     ),
                     textAlign = TextAlign.Start,
                     fontSize = 16.sp,
-                    fontWeight = if (it.email == user?.email) FontWeight.Bold else FontWeight.Normal
+                    fontWeight = if (it.email == firebaseUser?.email) FontWeight.Bold else FontWeight.Normal
                 )
             }
         }
