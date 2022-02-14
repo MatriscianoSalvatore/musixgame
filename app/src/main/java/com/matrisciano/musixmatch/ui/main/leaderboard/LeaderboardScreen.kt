@@ -31,12 +31,12 @@ var leaderboard: List<User> = emptyList()
 fun LeaderboardScreen() {
     val viewModel = getViewModel<LeaderboardViewModel>()
     val userID = Preferences.defaultPref(LocalContext.current).getString("userID", null)
-    Log.d("LeaderboardScreen", "User: ${userID}")
+    Log.d("LeaderboardScreen", "User: $userID")
 
-    viewModel.getAllUsers().observeAsState().value.let {
-        if (it is Result.Success) {
-            leaderboard = it.value
-            Log.d("LeaderboardScreen", "Users: ${it.value}")
+    viewModel.getAllUsers().observeAsState().value.let { users ->
+        if (users is Result.Success) {
+            Log.d("LeaderboardScreen", "Users: ${users.value}")
+            leaderboard = users.value.sortedByDescending { it.points }
         }
     }
 
@@ -51,9 +51,8 @@ fun LeaderboardScreen() {
                     orientation = Orientation.Vertical
                 )
         ) {
-            val sortedLeaderboard = leaderboard.sortedByDescending { it.points }
             var positionIndex = 0
-            sortedLeaderboard.forEach {
+            leaderboard.forEach {
                 positionIndex++
                 Text(
                     text = positionIndex.toString() + "° " + it.email + ": " + it.points + " " + stringResource(
