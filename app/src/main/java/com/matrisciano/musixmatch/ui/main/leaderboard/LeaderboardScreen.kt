@@ -18,11 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.auth.FirebaseUser
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.utils.Preferences
-import com.matrisciano.musixmatch.utils.Preferences.get
 import com.matrisciano.network.model.User
 import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
@@ -31,10 +29,9 @@ var leaderboard: List<User> = emptyList()
 
 @Composable
 fun LeaderboardScreen() {
-
     val viewModel = getViewModel<LeaderboardViewModel>()
-    val firebaseUser: FirebaseUser = Preferences.defaultPref(LocalContext.current)["user", null] as FirebaseUser
-    Log.d("LeaderboardScreen", "User: ${firebaseUser?.uid}")
+    val userID = Preferences.defaultPref(LocalContext.current).getString("userID", null)
+    Log.d("LeaderboardScreen", "User: ${userID}")
 
     viewModel.getAllUsers().observeAsState().value.let {
         if (it is Result.Success) {
@@ -64,7 +61,7 @@ fun LeaderboardScreen() {
                     ),
                     textAlign = TextAlign.Start,
                     fontSize = 16.sp,
-                    fontWeight = if (it.email == firebaseUser?.email) FontWeight.Bold else FontWeight.Normal
+                    //fontWeight = if (it.email == firebaseUser?.email) FontWeight.Bold else FontWeight.Normal
                 )
             }
         }

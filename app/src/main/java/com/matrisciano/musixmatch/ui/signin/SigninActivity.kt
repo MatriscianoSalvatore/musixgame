@@ -29,7 +29,6 @@ import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.component.SigninTextField
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
 import com.matrisciano.musixmatch.utils.Preferences
-import com.matrisciano.musixmatch.utils.Preferences.get
 import com.matrisciano.musixmatch.utils.Preferences.set
 import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
@@ -243,8 +242,8 @@ class SigninActivity : ComponentActivity() {
                 is Result.Success -> {
                     result.value?.let {
                         Log.d("Login user", "Login User: $it")
-                        Preferences.defaultPref(context)["user"] = it
-                        viewModel.createUser(it.uid, email).observeForever {
+                        Preferences.defaultPref(context)["userID"] = it.uid
+                        viewModel.createUser(it.uid, name, email).observeForever {
                             startActivity(Intent(this@SigninActivity, MainActivity::class.java))
                         }
                     }
@@ -270,7 +269,7 @@ class SigninActivity : ComponentActivity() {
                 is Result.Success -> {
                     result.value?.let {
                         Log.d("Login user", "Login User: $it")
-                        Preferences.defaultPref(context)["user"] = it
+                        Preferences.defaultPref(context)["userID"] = it.uid
                         startActivity(Intent(this@SigninActivity, MainActivity::class.java))
                     }
                 }
@@ -287,7 +286,7 @@ class SigninActivity : ComponentActivity() {
     @Composable
     private fun Navigation() {
         val navCtrl = rememberNavController()
-        if (Preferences.defaultPref(baseContext)["userID", null] != null) startActivity(
+        if (Preferences.defaultPref(baseContext).getString("userID", null) != null) startActivity(
             Intent(
                 this@SigninActivity,
                 MainActivity::class.java
