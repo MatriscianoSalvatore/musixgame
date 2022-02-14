@@ -30,8 +30,16 @@ var leaderboard: List<User> = emptyList()
 @Composable
 fun LeaderboardScreen() {
     val viewModel = getViewModel<LeaderboardViewModel>()
+    var email = ""
     val userID = Preferences.defaultPref(LocalContext.current).getString("userID", null)
     Log.d("LeaderboardScreen", "User: $userID")
+
+    viewModel.getUser(userID!!).observeAsState().value.let { user ->
+        if (user is Result.Success) {
+            Log.d("LeaderboardScreen", "User: ${user.value}")
+            email = user.value.email!!
+        }
+    }
 
     viewModel.getAllUsers().observeAsState().value.let { users ->
         if (users is Result.Success) {
@@ -60,7 +68,7 @@ fun LeaderboardScreen() {
                     ),
                     textAlign = TextAlign.Start,
                     fontSize = 16.sp,
-                    //fontWeight = if (it.email == firebaseUser?.email) FontWeight.Bold else FontWeight.Normal
+                    fontWeight = if (it.email == email) FontWeight.Bold else FontWeight.Normal
                 )
             }
         }

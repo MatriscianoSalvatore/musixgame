@@ -6,4 +6,5 @@ import com.matrisciano.network.repository.UserRepository
 
 class LeaderboardViewModel(private val userRepository: UserRepository) : ViewModel() {
     fun getAllUsers() = userRepository.getAllUsers().asLiveData()
+    fun getUser(userID: String) = userRepository.getUser(userID).asLiveData()
 }
