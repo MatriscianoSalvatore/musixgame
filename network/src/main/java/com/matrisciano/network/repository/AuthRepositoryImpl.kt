@@ -13,13 +13,17 @@ import kotlinx.coroutines.flow.callbackFlow
 class AuthRepositoryImpl(private val auth: FirebaseAuth) : AuthRepository {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun login(email: String, password: String): Flow<Result<Boolean>> = callbackFlow {
+    override fun login(email: String, password: String): Flow<Result<FirebaseUser?>> = callbackFlow {
         try {
-            auth.signInWithEmailAndPassword(email, password)
-            Log.d("Firebase Authentication", ":success")
-            trySend(Result.success(true))
+            auth.signInWithEmailAndPassword(email, password).
+                addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Log.d("Firebase Authentication", ":success")
+                        trySend(Result.success(it.result.user))
+                    } else trySend(Result.error(it.exception?.localizedMessage ?: ""))
+            }
         } catch (e: Exception) {
-            trySend(Result.success(true))
+            trySend(Result.error(e.localizedMessage ?: ""))
         }
         awaitClose { channel.close() }
     }
