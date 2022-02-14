@@ -20,13 +20,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
-import com.google.firebase.auth.FirebaseUser
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.ui.signin.SigninActivity
 import com.matrisciano.musixmatch.ui.theme.MusixmatchTheme
 import com.matrisciano.musixmatch.utils.Preferences
-import com.matrisciano.musixmatch.utils.Preferences.get
 import com.matrisciano.musixmatch.utils.Preferences.set
 import com.matrisciano.network.model.User
 import com.matrisciano.network.utils.Result
@@ -34,17 +32,15 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun ProfileScreen(activity: MainActivity) {
-    var user = User("", 0)
-    val firebaseUser: FirebaseUser = Preferences.defaultPref(LocalContext.current)["user", null] as FirebaseUser
+    var user = User("", "", 0)
+    val userID = Preferences.defaultPref(LocalContext.current).getString("userID", null)
     val viewModel = getViewModel<ProfileViewModel>()
-    Log.d("LeaderboardScreen", "User: $user")
+    Log.d("ProfileScreen", "User: $user")
 
-    user.let {
-        viewModel.getUser(firebaseUser.uid).observeAsState().value.let {
-            if (it is Result.Success) {
-                user = it.value
-                Log.d("ProfileScreen", "User: ${it.value}")
-            }
+    viewModel.getUser(userID!!).observeAsState().value.let {
+        if (it is Result.Success) {
+            user = it.value
+            Log.d("ProfileScreen", "User: ${it.value}")
         }
     }
 
@@ -62,7 +58,7 @@ fun ProfileScreen(activity: MainActivity) {
 
             ) {
                 Text(
-                    text = stringResource(R.string.name_label) + " ${firebaseUser.displayName}",
+                    text = stringResource(R.string.name_label) + " ${user.name}",
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)
@@ -102,7 +98,7 @@ private fun logout(viewModel: ProfileViewModel, activity: Activity) {
     viewModel.logout().observeForever {
         when (it) {
             is Result.Success -> {
-                Preferences.defaultPref(activity)["user"] = null
+                Preferences.defaultPref(activity)["userID"] = null
                 val intent = Intent(
                     activity,
                     SigninActivity::class.java

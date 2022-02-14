@@ -3,7 +3,6 @@ package com.matrisciano.musixmatch.utils
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.google.firebase.auth.FirebaseUser
 
 object Preferences {
     fun defaultPref(context: Context): SharedPreferences =

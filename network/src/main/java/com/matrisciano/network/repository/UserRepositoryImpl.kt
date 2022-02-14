@@ -16,15 +16,16 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun createUser(userID: String, email: String): Flow<Result<Boolean>> = callbackFlow  {
+    override fun createUser(id: String, name: String, email: String): Flow<Result<Boolean>> = callbackFlow  {
         val user = hashMapOf(
+            "name" to name,
             "email" to email,
             "points" to 0,
         )
 
-        firestore.collection(COLLECTION_USER).document(userID).set(user)
+        firestore.collection(COLLECTION_USER).document(id).set(user)
             .addOnSuccessListener {
-                Log.d("UserRepository", "DocumentSnapshot added with ID: $userID")
+                Log.d("UserRepository", "DocumentSnapshot added with ID: $id")
                 trySend(Result.success(true))
             }
             .addOnFailureListener { e ->
@@ -35,14 +36,14 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun addPoints(userID: String, points: Long): Flow<Result<Boolean>> = callbackFlow  {
-        firestore.collection(COLLECTION_USER).document(userID).get()
+    override fun addPoints(id: String, points: Long): Flow<Result<Boolean>> = callbackFlow  {
+        firestore.collection(COLLECTION_USER).document(id).get()
             .addOnSuccessListener { document ->
 
-                firestore.collection(COLLECTION_USER).document(userID)
+                firestore.collection(COLLECTION_USER).document(id)
                     .update("points", document.data?.get("points") as Long + points)
                     .addOnSuccessListener {
-                        Log.d("UserRepository", "DocumentSnapshot added with ID: $userID")
+                        Log.d("UserRepository", "DocumentSnapshot added with ID: $id")
                         trySend(Result.success(true))
                     }
                     .addOnFailureListener { e ->
@@ -57,8 +58,8 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getUser(userID: String): Flow<Result<User>> = callbackFlow {
-        firestore.collection(COLLECTION_USER).document(userID).get()
+    override fun getUser(id: String): Flow<Result<User>> = callbackFlow {
+        firestore.collection(COLLECTION_USER).document(id).get()
             .addOnSuccessListener { document ->
                 try {
                     document?.toObject(User::class.java)?.let {
