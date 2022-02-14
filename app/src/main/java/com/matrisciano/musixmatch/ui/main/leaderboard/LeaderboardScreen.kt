@@ -25,10 +25,9 @@ import com.matrisciano.network.model.User
 import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
 
-var leaderboard: List<User> = emptyList()
-
 @Composable
 fun LeaderboardScreen() {
+    var leaderboard: List<User> = emptyList()
     val viewModel = getViewModel<LeaderboardViewModel>()
     var email = ""
     val userID = Preferences.defaultPref(LocalContext.current).getString("userID", null)
@@ -42,7 +41,6 @@ fun LeaderboardScreen() {
             }
         }
     }
-
 
     viewModel.getAllUsers().observeAsState().value.let { users ->
         if (users is Result.Success) {
