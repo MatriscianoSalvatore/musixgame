@@ -34,12 +34,15 @@ fun LeaderboardScreen() {
     val userID = Preferences.defaultPref(LocalContext.current).getString("userID", null)
     Log.d("LeaderboardScreen", "User: $userID")
 
-    viewModel.getUser(userID!!).observeAsState().value.let { user ->
-        if (user is Result.Success) {
-            Log.d("LeaderboardScreen", "User: ${user.value}")
-            email = user.value.email!!
+    if (userID != null) {
+        viewModel.getUser(userID).observeAsState().value.let { user ->
+            if (user is Result.Success) {
+                Log.d("LeaderboardScreen", "User: ${user.value}")
+                email = user.value.email!!
+            }
         }
     }
+
 
     viewModel.getAllUsers().observeAsState().value.let { users ->
         if (users is Result.Success) {
