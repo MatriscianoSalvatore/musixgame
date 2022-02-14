@@ -1,5 +1,6 @@
 package com.matrisciano.musixmatch.ui.signin
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +34,8 @@ import com.matrisciano.musixmatch.ui.main.MainActivity
 import com.matrisciano.musixmatch.R
 import com.matrisciano.musixmatch.component.SigninTextField
 import com.matrisciano.musixmatch.ui.theme.MusixmatchPinkTheme
+import com.matrisciano.musixmatch.utils.Preferences
+import com.matrisciano.musixmatch.utils.Preferences.set
 import com.matrisciano.network.utils.Result
 import org.koin.androidx.compose.getViewModel
 
@@ -153,7 +157,8 @@ class SigninActivity : ComponentActivity() {
                                 login(
                                     viewModel,
                                     email,
-                                    password
+                                    password,
+                                    baseContext
                                 )
                         },
                         colors = ButtonDefaults.textButtonColors(
@@ -219,7 +224,8 @@ class SigninActivity : ComponentActivity() {
                                     viewModel,
                                     name,
                                     email,
-                                    password
+                                    password,
+                                    baseContext
                                 )
                         },
                         colors = ButtonDefaults.textButtonColors(
@@ -234,14 +240,16 @@ class SigninActivity : ComponentActivity() {
         }
     }
 
-    private fun signup(viewModel: SigninViewModel, name: String, email: String, password: String) {
-        viewModel.signup(name, email, password).observeForever {
-            when (it) {
+    private fun signup(viewModel: SigninViewModel, name: String, email: String, password: String, context: Context) {
+        viewModel.signup(name, email, password).observeForever { result ->
+            when (result) {
                 is Result.Success -> {
-                    //TODO: save in shared preferences
-                    Log.d("Login user", "Login User: $it")
-                    viewModel.createUser(auth.uid!!, email).observeForever {
-                        startActivity(Intent(this@SigninActivity, MainActivity::class.java))
+                    result.value?.uid?.let {
+                        Log.d("Login user", "Login User id: $it")
+                        Preferences.defaultPref(context)["userID"] = it
+                        viewModel.createUser(it, email).observeForever {
+                            startActivity(Intent(this@SigninActivity, MainActivity::class.java))
+                        }
                     }
                 }
                 is Result.Error -> {
@@ -254,13 +262,13 @@ class SigninActivity : ComponentActivity() {
         }
     }
 
-    private fun login(viewModel: SigninViewModel, email: String, password: String) {
+    private fun login(viewModel: SigninViewModel, email: String, password: String, context: Context) {
         viewModel.login(email, password).observe(this) { result ->
             when (result) {
                 is Result.Success -> {
                     result.value?.uid?.let {
-                        //TODO: save in shared preferences
-                        Log.d("Login user", "Login User: $it")
+                        Log.d("Login user", "Login User id: $it")
+                        Preferences.defaultPref(context)["userID"] = it
                         startActivity(Intent(this@SigninActivity, MainActivity::class.java))
                     }
                 }
