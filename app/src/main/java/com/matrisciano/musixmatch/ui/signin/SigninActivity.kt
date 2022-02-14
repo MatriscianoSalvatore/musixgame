@@ -238,6 +238,8 @@ class SigninActivity : ComponentActivity() {
         viewModel.signup(name, email, password).observeForever {
             when (it) {
                 is Result.Success -> {
+                    //TODO: save in shared preferences
+                    Log.d("Login user", "Login User: $it")
                     viewModel.createUser(auth.uid!!, email).observeForever {
                         startActivity(Intent(this@SigninActivity, MainActivity::class.java))
                     }
