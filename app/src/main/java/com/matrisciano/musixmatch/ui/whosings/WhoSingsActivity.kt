@@ -46,10 +46,11 @@ class WhoSingsActivity : ComponentActivity() {
     private var artists = Array(matchesNumber) { arrayOf("", "", "") }
     private var currentMatch = 0
     private val maxTimer: Long = 10000
-    private val firebaseUser: FirebaseUser = Preferences.defaultPref(baseContext)["user", null] as FirebaseUser
+    private var userID: String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        userID = Preferences.defaultPref(baseContext)["userID", ""]
         getActivityParams()
 
         setContent {
@@ -106,7 +107,7 @@ class WhoSingsActivity : ComponentActivity() {
                                 .width(400.dp)
                                 .padding(28.dp),
                             onClick = {
-                                play((correctIndexes[currentMatch] == i), firebaseUser, viewModel, navCtrl)
+                                play((correctIndexes[currentMatch] == i), userID, viewModel, navCtrl)
                             },
                             colors = ButtonDefaults.textButtonColors(
                                 backgroundColor = MaterialTheme.colors.primary,
@@ -126,7 +127,7 @@ class WhoSingsActivity : ComponentActivity() {
                             )
                         }
                     }
-                    Timer(navCtrl, firebaseUser, viewModel)
+                    Timer(navCtrl, userID, viewModel)
                 }
             }
         }
@@ -287,12 +288,12 @@ class WhoSingsActivity : ComponentActivity() {
 
     private fun play(
         win: Boolean,
-        user: FirebaseUser,
+        userID: String?,
         viewModel: WhoSingsViewModel,
         navCtrl: NavController
     ) {
         if (win) {
-            viewModel.addPoints(user.uid, 5).observeForever {
+            viewModel.addPoints(userID!!, 5).observeForever {
                 navCtrl.navigate("win_screen") {
                     popUpTo("game_screen") {
                         inclusive = true
@@ -300,7 +301,7 @@ class WhoSingsActivity : ComponentActivity() {
                 }
             }
         } else {
-            viewModel.addPoints(user.uid, -1).observeForever {
+            viewModel.addPoints(userID!!, -1).observeForever {
                 navCtrl.navigate("lose_screen") {
                     popUpTo("game_screen") {
                         inclusive = true
@@ -311,8 +312,8 @@ class WhoSingsActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun Timer(navCtrl: NavController, user: FirebaseUser, viewModel: WhoSingsViewModel) {
-        val timeLeftMs by rememberCountdownTimerState(navCtrl, user, viewModel)
+    private fun Timer(navCtrl: NavController, userID: String?, viewModel: WhoSingsViewModel) {
+        val timeLeftMs by rememberCountdownTimerState(navCtrl, userID, viewModel)
         Text(
             text = (timeLeftMs / 1000).toString(),
             color = Color.White,
@@ -325,7 +326,7 @@ class WhoSingsActivity : ComponentActivity() {
     @Composable
     private fun rememberCountdownTimerState(
         navCtrl: NavController,
-        user: FirebaseUser,
+        userID: String?,
         viewModel: WhoSingsViewModel,
     ): MutableState<Long> {
         val timeLeft = remember { mutableStateOf(maxTimer) }
@@ -334,7 +335,7 @@ class WhoSingsActivity : ComponentActivity() {
                 delay(1000)
                 timeLeft.value = (timeLeft.value - 1000).coerceAtLeast(0)
             }
-            play(false, user, viewModel, navCtrl)
+            play(false, userID, viewModel, navCtrl)
             navCtrl.navigate("lose_screen") {
                 popUpTo("game_screen") {
                     inclusive = true

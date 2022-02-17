@@ -41,10 +41,12 @@ class GuessWordActivity : ComponentActivity() {
     private val safeChars = 30
     private var replacedTestLyrics = ""
     private var replacedWord = ""
-    private val firebaseUser: FirebaseUser = Preferences.defaultPref(baseContext)["user", null] as FirebaseUser
+    private var userID: String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        userID = Preferences.defaultPref(baseContext)["userID", ""]
+
         setLyricsForGame()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContent {
@@ -103,7 +105,7 @@ class GuessWordActivity : ComponentActivity() {
                             .width(200.dp)
                             .padding(28.dp),
                         onClick = {
-                            play(firebaseUser, navCtrl, answer, viewModel)
+                            play(userID, navCtrl, answer, viewModel)
                         },
                         colors = ButtonDefaults.textButtonColors(
                             backgroundColor = MaterialTheme.colors.primary,
@@ -271,7 +273,7 @@ class GuessWordActivity : ComponentActivity() {
     }
 
     private fun play(
-        user: FirebaseUser,
+        userID: String?,
         navCtrl: NavController,
         answer: String,
         viewModel: GuessWordViewModel
@@ -280,7 +282,7 @@ class GuessWordActivity : ComponentActivity() {
                 .trim() == replacedWord.lowercase(Locale.getDefault())
                 .trim()
         ) {
-            viewModel.addPoints(user.uid, 5).observeForever {
+            viewModel.addPoints(userID!!, 5).observeForever {
                 navCtrl.navigate("win_screen") {
                     popUpTo("game_screen") {
                         inclusive = true
@@ -288,7 +290,7 @@ class GuessWordActivity : ComponentActivity() {
                 }
             }
         } else {
-            viewModel.addPoints(user.uid, -1).observeForever {
+            viewModel.addPoints(userID!!, -1).observeForever {
                 navCtrl.navigate("lose_screen") {
                     popUpTo("game_screen") {
                         inclusive = true
