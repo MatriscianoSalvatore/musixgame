@@ -264,8 +264,9 @@ class SigninActivity : ComponentActivity() {
                             .build()
                     )
 
-                    viewModel.createUser(auth.uid!!, email)
-                    startActivity(Intent(this@SigninActivity, MainActivity::class.java))
+                    viewModel.createUser(auth.uid!!, email).observeForever {
+                        startActivity(Intent(this@SigninActivity, MainActivity::class.java))
+                    }
 
                 } else {
                     // If sign in fails, display a message to the user.
