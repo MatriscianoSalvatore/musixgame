@@ -51,7 +51,7 @@ fun HomeScreen(activity: MainActivity) {
             contentAlignment = Alignment.Center
         ) {
 
-            Column{
+            Column {
 
                 Column( //TODO: use column item instead of Columns inside Column
                     modifier = Modifier
@@ -192,31 +192,35 @@ private fun startGuessWordGame(
 }
 
 private fun startWhoSingsGame(scope: CoroutineScope, viewModel: HomeViewModel, activity: Activity) {
-    scope.launch {
+    try {
+        scope.launch {
 
-        correctIndexes = Array(matchesNumber) { null }
-        artists = Array(matchesNumber) { arrayOf("", "", "") }
-        tracks = Array(matchesNumber) { null }
+            correctIndexes = Array(matchesNumber) { null }
+            artists = Array(matchesNumber) { arrayOf("", "", "") }
+            tracks = Array(matchesNumber) { null }
 
-        if (topTracks.isEmpty()) {
+            if (topTracks.isEmpty()) {
 
-            when (val result = viewModel.getTopTracks()) {
-                is Result.Success -> {
-                    topTracks =
-                        result.value.message?.body?.track_list!!
-                    Log.d("HomeScreen", "TopTracks: $topTracks")
+                when (val result = viewModel.getTopTracks()) {
+                    is Result.Success -> {
+                        topTracks =
+                            result.value.message?.body?.track_list!!
+                        Log.d("HomeScreen", "TopTracks: $topTracks")
 
-                    initWhoSingsGame(scope, viewModel, activity)
+                        initWhoSingsGame(scope, viewModel, activity)
+                    }
+
+                    is Result.Error -> {
+                        Log.d(
+                            "HomeScreen",
+                            "TopTracks error: ${result.message}"
+                        )
+                    }
                 }
-
-                is Result.Error -> {
-                    Log.d(
-                        "HomeScreen",
-                        "TopTracks error: ${result.message}"
-                    )
-                }
-            }
-        } else initWhoSingsGame(scope, viewModel, activity)
+            } else initWhoSingsGame(scope, viewModel, activity)
+        }
+    } catch (e: Exception) {
+        showTrackNotFoundToast(activity)
     }
 }
 

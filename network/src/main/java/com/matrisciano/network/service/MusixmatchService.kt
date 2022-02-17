@@ -11,7 +11,7 @@ import retrofit2.http.Query
 interface MusixmatchService {
 
     companion object {
-        const val apiKey = "17456de6ef3b7720418578e67ef6b6b7"
+        const val apiKey = "276b2392f053c47db5b3b5f072f54aa7"
     }
 
     @GET("track.search")
